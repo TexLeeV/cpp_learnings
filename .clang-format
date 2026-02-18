@@ -1,0 +1,52 @@
+# Project C++ style (Allman, 4 spaces, 120 columns)
+# Compatible with clang-format 18
+BasedOnStyle: Microsoft
+Language: Cpp
+Standard: c++11
+
+# Indent
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Line length
+ColumnLimit: 120
+
+# Braces: Allman everywhere except lambdas (attached)
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# Pointers/references attached to type (int* p, Foo& f)
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Access modifiers outdented from members (public: at class level)
+AccessModifierOffset: -4
+
+# Includes
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^"'
+    Priority: 1
+  - Regex: '^<boost/'
+    Priority: 2
+  - Regex: '^<'
+    Priority: 3

@@ -1,0 +1,39 @@
+---
+description: Ensure c++ code is syntactically correct
+alwaysApply: true
+---
+
+# C++ Syntax
+
+Always ensure the code is syntactically correct.
+
+- **Do**: Use the correct syntax for the language.
+- **Do not**: Use incorrect syntax.
+- **Do**: Add new lines before curly braces to the code to improve readability.
+- **Do not**: Add new lines with code unless they exceed 150 characters.
+- **Do**: Remove trailing whitespace from all lines.
+- **Do not**: Leave whitespace at the end of lines.
+
+## Constructor initializer lists
+
+Format constructor definitions so the initializer list is readable and consistent.
+
+- **Do**: Put the constructor signature on its own line (no opening brace on the same line).
+- **Do**: Put the colon that starts the initializer list on the next line after the signature.
+- **Do**: Put the first initializer (`member_(args)`) on the same line as the colon, or on the following line.
+- **Do**: Put each additional initializer on its own line with a **leading comma** (comma at the start of the line).
+- **Do**: Put the opening brace `{` on its own line after the last initializer.
+- **Do**: Put the closing brace `}` on its own line.
+
+Example:
+
+```cpp
+SignalHandler::SignalHandler(asio::io_context& io_context)
+: io_context_(io_context)
+, signals_(io_context, SIGUSR1)
+{
+}
+```
+
+- **Do not**: Put the comma at the end of the previous line (trailing comma) for initializer lists; use leading comma only.
+- **Do not**: Put the opening brace on the same line as the last initializer.
