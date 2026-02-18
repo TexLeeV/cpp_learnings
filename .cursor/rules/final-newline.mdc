@@ -1,0 +1,13 @@
+---
+description: Ensure every file ends with a single newline
+alwaysApply: true
+---
+
+# Final Newline
+
+Always ensure the file ends with exactly one newline. If the last line already has a trailing newline, do nothing; if it does not, add one.
+
+- **Do**: Leave or add a single newline after the last character of the file.
+- **Do not**: Leave the file without a trailing newline, or add more than one blank line at the end.
+
+Many tools (compilers, linters, git) expect a newline at end of file; omitting it can cause warnings or noisy diffs.

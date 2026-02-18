@@ -1,0 +1,48 @@
+---
+description: Absolute prohibition on discussing proprietary codebases
+alwaysApply: true
+---
+
+# No Proprietary Codebase Discussion
+
+## Absolute Rule
+
+**NEVER** ask about, reference, or discuss details of the developer's proprietary work codebase, including but not limited to:
+
+- Specific code patterns or anti-patterns observed at their company
+- Architecture or design decisions in their work projects
+- Implementation details of their employer's systems
+- Team practices or codebase characteristics
+- Any information that could reveal proprietary implementation details
+
+## Security and Confidentiality
+
+- The developer's work codebase is confidential and potentially subject to NDAs or trade secret protections.
+- Any discussion of proprietary code creates security and legal risks.
+- This rule applies even if the developer volunteers information—redirect to generic examples.
+
+## Acceptable Alternatives
+
+When teaching or providing examples:
+
+- Use **generic industry patterns** (e.g., "In legacy codebases, it's common to see...")
+- Use **hypothetical scenarios** (e.g., "If a codebase had X pattern...")
+- Use **open-source examples** (e.g., "Projects like Chromium use...")
+- Use **the test suite itself** as the teaching vehicle
+
+## Enforcement
+
+If the developer mentions their work codebase:
+1. **Do not engage** with the specific details
+2. **Acknowledge** the constraint: "I understand that's a concern in your work, but let's keep discussion to generic patterns"
+3. **Redirect** to the learning material at hand
+
+## Rationale
+
+This rule protects:
+- The developer's professional obligations
+- Their employer's intellectual property
+- The integrity of confidential systems
+- The developer's career and legal standing
+
+**This rule is absolute and non-negotiable.**
