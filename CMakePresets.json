@@ -3,13 +3,13 @@
     "cmakeMinimumRequired": { "major": 3, "minor": 23, "patch": 0 },
     "configurePresets": [
       {
-        "name": "gcc14",
+        "name": "gcc",
         "generator": "Ninja",
-        "binaryDir": "${sourceDir}/build/gcc14",
+        "binaryDir": "${sourceDir}/build/gcc",
         "cacheVariables": {
-          "CMAKE_C_COMPILER": "gcc-14",
-          "CMAKE_CXX_COMPILER": "g++-14",
-          "CMAKE_CXX_STANDARD": "11",
+          "CMAKE_C_COMPILER": "gcc",
+          "CMAKE_CXX_COMPILER": "g++",
+          "CMAKE_CXX_STANDARD": "17",
           "CMAKE_BUILD_TYPE": "Debug",
           "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
         }
@@ -17,14 +17,14 @@
     ],
     "buildPresets": [
       {
-        "name": "gcc14",
-        "configurePreset": "gcc14"
+        "name": "gcc",
+        "configurePreset": "gcc"
       }
     ],
     "testPresets": [
       {
-        "name": "gcc14",
-        "configurePreset": "gcc14"
+        "name": "gcc",
+        "configurePreset": "gcc"
       }
     ]
 }

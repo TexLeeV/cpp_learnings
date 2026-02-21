@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(cpp_learning LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -10,14 +10,11 @@ enable_testing()
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
-# Optional: Boost for main.cpp if needed
-find_package(Boost COMPONENTS system thread)
-if(Boost_FOUND)
-    add_executable(main main.cpp)
-    target_link_libraries(main Boost::system Boost::thread)
-endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(AddLearningTest)
 
-# Add all learning module subdirectories
+add_subdirectory(common)
+
 add_subdirectory(learning_shared_ptr)
 add_subdirectory(learning_deadlocks)
 add_subdirectory(learning_move_semantics)

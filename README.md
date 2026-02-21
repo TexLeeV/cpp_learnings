@@ -15,18 +15,11 @@ Recommended learning modules in progressive order:
 
 ---
 
-### 1. ✅ C++11 Minimum Version Support
-**Status**: Partially Complete  
-**Difficulty**: ⭐☆☆☆☆ (Trivial)  
-**Estimated Time**: 15-30 minutes
+### 1. ✅ C++17 Standard Configuration
+**Status**: Complete  
+**Difficulty**: ⭐☆☆☆☆ (Trivial)
 
-**Tasks**:
-- [ ] Add CMake version checks and compiler feature requirements
-- [ ] Document C++11 features used throughout the codebase
-- [ ] Add static assertions for minimum compiler versions
-- [ ] Create a compatibility matrix document
-
-**Why This Matters**: Ensures portability across different development environments and prevents subtle bugs from compiler differences.
+Global C++17 standard configured in root CMakeLists.txt and CMakePresets.json. All modules inherit this setting. GCC 14 is the reference compiler.
 
 ---
 
@@ -44,7 +37,7 @@ Recommended learning modules in progressive order:
 
 **Prerequisites**: Strong understanding of `shared_ptr` ownership (✅ Complete)
 
-**Location**: `/learning_move_semantics/` - See [README](learning_move_semantics/README.md) for detailed guide
+**Location**: `learning_move_semantics/tests/`
 
 **Key Learning Outcomes**:
 - Understand value categories (lvalue, rvalue, xvalue)
@@ -107,7 +100,7 @@ Recommended learning modules in progressive order:
 - [ ] Custom resource managers (3 hours)
 - [ ] Building smart pointers from scratch (4 hours)
 
-**Prerequisites**: `shared_ptr` deep dive (✅ Complete)
+**Requires**: Smart Pointers (✅ Complete), Move Semantics
 
 **Deliverable**: 4-5 test files with practical resource management scenarios
 
@@ -124,7 +117,7 @@ Recommended learning modules in progressive order:
 - [ ] Behavioral patterns (Observer, Strategy, Visitor, Command) (7 hours)
 - [ ] Modern C++ pattern implementations (5 hours)
 
-**Prerequisites**: Move semantics, RAII
+**Requires**: Move Semantics, RAII
 
 **Deliverable**: 10-12 test files, each implementing a pattern with broken/correct versions
 
@@ -142,7 +135,7 @@ Recommended learning modules in progressive order:
 - [ ] Placement new and aligned storage (3 hours)
 - [ ] Memory profiling and leak detection (3 hours)
 
-**Prerequisites**: RAII, understanding of control blocks from `shared_ptr`
+**Requires**: RAII, Smart Pointers (✅ Complete)
 
 **Deliverable**: 6-7 test files with allocator implementations and performance comparisons
 
@@ -160,7 +153,7 @@ Recommended learning modules in progressive order:
 - [ ] Error codes vs exceptions (when to use which) (2 hours)
 - [ ] `noexcept` specifications and move operations (3 hours)
 
-**Prerequisites**: RAII, Move Semantics
+**Requires**: RAII, Move Semantics
 
 **Deliverable**: 5-6 test files demonstrating exception-safe code patterns
 
@@ -178,7 +171,7 @@ Recommended learning modules in progressive order:
 - [ ] Custom comparators and hash functions (3 hours)
 - [ ] Iterator invalidation rules (2 hours)
 
-**Prerequisites**: Template basics
+**Requires**: Templates
 
 **Deliverable**: 6-8 test files exploring container internals and performance characteristics
 
@@ -203,7 +196,7 @@ Recommended learning modules in progressive order:
 - [ ] `std::string_view` (2 hours)
 - [ ] `if constexpr` and fold expressions (3 hours)
 
-**Prerequisites**: Template basics for advanced features
+**Requires**: Templates (for C++17 features)
 
 **Deliverable**: 8-10 test files demonstrating feature usage and gotchas
 
@@ -222,7 +215,7 @@ Recommended learning modules in progressive order:
 - [ ] `constexpr` and compile-time computation (4 hours)
 - [ ] Benchmarking methodology (3 hours)
 
-**Prerequisites**: Move semantics, Memory management
+**Requires**: Move Semantics, Memory Management
 
 **Deliverable**: 6-8 test files with before/after optimization comparisons and benchmarks
 
@@ -240,7 +233,7 @@ Recommended learning modules in progressive order:
 - [ ] Sanitizers (AddressSanitizer, ThreadSanitizer, UBSan) (3 hours)
 - [ ] Property-based testing (2 hours)
 
-**Prerequisites**: None - can start anytime
+**Requires**: None - can start anytime
 
 **Deliverable**: Enhanced test infrastructure, CI/CD integration examples
 
@@ -326,24 +319,27 @@ After completing this learning path, you will be able to:
 
 ```
 cpp/
-├── README.md (this file)
-├── learning_shared_ptr/      # ✅ Complete - Smart pointer deep dive
-│   ├── tests/                # 17 test files covering ownership patterns
-│   └── README.md
-├── learning_deadlocks/       # 🔄 In Progress - 16 deadlock scenarios
+├── README.md                    # This file
+├── common/                      # Shared instrumentation library (EventLog, Tracked, MoveTracked, Resource)
+│   └── src/
+├── cmake/                       # CMake helper functions (add_learning_test)
+├── learning_shared_ptr/         # ✅ Complete - Smart pointer deep dive (17 test files)
 │   ├── tests/
-│   └── SUMMARY.txt
-├── learning_move_semantics/  # ✅ Ready - Move semantics & perfect forwarding
-├── learning_concurrency/     # 📋 Planned - Phase 3
-├── learning_templates/       # 📋 Planned - Phase 5
-├── learning_raii/            # 📋 Planned - Phase 2
-├── learning_design_patterns/ # 📋 Planned - Phase 4
-├── learning_memory/          # 📋 Planned - Phase 3
-├── learning_error_handling/  # 📋 Planned - Phase 4
-├── learning_stl/             # 📋 Planned - Phase 4
-├── learning_modern_cpp/      # 📋 Planned - Phase 2
-├── learning_performance/     # 📋 Planned - Phase 5
-└── learning_debugging/       # 📋 Planned - Phase 5
+│   └── compile_fail_tests/      # Manual compilation exercises
+├── learning_deadlocks/          # 🔄 In Progress - 16 deadlock scenarios
+│   └── tests/
+├── learning_move_semantics/     # ✅ Ready - Move semantics & perfect forwarding (5 test files)
+│   └── tests/
+├── learning_concurrency/        # 📋 Planned - Phase 3
+├── learning_templates/          # 📋 Planned - Phase 5
+├── learning_raii/               # 📋 Planned - Phase 2
+├── learning_design_patterns/    # 📋 Planned - Phase 4
+├── learning_memory/             # 📋 Planned - Phase 3
+├── learning_error_handling/     # 📋 Planned - Phase 4
+├── learning_stl/                # 📋 Planned - Phase 4
+├── learning_modern_cpp/         # 📋 Planned - Phase 2
+├── learning_performance/        # 📋 Planned - Phase 5
+└── learning_debugging/          # 📋 Planned - Phase 5
 ```
 
 ---
@@ -377,10 +373,11 @@ This is a personal learning repository. Each module follows the same pattern:
 
 ## Tools & Environment
 
-- **Compiler**: GCC/Clang with C++11 minimum (C++17 recommended)
-- **Build System**: CMake 3.14+
+- **Compiler**: GCC 14 / Clang with C++17 support
+- **Build System**: CMake 3.14+ (Ninja recommended)
 - **Testing**: GoogleTest
 - **IDE**: Cursor (with AI assistance for Socratic learning)
+- **Optional**: Standalone Asio (header-only) for multi-threaded shared_ptr tests
 
 ---
 
@@ -389,31 +386,59 @@ This is a personal learning repository. Each module follows the same pattern:
 All test modules are part of a single unified CMake project:
 
 ```bash
-# From project root
-mkdir build && cd build
-cmake ..
-make
+# Using CMake presets (recommended)
+cmake --preset gcc14
+cmake --build --preset gcc14
 
 # Run all tests
-ctest --verbose
+ctest --preset gcc14 --verbose
 
 # Run specific test suite
-./learning_shared_ptr/test_reference_counting
-./learning_deadlocks/test_mutex_ordering_deadlocks
+./build/gcc14/learning_shared_ptr/test_reference_counting
+./build/gcc14/learning_deadlocks/test_mutex_ordering_deadlocks
 
 # Run with gtest filter
-./learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/gcc14/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
 # Build specific target only
-ninja test_mutex_ordering_deadlocks
+cmake --build --preset gcc14 --target test_mutex_ordering_deadlocks
 ```
 
 ### Requirements
 
 - CMake 3.14+
-- GCC/Clang with C++11 support
+- GCC/Clang with C++17 support
 - GoogleTest (will be found by CMake)
-- pthread (for multi-threaded tests)
+- Threads (for multi-threaded tests)
+
+### Asio Setup (Optional)
+
+Required only for `test_asio_basics` and `test_multi_threaded_patterns` in `learning_shared_ptr/`:
+
+```bash
+# Ubuntu/Debian
+sudo apt install libasio-dev
+
+# Fedora/RHEL
+sudo dnf install asio-devel
+
+# macOS
+brew install asio
+```
+
+CMake will auto-detect Asio via `find_path`. If installed to a non-standard location:
+
+```bash
+cmake -DASIO_INCLUDE_DIR=/path/to/asio/include ..
+```
+
+### Compile-Fail Tests
+
+The `learning_shared_ptr/compile_fail_tests/` directory contains files designed to fail compilation. These are not part of the CMake build. Compile them manually to observe and reason about the errors:
+
+```bash
+g++ -std=c++17 -I common/src -c learning_shared_ptr/compile_fail_tests/<filename>.cpp
+```
 
 ---
 
@@ -427,12 +452,10 @@ ninja test_mutex_ordering_deadlocks
 
 ## Next Steps
 
-1. ✅ Review this README
-2. 🔄 Complete `learning_deadlocks/` (current focus)
-3. ⭐ Add C++11 version checks to CMake
-4. 📋 Choose Phase 2 module to start (recommend Move Semantics)
+1. 🔄 Complete `learning_deadlocks/` (current focus)
+2. 📋 Begin Phase 2: Move Semantics (recommended next)
 
 ---
 
 **Last Updated**: February 2026  
-**Current Phase**: Phase 1 - Foundations (90% complete)
+**Current Phase**: Phase 1 - Foundations

@@ -1,8 +1,6 @@
 # Testing and Debugging test suite
-# Inherits settings from parent CMakeLists.txt
 
-# TODO: Add GoogleMock
-
-# TODO: Add test executables
-
-# TODO: Add sanitizer configurations
+# add_learning_test(test_googlemock tests/test_googlemock.cpp instrumentation)
+# add_learning_test(test_benchmark tests/test_benchmark.cpp instrumentation)
+# add_learning_test(test_static_analysis tests/test_static_analysis.cpp instrumentation)
+# add_learning_test(test_sanitizers tests/test_sanitizers.cpp instrumentation)
