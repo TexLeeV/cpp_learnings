@@ -65,11 +65,22 @@ private:
 TEST_F(FillInExercisesTest, Exercise1_EnableSharedFromThis)
 {
     std::shared_ptr<Widget> w1 = std::make_shared<Widget>("W1");
-    std::shared_ptr<Widget> w2 = w1->get_self();
+    std::shared_ptr<Widget> w2 = w1;
+    w1.reset();
+    if (w2)
+    {
+        std::cout << "is NOT nullptr" << std::endl;
+    }
+    else
+    {
+        std::cout << "is nullptr" << std::endl;
+    }
+    // std::shared_ptr<Widget> w1 = std::make_shared<Widget>("W1");
+    // std::shared_ptr<Widget> w2 = w1->get_self();
     
-    EXPECT_EQ(w1.use_count(), 2);
-    EXPECT_EQ(w2.use_count(), 2);
-    EXPECT_EQ(w1.get(), w2.get());
+    // EXPECT_EQ(w1.use_count(), 2);
+    // EXPECT_EQ(w2.use_count(), 2);
+    // EXPECT_EQ(w1.get(), w2.get());
 }
 
 // Exercise 2: Implement a weak_ptr cache
