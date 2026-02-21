@@ -1,0 +1,77 @@
+DEADLOCK TEST SUITE SUMMARY
+===========================
+
+Created: 4 test files with 16 deadlock scenarios (4 scenarios per file)
+Thread Limit: Maximum 3 threads per test
+Detection: std::timed_mutex with timeouts (not production pattern, just for learning)
+
+STRUCTURE:
+- Each scenario has BROKEN version (complete, demonstrates deadlock)
+- Each scenario has FIXED version (empty, YOU implement the fix)
+- Socratic Q/A/R comments inline for learning
+
+FILES:
+======
+
+1. test_mutex_ordering_deadlocks.cpp (4 scenarios)
+   - Scenario 1: Classic Two-Resource Deadlock (A->B vs B->A)
+   - Scenario 2: Three-Thread Circular Deadlock (A->B->C->A)
+   - Scenario 3: Nested Lock Acquisition with shared_ptr
+   - Scenario 4: Lock Hierarchy Violation
+
+2. test_circular_reference_deadlocks.cpp (4 scenarios)
+   - Scenario 1: Parent-Child Circular Reference with Mutex
+   - Scenario 2: Doubly-Linked List with Mutex Deadlock
+   - Scenario 3: Observer Pattern with Circular References
+   - Scenario 4: Graph with Circular Dependencies and Locks
+
+3. test_condition_variable_deadlocks.cpp (4 scenarios)
+   - Scenario 1: Producer-Consumer with Wrong Wait Condition
+   - Scenario 2: Notify Before Wait (Lost Wakeup)
+   - Scenario 3: Deadlock with Nested Condition Variables
+   - Scenario 4: Spurious Wakeup Without Proper Predicate
+
+4. test_ownership_transfer_deadlocks.cpp (4 scenarios)
+   - Scenario 1: Lock Inversion During Ownership Transfer
+   - Scenario 2: Callback with Lock Held
+   - Scenario 3: Shared State with Multiple Accessors
+   - Scenario 4: Lazy Initialization Race with Lock
+
+BUILD:
+======
+cd build
+cmake ..
+make
+
+RUN:
+====
+# All deadlock tests
+ctest -R Deadlock --verbose
+
+# Individual suites
+./test_mutex_ordering_deadlocks
+./test_circular_reference_deadlocks
+./test_condition_variable_deadlocks
+./test_ownership_transfer_deadlocks
+
+# Specific scenario
+./test_mutex_ordering_deadlocks --gtest_filter=*Scenario1*
+
+LEARNING APPROACH:
+==================
+1. Read broken version - understand WHY it deadlocks
+2. Answer Q/A/R questions inline
+3. Implement the *_fixed() function
+4. Run test to verify your fix
+5. Move to next scenario
+
+KEY CONCEPTS COVERED:
+=====================
+- Lock ordering discipline
+- std::lock() for multiple mutexes
+- weak_ptr to break circular references
+- Releasing locks before callbacks
+- Condition variable predicates
+- Spurious wakeup handling
+- Lock hierarchy patterns
+- Ownership transfer atomicity

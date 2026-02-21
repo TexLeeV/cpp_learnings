@@ -1,0 +1,34 @@
+---
+description: Prevent creation of unnecessary documentation
+alwaysApply: true
+---
+
+# No Extra Documentation
+
+## Absolute Rules
+
+1. **NEVER** create additional README.md files in subdirectories or modules. Only the main project README.md should exist.
+
+2. **NEVER** add large summary/documentation sections at the end of code files (e.g., "SUMMARY:", "LEARNING ASSESSMENT:", "KEY CONCEPTS:", etc.)
+
+## Rationale
+
+- Multiple READMEs create documentation fragmentation
+- Large in-file summaries duplicate information and bloat files
+- Information should be centralized in the main README.md
+- Code files should contain code and targeted comments, not essays
+- Maintenance burden increases with duplicated documentation
+
+## Enforcement
+
+- **Do**: Update the main README.md with new information
+- **Do**: Add concise inline comments for specific code sections
+- **Do**: Use Q/A/R pattern for learning (as per Socratic rule)
+- **Do not**: Create README.md in subdirectories
+- **Do not**: Add multi-paragraph summaries at end of files
+- **Do not**: Add "learning assessment" or "pedagogical" sections in code files
+- **Do not**: Create module-specific documentation files unless explicitly requested
+
+## Exception
+
+Only create additional documentation if the user explicitly requests it.
