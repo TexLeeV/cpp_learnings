@@ -111,9 +111,9 @@ As you implement TODOs, reason about:
 Goal: build intuition through guided discovery.
 
 ### 17. Deadlock Patterns
-**Moved to**: `../test_deadlocks/` (now a standalone project-level module)
+**Moved to**: `../learning_deadlocks/` (now a standalone project-level module)
 
-Dedicated deadlock test suite with 16 scenarios across 4 files. See `../test_deadlocks/SUMMARY.txt`.
+Dedicated deadlock test suite with 16 scenarios across 4 files. See `../learning_deadlocks/SUMMARY.txt`.
 
 Focus: Lock ordering, circular references with mutexes, condition variables, ownership transfer deadlocks. Each scenario demonstrates a deadlock pattern (complete) and requires you to implement the fix (empty).
 

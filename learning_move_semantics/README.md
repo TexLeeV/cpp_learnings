@@ -98,7 +98,7 @@ This test suite provides a comprehensive, hands-on learning path for C++ move se
 cd build/gcc14
 
 # Start with rvalue references
-./test_move_semantics/test_rvalue_references --gtest_filter=RvalueReferencesTest.LvalueVsRvalue
+./learning_move_semantics/test_rvalue_references --gtest_filter=RvalueReferencesTest.LvalueVsRvalue
 
 # Work through each test methodically
 ```
@@ -115,7 +115,7 @@ cd build/gcc14
 ninja test_rvalue_references
 
 # Run the test
-./test_move_semantics/test_rvalue_references --gtest_filter=RvalueReferencesTest.LvalueVsRvalue
+./learning_move_semantics/test_rvalue_references --gtest_filter=RvalueReferencesTest.LvalueVsRvalue
 ```
 
 ### 4. Socratic Feedback Loop

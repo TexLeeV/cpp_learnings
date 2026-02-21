@@ -6,8 +6,8 @@ This repository contains hands-on learning exercises for advanced C++ concepts, 
 
 ## Current Progress
 
-- ✅ **Smart Pointers (`test_shared_ptr/`)**: Comprehensive `shared_ptr` test suite with 17 test files covering ownership, lifetime, aliasing, weak_ptr, and multi-threaded patterns
-- 🔄 **Deadlock Patterns (`test_deadlocks/`)**: 16 scenarios across 4 files demonstrating deadlock patterns with empty fix implementations
+- ✅ **Smart Pointers (`learning_shared_ptr/`)**: Comprehensive `shared_ptr` test suite with 17 test files covering ownership, lifetime, aliasing, weak_ptr, and multi-threaded patterns
+- 🔄 **Deadlock Patterns (`learning_deadlocks/`)**: 16 scenarios across 4 files demonstrating deadlock patterns with empty fix implementations
 
 ## Learning TODO List
 
@@ -46,7 +46,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 
 **Prerequisites**: Strong understanding of `shared_ptr` ownership (✅ Complete)
 
-**Location**: `/test_move_semantics/` - See [README](test_move_semantics/README.md) for detailed guide
+**Location**: `/learning_move_semantics/` - See [README](learning_move_semantics/README.md) for detailed guide
 
 **Key Learning Outcomes**:
 - Understand value categories (lvalue, rvalue, xvalue)
@@ -272,7 +272,7 @@ Based on your background and the dependencies between topics:
 
 ### **Phase 1: Foundations (Complete Current Work)**
 1. ✅ Finish `shared_ptr` tests (if any remaining)
-2. 🔄 Complete `test_deadlocks/` (8-12 hours remaining)
+2. 🔄 Complete `learning_deadlocks/` (8-12 hours remaining)
 3. ⭐ C++11 version support documentation (30 minutes)
 
 **Total Phase 1**: ~8-12 hours
@@ -358,23 +358,23 @@ After completing this learning path, you will be able to:
 ```
 cpp/
 ├── README.md (this file)
-├── test_shared_ptr/          # ✅ Complete - Smart pointer deep dive
+├── learning_shared_ptr/      # ✅ Complete - Smart pointer deep dive
 │   ├── tests/                # 17 test files covering ownership patterns
 │   └── README.md
-├── test_deadlocks/           # 🔄 In Progress - 16 deadlock scenarios
+├── learning_deadlocks/       # 🔄 In Progress - 16 deadlock scenarios
 │   ├── tests/
 │   └── SUMMARY.txt
-├── test_move_semantics/      # 📋 Planned - Phase 2
-├── test_concurrency/         # 📋 Planned - Phase 3
-├── test_templates/           # 📋 Planned - Phase 5
-├── test_raii/                # 📋 Planned - Phase 2
-├── test_design_patterns/     # 📋 Planned - Phase 4
-├── test_memory/              # 📋 Planned - Phase 3
-├── test_error_handling/      # 📋 Planned - Phase 4
-├── test_stl/                 # 📋 Planned - Phase 4
-├── test_modern_cpp/          # 📋 Planned - Phase 2
-├── test_performance/         # 📋 Planned - Phase 5
-└── test_debugging/           # 📋 Planned - Phase 5
+├── learning_move_semantics/  # ✅ Ready - Move semantics & perfect forwarding
+├── learning_concurrency/     # 📋 Planned - Phase 3
+├── learning_templates/       # 📋 Planned - Phase 5
+├── learning_raii/            # 📋 Planned - Phase 2
+├── learning_design_patterns/ # 📋 Planned - Phase 4
+├── learning_memory/          # 📋 Planned - Phase 3
+├── learning_error_handling/  # 📋 Planned - Phase 4
+├── learning_stl/             # 📋 Planned - Phase 4
+├── learning_modern_cpp/      # 📋 Planned - Phase 2
+├── learning_performance/     # 📋 Planned - Phase 5
+└── learning_debugging/       # 📋 Planned - Phase 5
 ```
 
 ---
@@ -383,9 +383,9 @@ cpp/
 
 ### Current Focus: Complete Deadlock Patterns
 
-You're currently working on `test_deadlocks/` with 16 scenarios to fix:
+You're currently working on `learning_deadlocks/` with 16 scenarios to fix:
 
-1. Navigate to `test_deadlocks/`
+1. Navigate to `learning_deadlocks/`
 2. Read `SUMMARY.txt` for overview
 3. Start with `test_mutex_ordering_deadlocks.cpp` Scenario 1
 4. Follow the Socratic Q/A/R pattern
@@ -429,14 +429,14 @@ make
 ctest --verbose
 
 # Run specific test suite
-./test_shared_ptr/test_reference_counting
-./test_deadlocks/test_mutex_ordering_deadlocks
+./learning_shared_ptr/test_reference_counting
+./learning_deadlocks/test_mutex_ordering_deadlocks
 
 # Run with gtest filter
-./test_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
 # Build specific target only
-make test_mutex_ordering_deadlocks
+ninja test_mutex_ordering_deadlocks
 ```
 
 ### Requirements
@@ -460,7 +460,7 @@ make test_mutex_ordering_deadlocks
 ## Next Steps
 
 1. ✅ Review this README
-2. 🔄 Complete `test_deadlocks/` (current focus)
+2. 🔄 Complete `learning_deadlocks/` (current focus)
 3. ⭐ Add C++11 version checks to CMake
 4. 📋 Choose Phase 2 module to start (recommend Move Semantics)
 
