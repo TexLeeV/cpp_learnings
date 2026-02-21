@@ -67,7 +67,7 @@ target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
 ### Standard Build
 
 ```bash
-cd test_shared_ptr
+cd learning_shared_ptr
 mkdir build && cd build
 cmake ..
 make test_multi_threaded_patterns
@@ -232,7 +232,7 @@ sudo apt update
 sudo apt install build-essential cmake libgtest-dev libasio-dev
 
 # 2. Build
-cd test_shared_ptr
+cd learning_shared_ptr
 mkdir build && cd build
 cmake ..
 make test_multi_threaded_patterns

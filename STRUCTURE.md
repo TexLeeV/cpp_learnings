@@ -14,11 +14,11 @@ cpp/
 ├── README.md                           # Main learning roadmap with estimates
 ├── STRUCTURE.md                        # This file
 │
-├── test_shared_ptr/                    # ✅ COMPLETE - Smart pointer deep dive
+├── learning_shared_ptr/                # ✅ COMPLETE - Smart pointer deep dive
 │   ├── tests/                         # 17 test files
 │   └── README.md
 │
-├── test_deadlocks/                     # 🔄 IN PROGRESS - Phase 1 (8-12 hours)
+├── learning_deadlocks/                 # 🔄 IN PROGRESS - Phase 1 (8-12 hours)
 │   ├── CMakeLists.txt
 │   ├── SUMMARY.txt
 │   ├── test_mutex_ordering_deadlocks.cpp           # 4 scenarios
@@ -26,7 +26,7 @@ cpp/
 │   ├── test_condition_variable_deadlocks.cpp       # 4 scenarios
 │   └── test_ownership_transfer_deadlocks.cpp       # 4 scenarios
 │
-├── test_move_semantics/                # 📋 STUB - Phase 2 (12-16 hours)
+├── learning_move_semantics/            # 📋 STUB - Phase 2 (12-16 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_rvalue_references.cpp              # 4 hours
@@ -35,7 +35,7 @@ cpp/
 │       ├── test_perfect_forwarding.cpp             # 4 hours
 │       └── test_move_only_types.cpp                # 3 hours
 │
-├── test_concurrency/                   # 📋 STUB - Phase 3 (12-13 hours)
+├── learning_concurrency/               # 📋 STUB - Phase 3 (12-13 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_thread_safe_singleton.cpp          # 3 hours
@@ -44,7 +44,7 @@ cpp/
 │       ├── test_producer_consumer_advanced.cpp     # 4 hours
 │       └── test_thread_pools.cpp                   # 5 hours
 │
-├── test_templates/                     # 📋 STUB - Phase 5 (25-30 hours)
+├── learning_templates/                 # 📋 STUB - Phase 5 (25-30 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_function_class_templates.cpp       # 4 hours
@@ -54,7 +54,7 @@ cpp/
 │       ├── test_type_traits.cpp                    # 5 hours
 │       └── test_practical_metaprogramming.cpp      # 6 hours
 │
-├── test_raii/                          # 📋 STUB - Phase 2 (8-10 hours)
+├── learning_raii/                      # 📋 STUB - Phase 2 (8-10 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_scope_guards.cpp                   # 2 hours
@@ -62,7 +62,7 @@ cpp/
 │       ├── test_custom_resource_managers.cpp       # 3 hours
 │       └── test_smart_pointers_from_scratch.cpp    # 4 hours
 │
-├── test_design_patterns/               # 📋 STUB - Phase 4 (18-22 hours)
+├── learning_design_patterns/           # 📋 STUB - Phase 4 (18-22 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_creational_patterns.cpp            # 5 hours
@@ -70,7 +70,7 @@ cpp/
 │       ├── test_behavioral_patterns.cpp            # 7 hours
 │       └── test_modern_cpp_patterns.cpp            # 5 hours
 │
-├── test_memory/                        # 📋 STUB - Phase 3 (15-18 hours)
+├── learning_memory/                    # 📋 STUB - Phase 3 (15-18 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_custom_allocators.cpp              # 4 hours
@@ -78,7 +78,7 @@ cpp/
 │       ├── test_alignment_cache_friendly.cpp       # 4 hours
 │       └── test_placement_new.cpp                  # 3 hours
 │
-├── test_error_handling/                # 📋 STUB - Phase 4 (10-12 hours)
+├── learning_error_handling/            # 📋 STUB - Phase 4 (10-12 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_exception_safety.cpp               # 3 hours
@@ -87,7 +87,7 @@ cpp/
 │       ├── test_error_codes_vs_exceptions.cpp      # 2 hours
 │       └── test_noexcept.cpp                       # 3 hours
 │
-├── test_stl/                           # 📋 STUB - Phase 4 (14-16 hours)
+├── learning_stl/                       # 📋 STUB - Phase 4 (14-16 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_container_internals.cpp            # 4 hours
@@ -96,7 +96,7 @@ cpp/
 │       ├── test_comparators_hash_functions.cpp     # 3 hours
 │       └── test_iterator_invalidation.cpp          # 2 hours
 │
-├── test_modern_cpp/                    # 📋 STUB - Phase 2 (12-15 hours)
+├── learning_modern_cpp/                # 📋 STUB - Phase 2 (12-15 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_lambdas.cpp                        # 3 hours (C++11/14)
@@ -108,7 +108,7 @@ cpp/
 │       ├── test_string_view.cpp                    # 2 hours (C++17)
 │       └── test_if_constexpr.cpp                   # 3 hours (C++17)
 │
-├── test_performance/                   # 📋 STUB - Phase 5 (16-20 hours)
+├── learning_performance/               # 📋 STUB - Phase 5 (16-20 hours)
 │   ├── CMakeLists.txt
 │   └── tests/
 │       ├── test_profiling.cpp                      # 4 hours
@@ -118,7 +118,7 @@ cpp/
 │       ├── test_constexpr.cpp                      # 4 hours
 │       └── test_benchmarking.cpp                   # 3 hours
 │
-└── test_debugging/                     # 📋 STUB - Phase 5 (12-14 hours)
+└── learning_debugging/                 # 📋 STUB - Phase 5 (12-14 hours)
     ├── CMakeLists.txt
     └── tests/
         ├── test_googlemock.cpp                     # 4 hours
@@ -153,14 +153,14 @@ cpp/
 
 ## Current Status
 
-- **Complete modules**: 1 (test_shared_ptr)
-- **In progress**: 1 (test_deadlocks)
+- **Complete modules**: 1 (learning_shared_ptr)
+- **In progress**: 1 (learning_deadlocks)
 - **Stub modules**: 11 (all others)
 - **Total test files**: 71 (17 complete, 4 in progress, 56 stubs)
 
 ## Next Steps
 
-1. Complete `test_deadlocks/` (8-12 hours remaining)
+1. Complete `learning_deadlocks/` (8-12 hours remaining)
 2. Begin Phase 2: Move Semantics (recommended starting point)
 3. Follow learning path in main README.md
 
@@ -178,8 +178,8 @@ make
 ctest --verbose
 
 # Run specific test suite
-./test_shared_ptr/test_reference_counting
-./test_deadlocks/test_mutex_ordering_deadlocks
+./learning_shared_ptr/test_reference_counting
+./learning_deadlocks/test_mutex_ordering_deadlocks
 ```
 
 The project-level `CMakeLists.txt` includes all test modules as subdirectories.
