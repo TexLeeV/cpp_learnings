@@ -1,14 +1,3 @@
-cmake_minimum_required(VERSION 3.14)
-project(test_shared_ptr LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-enable_testing()
-
-find_package(GTest REQUIRED)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_library(instrumentation STATIC

@@ -32,21 +32,29 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ---
 
 ### 2. Move Semantics & Perfect Forwarding
-**Status**: Not Started  
+**Status**: ✅ Ready for Learning  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
 **Estimated Time**: 12-16 hours  
 **Your Level**: Intermediate - You understand ownership deeply, move semantics is a natural extension
 
-**Planned Modules**:
-- [ ] Rvalue references and move constructors (4 hours)
-- [ ] Move assignment and Rule of Five (3 hours)
-- [ ] `std::move` vs `std::forward` mechanics (3 hours)
-- [ ] Perfect forwarding and universal references (4 hours)
-- [ ] Move-only types and return value optimization (3 hours)
+**Available Modules**:
+- [ ] Rvalue references and move constructors (4 hours) - `test_rvalue_references.cpp`
+- [ ] Move assignment and Rule of Five (3 hours) - `test_move_assignment.cpp`
+- [ ] `std::move` vs `std::forward` mechanics (3 hours) - `test_std_move.cpp`
+- [ ] Perfect forwarding and universal references (4 hours) - `test_perfect_forwarding.cpp`
+- [ ] Move-only types and return value optimization (3 hours) - `test_move_only_types.cpp`
 
 **Prerequisites**: Strong understanding of `shared_ptr` ownership (✅ Complete)
 
-**Deliverable**: Test suite similar to `test_shared_ptr` with 8-10 test files, ~40 scenarios
+**Location**: `/test_move_semantics/` - See [README](test_move_semantics/README.md) for detailed guide
+
+**Key Learning Outcomes**:
+- Understand value categories (lvalue, rvalue, xvalue)
+- Master move constructor and move assignment implementation
+- Distinguish `std::move` (unconditional cast) from `std::forward` (conditional)
+- Implement perfect forwarding with universal references
+- Recognize RVO and copy elision optimizations
+- Design move-only types for resource management
 
 ---
 
