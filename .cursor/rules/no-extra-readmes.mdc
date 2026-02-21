@@ -1,0 +1,29 @@
+---
+description: Prevent creation of unnecessary README files
+alwaysApply: true
+---
+
+# No Extra README Files
+
+## Absolute Rule
+
+**NEVER** create additional README.md files in subdirectories or modules. Only the main project README.md should exist.
+
+## Rationale
+
+- Multiple READMEs create documentation fragmentation
+- Information should be centralized in the main README.md
+- Subdirectory READMEs are overkill for most projects
+- Maintenance burden increases with multiple documentation files
+
+## Enforcement
+
+- **Do**: Update the main README.md with new information
+- **Do**: Add comments in code files for module-specific documentation
+- **Do**: Use inline documentation in test files
+- **Do not**: Create README.md in subdirectories
+- **Do not**: Create module-specific documentation files unless explicitly requested
+
+## Exception
+
+Only create additional README files if the user explicitly requests them.

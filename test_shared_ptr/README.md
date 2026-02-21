@@ -110,10 +110,17 @@ As you implement TODOs, reason about:
 
 Goal: build intuition through guided discovery.
 
-## Exclusions
-Does NOT cover: multithreading, thread safety, performance benchmarking, `std::atomic<shared_ptr>`, lock-free patterns.
+### 17. Deadlock Patterns
+**Moved to**: `../test_deadlocks/` (now a standalone project-level module)
 
-Focus: core ownership and lifetime semantics in single-threaded contexts.
+Dedicated deadlock test suite with 16 scenarios across 4 files. See `../test_deadlocks/SUMMARY.txt`.
+
+Focus: Lock ordering, circular references with mutexes, condition variables, ownership transfer deadlocks. Each scenario demonstrates a deadlock pattern (complete) and requires you to implement the fix (empty).
+
+## Exclusions
+Does NOT cover: lock-free algorithms, performance benchmarking, `std::atomic<shared_ptr>`, advanced lock-free patterns, deadlock detection tools (TSan, Helgrind).
+
+Focus: core ownership and lifetime semantics, with dedicated deadlock prevention patterns.
 
 ## Final Notes
 - **Implement, don't copy**: Build muscle memory
