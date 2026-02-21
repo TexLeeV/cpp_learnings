@@ -8,7 +8,7 @@ These tests are designed to **fail compilation** until you understand and fix th
 2. **Predict why it won't compile** before attempting to build.
 3. **Try to compile** and observe the compiler error.
 4. **Reason about the error** in relation to `shared_ptr` semantics.
-5. **Fix the issue** based on your understanding.
+5. **Fix the issue** based on the analysis.
 6. **Verify** the fix compiles and behaves as expected.
 
 ## Important Notes
