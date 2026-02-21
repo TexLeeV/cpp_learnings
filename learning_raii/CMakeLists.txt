@@ -1,6 +1,6 @@
 # RAII and Resource Management test suite
-# Inherits settings from parent CMakeLists.txt
 
-# TODO: Add instrumentation library if needed
-
-# TODO: Add test executables
+# add_learning_test(test_scope_guards tests/test_scope_guards.cpp instrumentation)
+# add_learning_test(test_file_socket_management tests/test_file_socket_management.cpp instrumentation)
+# add_learning_test(test_custom_resource_managers tests/test_custom_resource_managers.cpp instrumentation)
+# add_learning_test(test_smart_pointers_from_scratch tests/test_smart_pointers_from_scratch.cpp instrumentation)

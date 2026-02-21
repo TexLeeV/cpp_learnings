@@ -1,49 +1,5 @@
-#include "instrumentation.h"
+#include "move_instrumentation.h"
 #include <sstream>
-
-EventLog& EventLog::instance()
-{
-    static EventLog log;
-    return log;
-}
-
-void EventLog::record(const std::string& event)
-{
-    events_.push_back(event);
-}
-
-void EventLog::clear()
-{
-    events_.clear();
-}
-
-std::vector<std::string> EventLog::events() const
-{
-    return events_;
-}
-
-std::string EventLog::dump() const
-{
-    std::ostringstream oss;
-    for (size_t i = 0; i < events_.size(); ++i)
-    {
-        oss << "[" << i << "] " << events_[i] << "\n";
-    }
-    return oss.str();
-}
-
-size_t EventLog::count_events(const std::string& substring) const
-{
-    size_t count = 0;
-    for (const auto& event : events_)
-    {
-        if (event.find(substring) != std::string::npos)
-        {
-            ++count;
-        }
-    }
-    return count;
-}
 
 int MoveTracked::next_id_ = 1;
 

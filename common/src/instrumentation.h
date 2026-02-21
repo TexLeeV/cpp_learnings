@@ -10,13 +10,13 @@ class EventLog
 {
 public:
     static EventLog& instance();
-    
+
     void record(const std::string& event);
     void clear();
     std::vector<std::string> events() const;
     std::string dump() const;
     size_t count_events(const std::string& substring) const;
-    
+
 private:
     EventLog() = default;
     std::vector<std::string> events_;
@@ -31,10 +31,10 @@ public:
     Tracked& operator=(const Tracked& other);
     Tracked& operator=(Tracked&& other) noexcept;
     ~Tracked();
-    
+
     std::string name() const;
     int id() const;
-    
+
 private:
     std::string name_;
     int id_;
@@ -49,7 +49,7 @@ public:
     : deleter_name_(deleter_name)
     {
     }
-    
+
     void operator()(T* ptr) const
     {
         std::ostringstream oss;
@@ -57,7 +57,7 @@ public:
         EventLog::instance().record(oss.str());
         delete ptr;
     }
-    
+
 private:
     std::string deleter_name_;
 };
@@ -70,7 +70,7 @@ public:
     : deleter_name_(deleter_name)
     {
     }
-    
+
     void operator()(T* ptr) const
     {
         std::ostringstream oss;
@@ -78,7 +78,7 @@ public:
         EventLog::instance().record(oss.str());
         delete[] ptr;
     }
-    
+
 private:
     std::string deleter_name_;
 };
