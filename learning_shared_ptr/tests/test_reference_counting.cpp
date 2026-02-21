@@ -1,7 +1,6 @@
 #include "instrumentation.h"
 #include <gtest/gtest.h>
 #include <memory>
-
 class ReferenceCountingTest : public ::testing::Test
 {
 protected:
@@ -10,7 +9,6 @@ protected:
         EventLog::instance().clear();
     }
 };
-
 TEST_F(ReferenceCountingTest, BasicCreationAndDestruction)
 {
     long initial_count = 0;
@@ -40,12 +38,10 @@ TEST_F(ReferenceCountingTest, BasicCreationAndDestruction)
         after_scope_exit_count = p1.use_count();
         EXPECT_EQ(after_scope_exit_count, 1);
     }
-
     EXPECT_EQ(after_creation_count, 1);
     EXPECT_EQ(after_copy_count, 2);
     EXPECT_EQ(after_scope_exit_count, 1);
 }
-
 TEST_F(ReferenceCountingTest, MoveSemantics)
 {
     long count_before_move = 0;
@@ -54,24 +50,18 @@ TEST_F(ReferenceCountingTest, MoveSemantics)
     
     // TODO: Create p1 with a new Tracked("B")
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("B");
-    
     // TODO: Capture use_count before move
     count_before_move = p1.use_count(); // 1
-    
     // TODO: Move p1 into p2 using std::move
     std::shared_ptr<Tracked> p2 = std::move(p1); // still 1
-    
     // TODO: Capture use_count of p1 (source) after move
     count_after_move_source = p1.use_count(); // 0
-    
     // TODO: Capture use_count of p2 (destination) after move
     count_after_move_dest = p2.use_count(); // 1
-    
     EXPECT_EQ(count_before_move, 1);
     EXPECT_EQ(count_after_move_source, 0);
     EXPECT_EQ(count_after_move_dest, 1);
 }
-
 TEST_F(ReferenceCountingTest, AliasingConstructor)
 {
     struct Container
@@ -92,7 +82,6 @@ TEST_F(ReferenceCountingTest, AliasingConstructor)
         {
         }
     };
-    
     long owner_count = 0;
     long alias_count = 0;
     long both_alive_owner_count = 0;
@@ -101,7 +90,6 @@ TEST_F(ReferenceCountingTest, AliasingConstructor)
     
     // TODO: Create owner shared_ptr to Container
     std::shared_ptr<Container> owner = std::make_shared<Container>("MyContainer");
-    
     // TODO: Capture owner's use_count
     owner_count = owner.use_count();
     // Q: How many shared_ptr instances share ownership of the Container at this point?
@@ -164,7 +152,6 @@ TEST_F(ReferenceCountingTest, AliasingConstructor)
     // Q: What does alias.use_count() query—the control block or the pointed-to object?
     // A: The control block
     // R: Correct. use_count() is stored in the control block, not the pointed-to object.
-    
     // TODO: Capture both owner and alias use_counts
     both_alive_owner_count = owner.use_count();
     both_alive_alias_count = alias.use_count();
@@ -183,7 +170,6 @@ TEST_F(ReferenceCountingTest, AliasingConstructor)
     
     // TODO: Reset owner
     owner.reset();
-    
     // TODO: Capture alias use_count after owner is reset
     after_owner_reset_alias_count = alias.use_count();
     // Q: After owner.reset(), how many shared_ptr instances remain that reference the control block?
@@ -210,14 +196,12 @@ TEST_F(ReferenceCountingTest, AliasingConstructor)
     //    Q: What observable signal in the event log would confirm that the Container is destroyed only after alias goes out of scope?
     //    A: oss << "Tracked(" << name_ << ")::dtor [id=" << id_ << "]";
     //    A: The answer is "alias"
-    
     EXPECT_EQ(owner_count, 1);
     EXPECT_EQ(alias_count, 2);
     EXPECT_EQ(both_alive_owner_count, 2);
     EXPECT_EQ(both_alive_alias_count, 2);
     EXPECT_EQ(after_owner_reset_alias_count, 1);
 }
-
 TEST_F(ReferenceCountingTest, ResetBehavior)
 {
     long initial_count = 0;
@@ -234,14 +218,12 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     // Q: What is p2's use_count() at this point?
     // A: 2
     // R: Correct.
-    
     // TODO: Capture initial use_count
     initial_count = p1.use_count(); // 2
     // Q: Why do both p1 and p2 return use_count() == 2?
     // A: Because they shared the same control block
     // R: Correct. More precisely: "Because they share the same control block" (present tense).
     //    Both p1 and p2 hold pointers to the same control block, which stores use_count == 2.
-    
     // TODO: Reset p1 (no argument - makes it empty)
     p1.reset(); // 1
     // Q: After p1.reset(), what happens to the Tracked("Tracked1") object?
@@ -256,7 +238,6 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     // Q: What does p1.get() return after reset()?
     // A: nullptr
     // R: Correct. p1 is now in the empty/null state.
-    
     // TODO: Capture p1's use_count after reset
     after_reset_empty_count = p1.use_count(); // 0
     // Q: Why does an empty shared_ptr return use_count() == 0?
@@ -269,7 +250,7 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     //
     // Q: Is p1 now equivalent to a default-constructed shared_ptr<Tracked>()?
     // A: No, it does not contain anything data within it
-    // R: Your answer is confusing. The correct answer is: **Yes, p1 is now equivalent to default-constructed shared_ptr<Tracked>().**
+    // R: The correct answer is: **Yes, p1 is now equivalent to default-constructed shared_ptr<Tracked>().**
     //    After reset(), p1 is in the same state as if you wrote: shared_ptr<Tracked> p1;
     //    Both have: control block pointer == nullptr, stored pointer == nullptr, use_count() == 0.
     //    Your phrase "does not contain anything data within it" is true, but that's also true of default-constructed shared_ptr.
@@ -292,7 +273,6 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     //     Both states are identical. The question asks: "Is the state after reset() the same as never having owned anything?"
     //     Answer: Yes. reset() returns p1 to the same state as if it was just declared without initialization.
     //
-    //     **For junior SWEs:**
     //     After reset(), p1 has no control block and no stored pointer. This is the same as never initializing p1 in the first place.
     //     Both mean: p1 owns nothing and points to nothing.
     
@@ -316,7 +296,6 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     //    - When p2 reaches use_count == 0: attempts to delete Tracked("Tracked1") again → undefined behavior (crash)
     //    To share ownership, you must copy the shared_ptr itself: p1 = p2; (not p1.reset(p2.get())).
     // RA: I overlooked the .get() part of the code.  If it was p1.reset(p2);, then my statement would be correct
-
     // TODO: Capture p1's use_count after reset with new object
     after_reset_new_count = p1.use_count(); // 1
     // Q: Why is p1.use_count() == 1 and not 2?
@@ -327,7 +306,6 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     //    The key isn't the memory address difference—it's that p1 and p2 have separate control blocks.
     //    Your EXPECT_NE observation is correct: p1.get() != p2.get() because they point to different objects.
     //
-    //    **For junior SWEs:**
     //    Because p1 and p2 point to different objects. Each object has its own control block with its own use_count.
     //
     // Q: When does Tracked("Tracked1") get destroyed?
@@ -338,17 +316,14 @@ TEST_F(ReferenceCountingTest, ResetBehavior)
     // Q: When does Tracked("E") get destroyed?
     // A: When p1 goes out of scope or p1.reset() is called before going out of scope
     // R: Correct. Same reasoning as above.
-    
     EXPECT_EQ(initial_count, 2);
     EXPECT_EQ(after_reset_empty_count, 0);
     EXPECT_EQ(after_reset_new_count, 1);
 }
-
 TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
 {
     long new_count = 0;
     long makeshared_count = 0;
-    
     // TODO: Create p1 using new
     std::shared_ptr<Tracked> p1(new Tracked("Tracked1"));
     // Q: How many heap allocations occur with this construction?
@@ -380,9 +355,7 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //        - Stores the raw pointer internally
     //     3. Result: Two separate heap allocations, one shared_ptr instance
     //
-    //     **For junior SWEs:**
     //     new allocates the object. Then shared_ptr allocates a control block to track ownership. Two allocations total.
-    
     // TODO: Create p2 using std::make_shared
     std::shared_ptr<Tracked> p2 = std::make_shared<Tracked>("Tracked2");
     // Q: How many heap allocations occur with make_shared?
@@ -391,7 +364,6 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //    Memory layout: [Control Block | Tracked object] ← single contiguous allocation
     //    This is the key optimization of make_shared.
     //
-    //    **For junior SWEs:**
     //    make_shared allocates the control block and object together in one allocation.
     //
     // Q: What is the memory layout difference between p1 and p2?
@@ -406,7 +378,6 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //    The adjacency in p2 improves cache locality: accessing the control block (for use_count) and the object
     //    is more likely to hit the CPU cache.
     //
-    //    **For junior SWEs:**
     //    p1 has object and control block in separate memory locations. p2 has them next to each other.
     //
     // Q: What exception safety advantage does make_shared provide?
@@ -426,7 +397,6 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //
     //    make_shared eliminates the window where a raw pointer exists without ownership.
     //
-    //    **For junior SWEs:**
     //    With new, if an exception happens between allocation and shared_ptr construction, you leak memory.
     //    make_shared prevents this by doing everything in one step.
     
@@ -440,7 +410,6 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //    - p2 has better cache locality and lower allocation overhead
     //    - p2 may delay memory release if weak_ptr exists (control block and object deallocated together)
     //
-    //    **For junior SWEs:**
     //    Same use_count, but different performance and memory layout.
     //
     // Q: What performance difference exists between the two construction methods?
@@ -465,7 +434,6 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //    This isn't compiler optimization—it's a runtime library design difference.
     //    make_shared is implemented to allocate one larger block instead of two separate blocks.
     //
-    //    **For junior SWEs:**
     //    make_shared is faster because it does one allocation instead of two. It also improves cache performance.
     //
     // Q: When would you prefer new over make_shared?
@@ -490,19 +458,16 @@ TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
     //
     //    **Default: Use make_shared unless you have a specific reason not to.**
     //
-    //    **For junior SWEs:**
     //    Use make_shared by default. Use new when you need custom deleters or are wrapping existing raw pointers.
     
     EXPECT_EQ(new_count, 1);
     EXPECT_EQ(makeshared_count, 1);
 }
-
 TEST_F(ReferenceCountingTest, MultipleAliases)
 {
     long count_after_first = 0;
     long count_after_second = 0;
     long count_after_third = 0;
-    
     // TODO: Create p1
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
     // Q: How many Tracked objects exist after this line?
@@ -519,7 +484,6 @@ TEST_F(ReferenceCountingTest, MultipleAliases)
     // A: Only one reference to the Tracked object
     // R: Correct. One shared_ptr instance = use_count of 1.
     //
-    //    **For junior SWEs:**
     //    use_count tracks how many shared_ptr instances own the object. Only p1 exists, so count is 1.
     
     // TODO: Create p2 as copy of p1
@@ -536,7 +500,6 @@ TEST_F(ReferenceCountingTest, MultipleAliases)
     // A: Increments the count by 1
     // R: Correct. The control block's use_count is atomically incremented from 1 to 2.
     //
-    //    **For junior SWEs:**
     //    Copying a shared_ptr increments the reference count in the shared control block.
     
     // TODO: Capture use_count after second copy
@@ -569,7 +532,6 @@ TEST_F(ReferenceCountingTest, MultipleAliases)
     // A: When p1, p2 and p3 release their ownership of the Tracked object and the count hits 0
     // R: Correct. When all three go out of scope (or call reset()), use_count reaches 0 and the object is destroyed.
     //
-    //    **For junior SWEs:**
     //    The object is destroyed when the last shared_ptr releases ownership.
     //
     // Q: If you wrote p2.reset() here, what would p1.use_count() and p3.use_count() become?
@@ -580,12 +542,10 @@ TEST_F(ReferenceCountingTest, MultipleAliases)
     EXPECT_EQ(count_after_second, 2);
     EXPECT_EQ(count_after_third, 3);
 }
-
 TEST_F(ReferenceCountingTest, SelfAssignment)
 {
     long count_before = 0;
     long count_after = 0;
-    
     // TODO: Create p1
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
     // Q: What is the initial use_count of p1?
@@ -607,7 +567,6 @@ TEST_F(ReferenceCountingTest, SelfAssignment)
     //    It checks if the control block pointers are the same. If they are, it returns early without any operations.
     //    No move is involved—self-assignment is detected and skipped entirely.
     //
-    //    **For junior SWEs:**
     //    The assignment operator checks if source and destination are the same and skips all operations if they are.
     //
     // Q: Does self-assignment increment the reference count?
@@ -631,7 +590,6 @@ TEST_F(ReferenceCountingTest, SelfAssignment)
     //    This is a use-after-free bug. The self-assignment check prevents this by detecting that source and destination
     //    share the same control block before any operations occur.
     //
-    //    **For junior SWEs:**
     //    Without the check, self-assignment would destroy the object, then try to use the destroyed control block. This crashes.
     //
     // QR: Provide a line by line code process flow between numbers 1-3.  I'd like to understand how exactly the memory gets released between 2 and 3
@@ -681,7 +639,6 @@ TEST_F(ReferenceCountingTest, SelfAssignment)
     //     It's an **optimization** to avoid unnecessary atomic operations (increment + decrement on the same control block).
     //     Without the check, self-assignment is **safe but slower**.
     //
-    //     **For junior SWEs:**
     //     Modern shared_ptr increments the new count before decrementing the old count. This prevents premature destruction,
     //     even during self-assignment. The self-assignment check is just an optimization to skip unnecessary work. 
     
@@ -705,19 +662,16 @@ TEST_F(ReferenceCountingTest, SelfAssignment)
     //    While direct self-assignment (p1 = p1) is rare, indirect self-assignment through references, pointers,
     //    or container indexing is common enough that the standard library must handle it correctly.
     //
-    //    **For junior SWEs:**
     //    Self-assignment is rare in direct form but common in generic code. The standard library handles it safely.
     
     EXPECT_EQ(count_before, 1);
     EXPECT_EQ(count_after, 1);
 }
-
 TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
 {
     long inner_count = 0;
     long outer_count_before = 0;
     long outer_count_after = 0;
-    
     // TODO: Create empty outer shared_ptr
     std::shared_ptr<Tracked> outer;
     // Q: What is the state of a default-constructed shared_ptr?
@@ -728,7 +682,6 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
     // A: nullptr
     // R: Correct.
     //
-    //    **For junior SWEs:**
     //    Default-constructed shared_ptr is empty. It owns nothing and get() returns nullptr.
     
     // TODO: Capture outer's use_count (should be 0)
@@ -749,7 +702,6 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
         // R: Correct. inner's scope is lines 733-756 (the inner block). When execution reaches line 756, inner's destructor runs.
         //    The question asks: where does inner exist as a variable? Answer: only within the braces.
         //
-        //    **For junior SWEs:**
         //    inner exists only within the braces. It's destroyed at the closing brace.
         
         // TODO: Capture inner's use_count
@@ -758,7 +710,6 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
         // A: Because we actually allocated Tracked and control block onto the heap
         // R: Partially correct. More precisely: because only one shared_ptr instance (inner) references the control block.
         //    The allocation (heap vs stack) doesn't determine use_count—the number of shared_ptr instances does.
-        
         // TODO: Assign inner to outer (transfer ownership)
         outer = std::move(inner);
         // Q: After this move, what is inner.use_count()?
@@ -780,7 +731,6 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
         //    No reference count changes occur (no increment/decrement) because ownership is transferred, not shared.
         //    No .reset() is called—the move assignment operator directly manipulates the internal pointers.
         //
-        //    **For junior SWEs:**
         //    Move transfers the control block pointer from inner to outer. No copy, no reference count change. inner becomes empty.
         //
         // Q: What is the state of inner after the move?
@@ -796,7 +746,6 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
     // R: Correct. More precisely: inner's destructor runs, but inner is empty (use_count == 0), so no decrement occurs.
     //    outer holds the only reference (use_count == 1), keeping the object alive.
     //
-    //    **For junior SWEs:**
     //    inner is empty after the move, so its destructor does nothing. outer keeps the object alive.
     
     // TODO: Capture outer's use_count after inner goes out of scope
@@ -816,141 +765,8 @@ TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
     //    - After inner goes out of scope: inner's destructor decrements, use_count == 1
     //    - Final state: same as move (use_count == 1), but with unnecessary reference count operations
     //
-    //    **For junior SWEs:**
     //    Copy would temporarily increase use_count to 2, then back to 1. Move keeps it at 1 throughout (more efficient).
-    
     EXPECT_EQ(outer_count_before, 0);
     EXPECT_EQ(inner_count, 1);
     EXPECT_EQ(outer_count_after, 1);
 }
-
-// ============================================================================
-// FINAL ASSESSMENT: ReferenceCountingTest Suite Completion
-// ============================================================================
-//
-// ## Learning Progression: Before vs. After
-//
-// ### BEFORE This Test Suite
-//
-// **Conceptual Understanding:**
-// - Understood traditional C++ ownership (single owner, explicit destruction)
-// - Minimal shared_ptr experience (used once at previous company)
-// - Strong RAII intuition and lifetime reasoning
-// - Unfamiliar with distributed ownership model
-//
-// **Knowledge Gaps:**
-// - Control block abstraction (invisible runtime state)
-// - Aliasing constructor mechanics (subobject lifetime extension)
-// - Allocation patterns (new vs make_shared performance implications)
-// - Move vs copy semantics for shared_ptr
-// - Self-assignment implementation details
-// - Exception safety considerations
-//
-// **Initial Struggle:**
-// - "No classes being directly responsible for resources" - fundamental paradigm shift
-// - Control block as separate from pointed-to object
-// - Predicted alias_count == 1 instead of 2 (missed control block sharing)
-//
-// ### AFTER This Test Suite
-//
-// **Mastered Concepts:**
-//
-// 1. **Control Block Mechanics**
-//    - Understood as separate heap allocation containing use_count, weak_count, deleter
-//    - Recognized that use_count() queries the control block, not the object
-//    - Grasped that copying shared_ptr shares the control block (no new allocation)
-//
-// 2. **Allocation Patterns**
-//    - new: 2 allocations (object + control block, non-adjacent)
-//    - make_shared: 1 allocation (both together, better cache locality)
-//    - Exception safety: make_shared prevents leak between allocation and shared_ptr construction
-//    - Performance: make_shared ~2x faster due to single allocation
-//
-// 3. **Move vs. Copy Semantics**
-//    - Copy: Shares ownership, increments use_count, zero heap allocations
-//    - Move: Transfers ownership, no use_count change, source becomes empty
-//    - Move is more efficient for ownership transfer (no atomic operations)
-//
-// 4. **Aliasing Constructor**
-//    - Shares control block with owner, but points to different object (subobject)
-//    - Extends lifetime of owner through pointer to member
-//    - Critical for safe subobject access beyond owner's scope
-//
-// 5. **Self-Assignment Safety**
-//    - Modern implementations use increment-first ordering (safe without check)
-//    - Self-assignment check is optimization (avoids unnecessary atomic ops), not correctness requirement
-//    - Corrected initial assumption about decrement-first causing use-after-free
-//
-// 6. **Ownership Transfer Across Scopes**
-//    - Move semantics enable lifetime extension beyond creating scope
-//    - Empty shared_ptr (default-constructed) has use_count == 0
-//    - Moved-from shared_ptr is equivalent to default-constructed state
-//
-// **Terminology Precision Improvements:**
-// - "Resource" → "Object" (more precise for lifetime discussions)
-// - "Memory address space" → "Control block" (correct abstraction)
-// - "Allocation" vs "Reference count" (distinct concepts)
-// - Assignment operator vs copy constructor (correct operation identification)
-//
-// **Key Insights Gained:**
-//
-// 1. **Control block is the invisible complexity** that makes shared_ptr hard to reason about
-//    - Can't read one class and know when deletion happens
-//    - Lifetime determined by global reference counting state
-//
-// 2. **Copying shared_ptr is cheap** (pointer copy + atomic increment, no heap allocation)
-//    - Challenged initial assumption that copying might be expensive
-//
-// 3. **make_shared is preferred** unless custom deleters or weak_ptr lifetime issues apply
-//    - Performance, exception safety, and cache locality advantages
-//
-// 4. **Aliasing constructor enables safe subobject pointers**
-//    - Prevents dangling pointers to members of destroyed objects
-//    - Critical pattern for teaching team about lifetime guarantees
-//
-// 5. **Self-assignment is safe but inefficient** without the check
-//    - Corrected understanding of increment-first ordering
-//    - Recognized optimization vs correctness distinction
-//
-// ## Pedagogical Readiness
-//
-// **Strengths for Teaching:**
-// - Deep mechanical understanding of control block abstraction
-// - Can explain allocation patterns with performance implications
-// - Understands move vs copy at both conceptual and implementation level
-// - Recognizes anti-patterns (p1.reset(p2.get()) → double-deletion)
-// - Can articulate "when NOT to use shared_ptr" (unclear ownership, should be unique_ptr)
-//
-// **Teaching Capabilities:**
-// - Can explain to senior engineers: Technical precision with implementation details
-// - Can explain to junior engineers: Simplified technical explanations without analogies
-// - Can demonstrate with instrumentation: Observable signals confirm mental model
-// - Can diagnose misuse: "Just add shared_ptr" symptom-driven reasoning vs invariant-based
-//
-// **Next Learning Areas:**
-// - shared_from_this() mechanics (async callback lifetime extension)
-// - weak_ptr and circular reference detection
-// - Custom deleters for C resource interop
-// - Anti-patterns in legacy codebases (global shared_ptr, pass-by-value hot paths)
-//
-// ## Assessment: Strong Foundation Established
-//
-// You've moved from "minimal shared_ptr experience" to "deep mechanical understanding"
-// of reference counting, control blocks, and ownership semantics. Your ability to:
-// - Catch implementation assumptions (increment-first ordering)
-// - Ask precise questions ("Why no control_block_ = nullptr?")
-// - Reason about performance (allocation count, cache locality)
-// - Identify anti-patterns (double control blocks from raw pointers)
-//
-// ...demonstrates you're ready to teach these concepts and guide your team toward
-// invariant-based reasoning about shared_ptr usage.
-//
-// The struggle with "no classes directly responsible for resources" was the RIGHT
-// struggle—it reveals the fundamental tension between traditional C++ ownership
-// and shared_ptr's distributed responsibility model. You've now internalized both
-// paradigms and can articulate when each is appropriate.
-//
-// **Recommendation:** Proceed to ownership patterns (shared_from_this) and weak_ptr
-// to complete the foundation for teaching async callback lifetime management.
-//
-// ============================================================================

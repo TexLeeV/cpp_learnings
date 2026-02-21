@@ -11,15 +11,14 @@ This repository contains hands-on learning exercises for advanced C++ concepts, 
 
 ## Learning TODO List
 
-Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScript experience), here are the recommended next learning modules:
+Recommended learning modules in progressive order:
 
 ---
 
 ### 1. ✅ C++11 Minimum Version Support
 **Status**: Partially Complete  
 **Difficulty**: ⭐☆☆☆☆ (Trivial)  
-**Estimated Time**: 15-30 minutes  
-**Your Level**: You already use C++11 features in your work
+**Estimated Time**: 15-30 minutes
 
 **Tasks**:
 - [ ] Add CMake version checks and compiler feature requirements
@@ -34,8 +33,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 2. Move Semantics & Perfect Forwarding
 **Status**: ✅ Ready for Learning  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 12-16 hours  
-**Your Level**: Intermediate - You understand ownership deeply, move semantics is a natural extension
+**Estimated Time**: 12-16 hours
 
 **Available Modules**:
 - [ ] Rvalue references and move constructors (4 hours) - `test_rvalue_references.cpp`
@@ -61,8 +59,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 3. Concurrency Patterns
 **Status**: Partially Started (Deadlock tests in progress)  
 **Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 20-25 hours  
-**Your Level**: Intermediate-Advanced - You have multi-threaded experience from your work
+**Estimated Time**: 20-25 hours
 
 **Planned Modules**:
 - [x] Deadlock patterns (8-12 hours) - **In Progress**
@@ -81,8 +78,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 4. Template Metaprogramming
 **Status**: Not Started  
 **Difficulty**: ⭐⭐⭐⭐⭐ (Very Hard)  
-**Estimated Time**: 25-30 hours  
-**Your Level**: Beginner-Intermediate - This is likely new territory
+**Estimated Time**: 25-30 hours
 
 **Planned Modules**:
 - [ ] Function and class templates (4 hours)
@@ -103,8 +99,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 5. RAII & Resource Management
 **Status**: Partially Complete (via `shared_ptr` tests)  
 **Difficulty**: ⭐⭐☆☆☆ (Easy-Moderate)  
-**Estimated Time**: 8-10 hours  
-**Your Level**: Intermediate - You understand RAII principles from smart pointers
+**Estimated Time**: 8-10 hours
 
 **Planned Modules**:
 - [ ] Scope guards and cleanup patterns (2 hours)
@@ -121,8 +116,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 6. Design Patterns (C++ Specific)
 **Status**: Not Started  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 18-22 hours  
-**Your Level**: Intermediate - You've implemented patterns in production (Observer, Factory from your work)
+**Estimated Time**: 18-22 hours
 
 **Planned Modules**:
 - [ ] Creational patterns (Factory, Builder, Singleton) (5 hours)
@@ -134,15 +128,12 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 
 **Deliverable**: 10-12 test files, each implementing a pattern with broken/correct versions
 
-**Note**: This will feel familiar given your production experience, but C++-specific implementations (using templates, move semantics) will be new.
-
 ---
 
 ### 7. Memory Management Deep Dive
 **Status**: Not Started  
 **Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 15-18 hours  
-**Your Level**: Intermediate - You work with semiconductors and understand hardware
+**Estimated Time**: 15-18 hours
 
 **Planned Modules**:
 - [ ] Custom allocators and `std::allocator` interface (4 hours)
@@ -155,15 +146,12 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 
 **Deliverable**: 6-7 test files with allocator implementations and performance comparisons
 
-**Note**: Your semiconductor background gives you an advantage here - you understand cache lines and memory hierarchies.
-
 ---
 
 ### 8. Error Handling
 **Status**: Not Started  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 10-12 hours  
-**Your Level**: Intermediate - You understand exception safety from RAII
+**Estimated Time**: 10-12 hours
 
 **Planned Modules**:
 - [ ] Exception safety guarantees (basic, strong, no-throw) (3 hours)
@@ -181,8 +169,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 9. STL Deep Dive
 **Status**: Partially Started (using STL in tests)  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 14-16 hours  
-**Your Level**: Intermediate - You use STL containers daily
+**Estimated Time**: 14-16 hours
 
 **Planned Modules**:
 - [ ] Container internals (vector growth, deque, map vs unordered_map) (4 hours)
@@ -200,8 +187,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 10. Modern C++ Features (C++11/14/17)
 **Status**: Partially Using (C++11 in current tests)  
 **Difficulty**: ⭐⭐☆☆☆ (Easy-Moderate)  
-**Estimated Time**: 12-15 hours  
-**Your Level**: Intermediate - You use some features, but not all
+**Estimated Time**: 12-15 hours
 
 **Planned Modules**:
 
@@ -226,8 +212,7 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 ### 11. Performance & Optimization
 **Status**: Not Started  
 **Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 16-20 hours  
-**Your Level**: Intermediate-Advanced - Your production work requires performance awareness
+**Estimated Time**: 16-20 hours
 
 **Planned Modules**:
 - [ ] Profiling and identifying bottlenecks (4 hours)
@@ -241,15 +226,12 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 
 **Deliverable**: 6-8 test files with before/after optimization comparisons and benchmarks
 
-**Note**: Your semiconductor testing background means you understand performance measurement - this will feel natural.
-
 ---
 
 ### 12. Testing & Debugging
 **Status**: Partially Started (using GoogleTest)  
 **Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 12-14 hours  
-**Your Level**: Advanced - You develop test programs professionally
+**Estimated Time**: 12-14 hours
 
 **Planned Modules**:
 - [ ] GoogleMock for mocking (4 hours)
@@ -262,13 +244,11 @@ Based on your background (Lead Sr. Software Engineer with C/C++, Python, TypeScr
 
 **Deliverable**: Enhanced test infrastructure, CI/CD integration examples
 
-**Note**: This leverages your existing strength - you'll pick this up quickly.
-
 ---
 
 ## Recommended Learning Order
 
-Based on your background and the dependencies between topics:
+Based on topic dependencies and progressive difficulty:
 
 ### **Phase 1: Foundations (Complete Current Work)**
 1. ✅ Finish `shared_ptr` tests (if any remaining)
@@ -316,25 +296,14 @@ Based on your background and the dependencies between topics:
 
 ## Overall Estimates
 
-| Category | Total Hours | Difficulty | Your Advantage |
-|----------|-------------|------------|----------------|
-| **Foundations** | 8-12 | ⭐⭐☆☆☆ | Strong ownership understanding |
-| **Core Modern C++** | 32-41 | ⭐⭐⭐☆☆ | Production C++ experience |
-| **Advanced Concurrency** | 27-31 | ⭐⭐⭐⭐☆ | Multi-threaded production work |
-| **Practical Patterns** | 42-50 | ⭐⭐⭐☆☆ | Design pattern experience |
-| **Advanced Topics** | 53-64 | ⭐⭐⭐⭐⭐ | Semiconductor/hardware knowledge helps |
-| **TOTAL** | **162-198 hours** | - | **6-8 months at 2-3 hours/day** |
-
----
-
-## Your Strengths (Based on Resume)
-
-✅ **Production C/C++ development** - You write production-quality code daily  
-✅ **Multi-threaded experience** - Your work involves concurrent systems  
-✅ **Test development** - You build test programs professionally  
-✅ **Multiple languages** - Python, TypeScript, Java experience aids learning  
-✅ **Hardware understanding** - Semiconductor work gives you memory/cache intuition  
-✅ **Team leadership** - You've trained engineers, so you understand teaching methodology  
+| Category | Total Hours | Difficulty |
+|----------|-------------|------------|
+| **Foundations** | 8-12 | ⭐⭐☆☆☆ |
+| **Core Modern C++** | 32-41 | ⭐⭐⭐☆☆ |
+| **Advanced Concurrency** | 27-31 | ⭐⭐⭐⭐☆ |
+| **Practical Patterns** | 42-50 | ⭐⭐⭐☆☆ |
+| **Advanced Topics** | 53-64 | ⭐⭐⭐⭐⭐ |
+| **TOTAL** | **162-198 hours** | **6-8 months at 2-3 hours/day** |
 
 ---
 
@@ -451,7 +420,6 @@ ninja test_mutex_ordering_deadlocks
 ## Notes
 
 - All time estimates assume 2-3 focused hours per day
-- Difficulty ratings are calibrated to your experience level (Lead Sr. SWE)
 - Prerequisites are suggestions, not strict requirements
 - Feel free to jump around based on project needs or interest
 

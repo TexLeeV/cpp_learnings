@@ -337,14 +337,12 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_DoubleControlBlock)
     // Q: What happens when you create two shared_ptrs from the same raw pointer?
     // A: They both end up thinking they own the object and have a use_count of 1 when it should be 2 for the same/shared control block
     // R: Correct. Each shared_ptr creates its own independent control block, both believing they have exclusive ownership of the object. The use_count in each control block is 1, but they're separate control blocks—not a shared one with count 2.
-    // R: For junior SWEs: Think of it like two people each keeping their own count of how many people are using a car, instead of sharing one count. Each thinks "I'm the only one tracking this car" when really both are.
     
     // std::shared_ptr<Tracked> p1(raw);  // Creates control block #1
     
     // Q: At this point, what is p1.use_count()?
     // A: 1
     // R: Correct. p1's control block shows use_count=1 because it's the only shared_ptr referencing that control block.
-    // R: For junior SWEs: The control block was just created, and only p1 points to it, so the count is 1.
     
     // DANGER: This creates a SECOND control block for the same object
     // std::shared_ptr<Tracked> p2(raw);  // Creates control block #2
@@ -352,22 +350,18 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_DoubleControlBlock)
     // Q: What is p1.use_count() now? What about p2.use_count()?
     // A: Both are 1
     // R: Correct. p1.use_count() remains 1 (nothing changed its control block), and p2.use_count() is also 1 (it created a new, separate control block). They're tracking independently.
-    // R: For junior SWEs: Creating p2 didn't update p1's control block because they don't know about each other—they're completely separate tracking systems for the same object.
     
     // Q: When p1 goes out of scope, what happens to the Tracked object?
     // A: The Tracked object is freed
     // R: Correct. When p1's control block reaches use_count=0, it calls delete on the raw pointer, freeing the object.
-    // R: For junior SWEs: p1's control block thinks it owns the object, so when p1 goes away, the control block says "time to clean up" and deletes the object.
     
     // Q: When p2 tries to access the object after p1 destroyed it, what happens?
     // A: A segmentation fault, use-after-free
     // R: Correct. p2's control block still thinks the object is valid (its use_count is still 1), but the memory was already freed by p1. Accessing freed memory is undefined behavior—typically a segfault or memory corruption.
-    // R: For junior SWEs: p2 doesn't know p1 deleted the object. It's like having a key to an apartment that was demolished—the key still exists, but using it leads to disaster.
     
     // Q: What is the correct way to create p2 from p1?
     // A: p2 = p1
     // R: Correct. Copy-assigning from p1 makes p2 share the same control block, incrementing use_count to 2. Both pointers coordinate through one control block.
-    // R: For junior SWEs: This way, both p1 and p2 use the same tracking system (control block), so they know about each other and coordinate the object's lifetime properly.
     
     // Q: At line 381, both p1 and p2 exist and point to the same object. Each has its own control block. When you call p1.use_count(), what memory does it need to access?
     // A: It's own control block.  use_count does not directly access the object directly
@@ -403,7 +397,7 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_DoubleControlBlock)
     
     // Q: Could you isolate the problem by creating a minimal test that just does: Tracked* raw = new Tracked("X"); shared_ptr<Tracked> p1(raw); shared_ptr<Tracked> p2(raw); long c = p1.use_count(); without any test framework overhead?
     // A: Yes, and easily run with valgrind or sanitizers
-    // R: Correct. Minimal reproduction is the best first step for debugging. It eliminates test framework variables and makes the problem easier to analyze with tools. You could also try without Tracked entirely—just `int* raw = new int(42);` to see if the hang is specific to Tracked or a general double control block issue.
+    // R: Correct. Minimal reproduction is the best first step for debugging. It eliminates test framework variables and makes the problem easier to analyze with tools. Further simplification without Tracked entirely—just `int* raw = new int(42);`—could reveal if the hang is specific to Tracked or a general double control block issue.
     
     // long p1_count = p1.use_count(); // this line of code appears to hang.  Why?
     // long p2_count = p2.use_count();
