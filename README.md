@@ -21,7 +21,11 @@ Note: Repository is still in active development
 
 ## About This Repository
 
-This repository contains hands-on learning exercises for advanced C++ concepts, using a Socratic teaching methodology with fill-in exercises, broken code to fix, and guided Q/A/R (Question/Answer/Response) patterns.
+This is a hands-on learning repository for advanced C++ concepts, using a Socratic teaching methodology with fill-in exercises, broken code to fix, and guided Q/A/R (Question/Answer/Response) patterns.
+
+**What makes this different?** Every exercise uses instrumentation (EventLog) to make runtime behavior observable. You predict what will happen, run the code, see the results, and learn from the feedback. The Q/A/R pattern turns abstract concepts into concrete, verifiable observations.
+
+**AI-Enhanced (Optional):** Works seamlessly with [Cursor IDE](https://cursor.sh) for AI-powered Socratic teaching, but all exercises are self-contained and work without AI assistance.
 
 ## How It Works
 
@@ -580,5 +584,4 @@ Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for gu
 
 ---
 
-**Last Updated**: February 2026  
-**Current Phase**: Phase 1 - Foundations
+**Last Updated**: February 2026
