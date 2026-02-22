@@ -335,69 +335,69 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_DoubleControlBlock)
     // Tracked* raw = new Tracked("Dangerous");
     
     // Q: What happens when you create two shared_ptrs from the same raw pointer?
-    // A: They both end up thinking they own the object and have a use_count of 1 when it should be 2 for the same/shared control block
-    // R: Correct. Each shared_ptr creates its own independent control block, both believing they have exclusive ownership of the object. The use_count in each control block is 1, but they're separate control blocks—not a shared one with count 2.
+    // A:
+    // R:
     
     // std::shared_ptr<Tracked> p1(raw);  // Creates control block #1
     
     // Q: At this point, what is p1.use_count()?
-    // A: 1
-    // R: Correct. p1's control block shows use_count=1 because it's the only shared_ptr referencing that control block.
+    // A:
+    // R:
     
     // DANGER: This creates a SECOND control block for the same object
     // std::shared_ptr<Tracked> p2(raw);  // Creates control block #2
     
     // Q: What is p1.use_count() now? What about p2.use_count()?
-    // A: Both are 1
-    // R: Correct. p1.use_count() remains 1 (nothing changed its control block), and p2.use_count() is also 1 (it created a new, separate control block). They're tracking independently.
+    // A:
+    // R:
     
     // Q: When p1 goes out of scope, what happens to the Tracked object?
-    // A: The Tracked object is freed
-    // R: Correct. When p1's control block reaches use_count=0, it calls delete on the raw pointer, freeing the object.
+    // A:
+    // R:
     
     // Q: When p2 tries to access the object after p1 destroyed it, what happens?
-    // A: A segmentation fault, use-after-free
-    // R: Correct. p2's control block still thinks the object is valid (its use_count is still 1), but the memory was already freed by p1. Accessing freed memory is undefined behavior—typically a segfault or memory corruption.
+    // A:
+    // R:
     
     // Q: What is the correct way to create p2 from p1?
-    // A: p2 = p1
-    // R: Correct. Copy-assigning from p1 makes p2 share the same control block, incrementing use_count to 2. Both pointers coordinate through one control block.
+    // A:
+    // R:
     
     // Q: At line 381, both p1 and p2 exist and point to the same object. Each has its own control block. When you call p1.use_count(), what memory does it need to access?
-    // A: It's own control block.  use_count does not directly access the object directly
-    // R: Correct. use_count() only reads from the control block's reference count field, not the managed object itself.
+    // A:
+    // R:
     
     // Q: Given that p2's control block also points to the same Tracked object, and both control blocks might be trying to manage the same memory, what kind of race condition or memory corruption could occur?
-    // A: Unless use_count does try to access the object directly with an underlying mutex lock, this is most likely a deadlock situation but explain the step by step process as to how this can happen
-    // R: Actually, after examining the instrumentation code, there are no mutexes—EventLog is just a simple vector. The hang is more subtle. When you create p2 from the raw pointer at line 350, the shared_ptr constructor doesn't call the Tracked constructor again (the object already exists). However, the undefined behavior creates memory corruption. The hang at line 384 when calling use_count() suggests the control block itself may be corrupted—possibly from heap metadata corruption when the same memory region has two conflicting control blocks pointing to it. This isn't a deadlock; it's likely a corrupted pointer or infinite loop in the allocator's internal structures.
+    // A:
+    // R:
     
     // Q: Is this test actually safe to run, or does it invoke undefined behavior before it even reaches the assertions?
-    // A: Based on running the test, it hangs completely and is not safe to run
-    // R: Correct. This test invokes undefined behavior immediately at line 350 when creating p2 from the same raw pointer. The hang you're seeing is one manifestation of that undefined behavior. This test should be commented out or restructured to demonstrate the concept without actually executing the dangerous pattern.
+    // A:
+    // R:
     
     // FOLLOW-UP: Validating the hang
     // Q: What information would you get from running the test under a debugger (gdb) and interrupting it during the hang? What specific commands would show you the call stack and what each thread is doing?
-    // A: - (gdb) set logging file threads.txt
-    // A: - (gdb) set logging on
-    // A: - (gdb) thread apply all bt
-    // A: - (gdb) set logging off
-    // R: Correct commands. `thread apply all bt` shows backtraces for all threads, revealing where each is stuck. You'd see the exact function call in the standard library where the hang occurs (likely in control block operations or allocator internals).
+    // A:
+    // A:
+    // A:
+    // A:
+    // R:
     
     // Q: What would AddressSanitizer (ASan) report if you compiled and ran this test with -fsanitize=address? Would it catch the double control block issue before the hang occurs?
-    // A: If anything, I would think it gets caught in the "std::shared_ptr<Tracked> p2(raw);" line.  If this is a known malpractice of shared_ptr's I would think the address sanitizers would take that into consideration
-    // R: ASan doesn't detect double control blocks at creation time—creating p2 from raw doesn't trigger a detectable memory error yet. ASan would catch the double-free when the first shared_ptr destructor runs and deletes the object, then the second tries to delete it again. The hang prevents you from reaching that point.
+    // A:
+    // R:
     
     // Q: If you added print statements (or EventLog records) immediately before and after line 350 (std::shared_ptr<Tracked> p2(raw)), and before line 393 (p1.use_count()), which print statements would you expect to see before the hang?
-    // A: Not sure.  Provide the answer for me.  I care more for shared_ptr behavior over log outputs
-    // R: You'd see all three prints: before p2 creation, after p2 creation, and before p1.use_count(). The hang happens during p1.use_count() execution, not before. This tells you that creating p2 succeeds (undefined behavior doesn't always fail immediately), but accessing the corrupted state later triggers the hang.
+    // A:
+    // R:
     
     // Q: What would happen if you ran this test with Valgrind? What specific errors would it report about the memory operations?
-    // A: I am not accustomed to using shared_ptr's and what valgrind may report from them.  I would guess that it would complain about two control blocks for the same Tracked object
-    // R: Valgrind can't detect "two control blocks for one object" conceptually—that's a logic error, not a memory access error. However, when the first shared_ptr destructor runs and calls delete, then the second tries to delete the same address, Valgrind would report "Invalid free() / delete / delete[]" showing the double-free. Like ASan, it wouldn't catch the issue until destruction, and the hang prevents reaching that point.
+    // A:
+    // R:
     
     // Q: Could you isolate the problem by creating a minimal test that just does: Tracked* raw = new Tracked("X"); shared_ptr<Tracked> p1(raw); shared_ptr<Tracked> p2(raw); long c = p1.use_count(); without any test framework overhead?
-    // A: Yes, and easily run with valgrind or sanitizers
-    // R: Correct. Minimal reproduction is the best first step for debugging. It eliminates test framework variables and makes the problem easier to analyze with tools. Further simplification without Tracked entirely—just `int* raw = new int(42);`—could reveal if the hang is specific to Tracked or a general double control block issue.
+    // A:
+    // R:
     
     // long p1_count = p1.use_count(); // this line of code appears to hang.  Why?
     // long p2_count = p2.use_count();
@@ -415,20 +415,20 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_StackObject)
     // 2. Deleting non-heap memory (undefined behavior)
     
     // Q: What happens if you create a shared_ptr to a stack object?
-    // A: It will result in a dangling pointer when the object on the stack goes out of scope
-    // R: Partially correct. It does create a dangling situation, but more precisely: the shared_ptr will attempt to call `delete` on stack memory when its destructor runs, which is undefined behavior (typically a crash). The "dangling pointer" aspect is secondary to the invalid delete operation.
+    // A:
+    // R:
     
     // Q: When does the stack object get destroyed?
-    // A: When it goes out of scope
-    // R: Correct. Stack objects are automatically destroyed when execution leaves their scope.
+    // A:
+    // R:
     
     // Q: When does the shared_ptr try to destroy the object?
-    // A: When it goes out of scope
-    // R: Correct. When `sp` goes out of scope and use_count reaches 0, the control block's deleter is invoked, which calls `delete` on the pointer.
+    // A:
+    // R:
     
     // Q: What is the result of trying to delete a stack object?
-    // A: delete &stack_obj, double free segfault
-    // R: Close, but not quite. It's not a "double free"—it's an "invalid free" (deleting memory that wasn't allocated with `new`). The crash happens because you're calling `delete` on stack memory, which is undefined behavior. The stack destructor running afterward is a separate issue (double destruction), but the first `delete` itself is already invalid.
+    // A:
+    // R:
     
     // DANGER: This is undefined behavior
     // Tracked stack_obj("StackObject");
@@ -457,13 +457,13 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_SharedFromThisBeforeSha
         std::shared_ptr<BadWidget> get_self()
         {
             // Q: What happens if you call shared_from_this() before the object is owned by a shared_ptr?
-            // A: In newer versions, it would throw a runtime_error shared ptr cast
-            // A: In older versions, it will result in undefined behavior and eventual crash
-            // R: Correct. C++17+ throws std::bad_weak_ptr exception. C++11/14 has undefined behavior because the internal weak_ptr is uninitialized, so calling lock() on it produces unpredictable results.
+            // A:
+            // A:
+            // R:
             
             // Q: What is stored in the internal weak_ptr before a shared_ptr owns the object?
-            // A: 0?
-            // R: Close. The internal weak_ptr is default-constructed (empty), which means it doesn't point to any control block—it's essentially null/empty. When you call shared_from_this(), it tries to lock() this empty weak_ptr, which either throws bad_weak_ptr (C++17+) or returns an empty shared_ptr that causes undefined behavior when used (C++11/14).
+            // A:
+            // R:
             
             return shared_from_this();  // DANGER if called before shared_ptr owns this
         }
@@ -493,23 +493,23 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_DeletedObjectAccess)
         raw_ptr = p.get();  // Get raw pointer
         
         // Q: What is the lifetime of the pointer returned by get()?
-        // A: Whenever p goes out of scope or is manually released wit p.reset()
-        // R: Correct. The pointer returned by get() is valid only as long as at least one shared_ptr owns the object. Once all shared_ptrs are destroyed or reset, the object is deleted and the pointer becomes dangling.
+        // A:
+        // R:
         
         // Q: What happens to raw_ptr when p goes out of scope?
-        // A: The object at the memory address location is freed but is not set to nullptr and will be treated as non-null in conditional if statements
-        // R: Correct. raw_ptr still holds the address value (not set to nullptr), but the memory at that address has been freed. This is a classic dangling pointer—the pointer itself is unchanged, but what it points to is gone.
+        // A:
+        // R:
         
         // p goes out of scope here, object is deleted
     }
     
     // Q: What happens if you dereference raw_ptr now?
-    // A: Segfault
-    // R: Possibly, but not guaranteed. It's undefined behavior, which means: (1) might segfault, (2) might return garbage data, (3) might appear to work if memory hasn't been reused yet. The unpredictability makes it dangerous—you can't rely on it crashing.
+    // A:
+    // R:
     
     // Q: What happens if you try to create a new shared_ptr from raw_ptr?
-    // A: No segfault but will be default-constructed
-    // R: Incorrect. Creating `shared_ptr<Tracked> p2(raw_ptr)` does NOT create a default-constructed shared_ptr. It creates a NEW control block for the already-deleted object (double control block problem). This is undefined behavior—you're creating a control block for freed memory. When p2 destructor runs, it will try to delete already-freed memory (double-free).
+    // A:
+    // R:
     
     // DANGER: raw_ptr is now dangling
     // Accessing it is undefined behavior:
@@ -540,12 +540,12 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_WeakPtrUseAfterControlB
         std::weak_ptr<Tracked> weak = p;
         
         // Q: When is the control block deleted?
-        // A: When weak goes out of scope and p goes out of scope
-        // R: Correct. The control block is deleted when BOTH use_count=0 (p destroyed) AND weak_count=0 (weak destroyed). In this test, both happen at line 560 when the scope ends.
+        // A:
+        // R:
         
         // Q: What keeps the control block alive after p is destroyed?
-        // A: weak variable
-        // R: Correct. Even after p is destroyed and use_count reaches 0 (object is deleted), the control block itself remains alive as long as weak_count > 0. The weak_ptr keeps the control block alive so it can track whether the object still exists via expired().
+        // A:
+        // R:
         
         // Store pointer to weak_ptr (DANGER: for demonstration only)
         weak_ptr_ptr = &weak;
@@ -556,8 +556,8 @@ TEST_F(ScopeLifetimePatternsTest, ControlBlockCorruption_WeakPtrUseAfterControlB
     }
     
     // Q: What happens if you try to access weak_ptr_ptr now?
-    // A: Undefined behavior, segfault
-    // R: Correct. weak_ptr_ptr points to stack memory that's been destroyed (the weak variable is gone), AND the control block it referenced is also deleted. Accessing either is undefined behavior—double use-after-free (stack object + heap control block both gone).
+    // A:
+    // R:
     
     // DANGER: weak_ptr_ptr points to deleted stack memory
     // AND the control block it referenced is also deleted

@@ -690,11 +690,11 @@ TEST_F(AsioBasicsTest, Summary_AllConceptsTogether)
     }
     
     // Q: Review - What are the key concepts demonstrated in this test?
-    // A: 1. 
-    // A: 2. 
-    // A: 3. 
-    // A: 4. 
-    // A: 5. 
+    // A:
+    // A:
+    // A:
+    // A:
+    // A:
     // R:
     
     EXPECT_EQ(tasks_completed, 5);

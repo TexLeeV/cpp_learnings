@@ -18,20 +18,20 @@ TEST_F(DeallocationLifetimeTest, BasicDestructionOrder)
         std::shared_ptr<Tracked> p2 = std::make_shared<Tracked>("Obj2");
         
         // Q: At what point in the code will Obj1's destructor be called?
-        // A: When it goes out of scope or .reset() is called
-        // R: Correct. More precisely, when the closing brace on line 31 is reached, p1's destructor runs, decrements the reference count to 0, and invokes Obj1's destructor.
+        // A:
+        // R:
         
         // Q: At what point in the code will Obj2's destructor be called?
-        // A: When it goes out of scope or .reset() is called
-        // R: Correct. Same mechanism as Obj1—when p2 goes out of scope at the closing brace.
+        // A:
+        // R:
         
         // Q: Which object will be destroyed first, Obj1 or Obj2, and why?
-        // A: Obj2, due to how popping(unwinding) the stack
-        // R: Correct. Automatic objects are destroyed in reverse order of construction. p2 was constructed after p1, so p2 is destroyed first, triggering Obj2's destructor before Obj1's.
+        // A:
+        // R:
         
         // Q: The test expects 4 events. What are these 4 events?
-        // A: p1 ctor, p2 ctor, p2 dtor p1 dtor
-        // R: Correct. The EventLog captures: Obj1 constructor, Obj2 constructor, Obj2 destructor, Obj1 destructor.
+        // A:
+        // R:
     }
     
     auto events = EventLog::instance().events();
@@ -46,16 +46,16 @@ TEST_F(DeallocationLifetimeTest, CustomDeleter)
         std::shared_ptr<Tracked> p1(new Tracked("Obj1"), LoggingDeleter<Tracked>("CustomDeleter"));
         
         // Q: When will the custom deleter be invoked?
-        // A: When p1 goes out of this scope
-        // R: Correct. When p1's destructor runs at the closing brace, the reference count reaches 0, and the control block invokes the stored LoggingDeleter.
+        // A:
+        // R:
         
         // Q: What is the difference between the deleter stored in the control block and the default deleter used by make_shared?
-        // A: The are stored the same, I believe.  Just one is custom provided and the default one is implicitly provided
-        // R: Conceptually correct understanding. Technically: make_shared uses a default deleter (typically just `delete`) that's part of the control block's type. A custom deleter is stored as a callable object in the control block and can have arbitrary cleanup logic. Both are invoked when the reference count reaches 0, but custom deleters add storage overhead and type-erase the deleter.
+        // A:
+        // R:
         
         // Q: Can you change the deleter after the shared_ptr is constructed?
-        // A: No
-        // R: Correct. The deleter is fixed at construction and stored in the control block. You cannot modify it later. You can only replace the entire managed object and control block via reset().
+        // A:
+        // R:
     }
     
     auto events = EventLog::instance().events();
@@ -79,16 +79,16 @@ TEST_F(DeallocationLifetimeTest, ArrayDeleter)
         std::shared_ptr<Tracked> p1(new Tracked[3]{Tracked("D1"), Tracked("D2"), Tracked("D3")}, LoggingArrayDeleter<Tracked>("ArrayDeleter"));
         
         // Q: Why is a custom deleter necessary when managing arrays with shared_ptr?
-        // A: Because the array is created by new keyword rather than with make_shared and compiler cannot provide the delete functionality implicitly
-        // R: Correct understanding. More precisely: shared_ptr's default deleter uses `delete`, not `delete[]`. For arrays allocated with `new[]`, you must provide a custom deleter that calls `delete[]`, otherwise you invoke undefined behavior (mismatched new[]/delete).
+        // A:
+        // R:
         
         // Q: What would happen if you used the default deleter (delete) instead of delete[] for an array?
-        // A: It will probably delete just the first "D1" Tracked object
-        // R: Correct intuition about partial destruction. Technically: this is undefined behavior. Typically only the first element's destructor runs, leaking the other two elements and potentially corrupting memory. The behavior is not guaranteed—it could crash, leak, or appear to work.
+        // A:
+        // R:
         
         // Q: In what order will the three array elements be destroyed?
-        // A: D1 -> D2 -> D3
-        // R: Close, but reversed. Array elements are destroyed in reverse order of construction: D3 → D2 → D1. This matches the general C++ rule that objects are destroyed in reverse order of construction.
+        // A:
+        // R:
     }
     
     auto events = EventLog::instance().events();
@@ -115,20 +115,20 @@ TEST_F(DeallocationLifetimeTest, ResetWithCustomDeleter)
     p1.reset(new Tracked("Obj2"), LoggingDeleter<Tracked>("SecondDeleter"));
     
     // Q: Which deleter was invoked when reset() was called, FirstDeleter or SecondDeleter?
-    // A: FirstDeleter
-    // R: Correct. reset() decrements the reference count for the first object to 0, triggering FirstDeleter to destroy Obj1 and deallocate the first control block.
+    // A:
+    // R:
     
     // Q: What happened to the control block associated with the first object?
-    // A: It was released
-    // R: Correct. The first control block (containing FirstDeleter) was deallocated after FirstDeleter executed. p1 now references a completely new control block containing SecondDeleter.
+    // A:
+    // R:
     
     // Q: After reset(), which deleter is stored in p1's control block?
-    // A: SecondDeleter
-    // R: Correct. reset() creates a new control block for the new object, and SecondDeleter is stored in that new control block.
+    // A:
+    // R:
     
     // Q: When will SecondDeleter be invoked?
-    // A: Upon reset or going out of scope
-    // R: Correct. SecondDeleter will be invoked when p1's reference count for Obj2 reaches 0—either via another reset(), assignment to nullptr, or when p1 goes out of scope at the end of the test function.
+    // A:
+    // R:
     
     auto events = EventLog::instance().events();
     bool first_deleter_called = false;
@@ -153,24 +153,24 @@ TEST_F(DeallocationLifetimeTest, SharedOwnershipDeleterInvocation)
     std::shared_ptr<Tracked> p3 = p1;
     
     // Q: How many shared_ptr instances share ownership of the object at this point?
-    // A: 3
-    // R: Correct. p1, p2, and p3 all share ownership of SharedObj. The control block's reference count is 3.
+    // A:
+    // R:
     
     // Q: How many copies of the deleter exist?
-    // A: 1
-    // R: Correct. The deleter is stored once in the shared control block. All three shared_ptr instances reference the same control block, which contains the single LoggingDeleter instance.
+    // A:
+    // R:
     
     EventLog::instance().clear();
     
     p1.reset();
     
     // Q: Why wasn't the deleter invoked when p1 was reset?
-    // A: use_count goes to 2
-    // R: Correct. The reference count decremented from 3 to 2, but hasn't reached 0 yet. The deleter is only invoked when the reference count reaches 0. p2 and p3 still hold references, keeping the object alive.
+    // A:
+    // R:
     
     // Q: What is the reference count after p1.reset()?
-    // A: 2
-    // R: Correct. p2 and p3 remain, so the reference count is 2.
+    // A:
+    // R:
     
     auto events_after_first = EventLog::instance().events();
     bool deleter_called_early = false;
@@ -188,12 +188,12 @@ TEST_F(DeallocationLifetimeTest, SharedOwnershipDeleterInvocation)
     p3.reset();
     
     // Q: After which reset() call was the deleter invoked?
-    // A: p3
-    // R: Correct. p2.reset() decremented the count from 2 to 1. p3.reset() decremented from 1 to 0, triggering the deleter.
+    // A:
+    // R:
     
     // Q: What determines when the deleter stored in the control block is invoked?
-    // A: When use_count goes to 0
-    // R: Correct. The control block invokes the deleter when the strong reference count (use_count) reaches 0. This is the fundamental rule for shared_ptr cleanup.
+    // A:
+    // R:
     
     auto events_after_all = EventLog::instance().events();
     bool deleter_called_final = false;
@@ -230,30 +230,30 @@ TEST_F(DeallocationLifetimeTest, AliasingConstructorLifetime)
         std::shared_ptr<Tracked> alias(owner, &owner->member);
         
         // Q: What does alias point to?
-        // A: owner->member but the control block uses use_count against Container("ContainerObj")
-        // R: Correct. alias.get() returns a pointer to the Tracked member, but alias shares owner's control block, which manages the Container's lifetime. This is the aliasing constructor's key feature: pointer to one thing, ownership of another.
+        // A:
+        // R:
         
         // Q: Which control block does alias share with owner?
-        // A: Container("ContainerObj")
-        // R: Correct understanding. More precisely: alias shares the control block that manages the Container. Both owner and alias increment the same reference count in that control block.
+        // A:
+        // R:
         
         // Q: Which deleter will be invoked when the last reference is released, the one for Container or the one for Tracked?
-        // A: Container
-        // R: Correct. The control block stores ContainerDeleter, which deletes the Container. The aliasing constructor doesn't change the deleter—it only changes what alias.get() returns. The stored pointer type (Tracked*) is separate from the owned object type (Container).
+        // A:
+        // R:
         
         owner.reset();
         
         // Q: Why wasn't the Container deleted when owner was reset?
-        // A: Because alias has ownership of Container
-        // R: Correct. alias shares the control block, so the reference count only decremented from 2 to 1. The Container remains alive because alias still holds a reference.
+        // A:
+        // R:
         
         // Q: What is keeping the Container alive?
-        // A: alias keeping use_count to 1
-        // R: Correct. alias holds the last reference to the shared control block, keeping the reference count at 1 and preventing deletion.
+        // A:
+        // R:
         
         // Q: What happens to the Tracked member when the Container is eventually deleted?
-        // A: It also gets deleted in Container's dtor
-        // R: Correct. When alias goes out of scope, ContainerDeleter destroys the Container. The Container's destructor then destroys its member (the Tracked object) as part of normal member destruction.
+        // A:
+        // R:
         
         auto events_after_owner_reset = EventLog::instance().events();
         bool container_deleted = false;
@@ -294,16 +294,16 @@ TEST_F(DeallocationLifetimeTest, NullptrReset)
     p1.reset();
     
     // Q: What does p1 point to after reset() with no arguments?
-    // A: nullptr
-    // R: Correct. reset() with no arguments releases the managed object and sets p1 to an empty state (equivalent to nullptr).
+    // A:
+    // R:
     
     // Q: What happened to the object that p1 was managing?
-    // A: It memory is released
-    // R: Correct. The reference count reached 0, triggering Obj1's destructor and deallocating both the object and the control block.
+    // A:
+    // R:
     
     // Q: Is reset() with no arguments equivalent to p1 = nullptr?
-    // A: No.  reset() atomically updates its use_count and other things depending on the atomic values it manages
-    // R: Actually, they are functionally equivalent for single-threaded code. Both decrement the reference count and set p1 to empty. The difference is stylistic: reset() is more explicit about intent. In thread-safe implementations, both use atomic operations on the control block. The assignment operator calls reset() internally.
+    // A:
+    // R:
     
     auto events = EventLog::instance().events();
     size_t dtor_count = 0;
@@ -330,20 +330,20 @@ TEST_F(DeallocationLifetimeTest, MultipleResetsInSequence)
     p1.reset(new Tracked("Third"));
     
     // Q: How many objects were destroyed during the three reset() calls?
-    // A: 3
-    // R: Correct. Each reset() call destroyed the previously managed object: "Initial" (from the first reset), "First" (from the second reset), and "Second" (from the third reset).
+    // A:
+    // R:
     
     // Q: When was each object destroyed?
-    // A: Upon each reset call
-    // R: Correct. Each reset() immediately decrements the reference count to 0 for the old object, triggering its destructor before the new object is assigned.
+    // A:
+    // R:
     
     // Q: After the three reset() calls, which object does p1 manage?
-    // A: Tracked("Third")
-    // R: Correct. The last reset() assigned "Third" to p1, so that's what p1 currently manages.
+    // A:
+    // R:
     
     // Q: What would happen if you added a fourth reset() with no arguments?
-    // A: Tracked("Third") would be deleted and then p1 points to nullptr and has control block memory released
-    // R: Correct. reset() with no arguments would destroy "Third", deallocate its control block, and leave p1 in an empty state (pointing to nullptr with no control block).
+    // A:
+    // R:
     
     auto events = EventLog::instance().events();
     size_t dtor_count = 0;

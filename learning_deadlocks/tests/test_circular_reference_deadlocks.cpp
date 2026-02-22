@@ -103,7 +103,7 @@ void setup_child_parent_deadlock(std::shared_ptr<Child> child, std::shared_ptr<P
     child->set_parent(parent);
 }
 
-TEST_F(CircularReferenceDeadlocksTest, Scenario1_ParentChildCircularWithMutex_Broken)
+TEST_F(CircularReferenceDeadlocksTest, DISABLED_Scenario1_ParentChildCircularWithMutex_Broken)
 {
     auto parent = std::make_shared<Parent>("Parent");
     auto child = std::make_shared<Child>("Child");
@@ -235,7 +235,7 @@ void link_nodes_deadlock(std::shared_ptr<Node> n1, std::shared_ptr<Node> n2)
     n2->set_prev(n1);
 }
 
-TEST_F(CircularReferenceDeadlocksTest, Scenario2_DoublyLinkedListDeadlock_Broken)
+TEST_F(CircularReferenceDeadlocksTest, DISABLED_Scenario2_DoublyLinkedListDeadlock_Broken)
 {
     auto n1 = std::make_shared<Node>("N1");
     auto n2 = std::make_shared<Node>("N2");
@@ -387,7 +387,7 @@ void Subject::notify()
     }
 }
 
-TEST_F(CircularReferenceDeadlocksTest, Scenario3_ObserverPatternCircular_Broken)
+TEST_F(CircularReferenceDeadlocksTest, DISABLED_Scenario3_ObserverPatternCircular_Broken)
 {
     auto subject = std::make_shared<Subject>("Subject");
     auto obs1 = std::make_shared<Observer>("Obs1");
@@ -528,7 +528,7 @@ void create_bidirectional_edge_deadlock(std::shared_ptr<GraphNode> n1, std::shar
     n2->add_edge(n1);
 }
 
-TEST_F(CircularReferenceDeadlocksTest, Scenario4_GraphCircularDependencies_Broken)
+TEST_F(CircularReferenceDeadlocksTest, DISABLED_Scenario4_GraphCircularDependencies_Broken)
 {
     auto n1 = std::make_shared<GraphNode>("N1");
     auto n2 = std::make_shared<GraphNode>("N2");

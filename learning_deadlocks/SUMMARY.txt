@@ -7,7 +7,7 @@ Detection: std::timed_mutex with timeouts (not production pattern, just for lear
 
 STRUCTURE:
 - Each scenario has BROKEN version (complete, demonstrates deadlock)
-- Each scenario has FIXED version (empty, YOU implement the fix)
+- Each scenario has FIXED version (empty, implement the fix)
 - Socratic Q/A/R comments inline for learning
 
 FILES:
@@ -62,7 +62,7 @@ LEARNING APPROACH:
 1. Read broken version - understand WHY it deadlocks
 2. Answer Q/A/R questions inline
 3. Implement the *_fixed() function
-4. Run test to verify your fix
+4. Run test to verify the fix
 5. Move to next scenario
 
 KEY CONCEPTS COVERED:

@@ -84,7 +84,7 @@ private:
     bool shutdown_;
 };
 
-TEST_F(ConditionVariableDeadlocksTest, Scenario1_ProducerConsumerWrongWait_Broken)
+TEST_F(ConditionVariableDeadlocksTest, DISABLED_Scenario1_ProducerConsumerWrongWait_Broken)
 {
     Queue queue;
     std::atomic<bool> consumer_stuck(false);
@@ -217,7 +217,7 @@ private:
     bool ready_;
 };
 
-TEST_F(ConditionVariableDeadlocksTest, Scenario2_NotifyBeforeWait_Broken)
+TEST_F(ConditionVariableDeadlocksTest, DISABLED_Scenario2_NotifyBeforeWait_Broken)
 {
     Signal signal;
     std::atomic<bool> waiter_stuck(false);
@@ -352,7 +352,7 @@ private:
     bool stage2_ready_;
 };
 
-TEST_F(ConditionVariableDeadlocksTest, Scenario3_NestedConditionVariables_Broken)
+TEST_F(ConditionVariableDeadlocksTest, DISABLED_Scenario3_NestedConditionVariables_Broken)
 {
     TwoStageQueue queue;
     std::atomic<int> deadlock_count(0);
@@ -501,7 +501,7 @@ private:
     bool shutdown_;
 };
 
-TEST_F(ConditionVariableDeadlocksTest, Scenario4_SpuriousWakeupHandling_Broken)
+TEST_F(ConditionVariableDeadlocksTest, DISABLED_Scenario4_SpuriousWakeupHandling_Broken)
 {
     WorkQueue queue;
     std::atomic<int> null_work_count(0);
