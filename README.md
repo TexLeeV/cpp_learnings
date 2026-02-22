@@ -477,8 +477,33 @@ cmake --build --preset gcc --target test_mutex_ordering_deadlocks
 
 - CMake 3.14+
 - GCC/Clang with C++17 support
-- GoogleTest (will be found by CMake)
+- GoogleTest
 - Threads (for multi-threaded tests)
+
+### Installing Dependencies
+
+#### GoogleTest (Required)
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install libgtest-dev cmake build-essential ninja-build
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install gtest-devel cmake gcc-c++ ninja-build
+```
+
+**macOS:**
+```bash
+brew install googletest cmake ninja
+```
+
+CMake will find GoogleTest via `find_package(GTest REQUIRED)`. If installed to a non-standard location:
+```bash
+cmake --preset gcc -DGTest_DIR=/path/to/gtest/lib/cmake/GTest
+```
 
 ### Asio Setup (Optional)
 
