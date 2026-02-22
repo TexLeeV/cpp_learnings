@@ -46,20 +46,20 @@ TEST_F(OwnershipPatternsTest, EnableSharedFromThis)
     // TODO: Capture initial use_count
     initial_count = w1.use_count();
     // Q: Why is the use_count 1 at this point?
-    // A:
-    // R:
+    // A: w1 has one reference to Widget object
+    // R: Correct. More precisely: w1 is the only shared_ptr that references the Widget's control block.
     //    The control block's use_count field is 1.
     
     // TODO: Call get_shared() to get w2
     std::shared_ptr<Widget> w2 = w1->get_shared();
     // Q: What does shared_from_this() return, and which control block does it reference?
-    // A:
-    // R:
+    // A: shared_from_this() returns a std::shared_ptr<Widget>.  It references the same control block, which is now incremented to 2 atomically.
+    // R: Correct. Key mechanism: enable_shared_from_this stores a weak_ptr to the control block when the first shared_ptr
     //    is created. shared_from_this() calls weak_ptr::lock(), which creates a new shared_ptr sharing the same control
     //    block and atomically increments use_count from 1 to 2.
     // Q: What would happen if you called shared_from_this() before any shared_ptr owned the object?
-    // A:
-    // R:
+    // A: You would dereference a null pointer which will result into a segfault crash
+    // R: Close on the outcome, but the mechanism is more specific. The internal weak_ptr hasn't been initialized yet,
     //    so weak_ptr::lock() returns an empty shared_ptr (nullptr). In C++17+, shared_from_this() throws
     //    std::bad_weak_ptr instead of returning nullptr. Pre-C++17, it returned an empty shared_ptr, and dereferencing
     //    it would cause undefined behavior (likely segfault).
@@ -68,8 +68,8 @@ TEST_F(OwnershipPatternsTest, EnableSharedFromThis)
     after_get_shared_count = w2.use_count();
     both_alive_count = w1.use_count();
     // Q: Why do both w1.use_count() and w2.use_count() return 2?
-    // A:
-    // R:
+    // A: Because both control blocks point to the same memory.
+    // R: Close, but imprecise terminology. There is only ONE control block, not two. Both w1 and w2 are separate
     //    shared_ptr objects, but they both reference the same single control block. The control block's use_count
     //    field is 2, so both w1.use_count() and w2.use_count() read that same field and return 2.
     
@@ -121,11 +121,11 @@ TEST_F(OwnershipPatternsTest, StaticFactoryPattern)
     // TODO: Call Resource::create("R1") to get r1
     std::shared_ptr<Resource> r1 = Resource::create("R1");
     // Q: Why does the factory pattern make the constructor private?
-    // A:
-    // R:
+    // A: I'm not sure why it "makes" the constructor private.  Provide a hint
+    // R: Hint: What would happen if the constructor were public and someone wrote: Resource r("Stack"); r.get_ptr();
     // Q: With that hint, why is the constructor private in this pattern?
-    // A:
-    // R:
+    // A: Someone could create a stack object or raw pointer and call shared_from_this(), which would throw
+    // R: Exactly correct. The private constructor prevents stack allocation (compile-time error) and discourages
     //    raw pointer allocation. The word "make" here means "design choice"—the pattern chooses to make the
     //    constructor private to enforce that all Resource objects must be owned by shared_ptr from creation.
     
@@ -135,21 +135,21 @@ TEST_F(OwnershipPatternsTest, StaticFactoryPattern)
     // TODO: Call get_ptr() to get r2
     std::shared_ptr<Resource> r2 = r1->get_ptr();
     // Q: What would happen if you tried: Resource* raw = new Resource("Bad"); raw->get_ptr();
-    // A:
-    // R:
+    // A: It would result into an exception provided by c++ that would need to be handled appropriately.
+    // R: Correct on the outcome. The specific exception is std::bad_weak_ptr (C++17+) because the internal weak_ptr
     //    in enable_shared_from_this was never initialized—no shared_ptr was created to own the object.
     // Q: What specific exception would it throw?
-    // A:
-    // R:
+    // A: std::bad_weak_ptr (C++17+), unsure of pre c++17
+    // R: Correct. Pre-C++17, shared_from_this() returned an empty shared_ptr (nullptr) instead of throwing,
     //    which made the bug harder to detect—dereferencing it would cause undefined behavior (likely segfault).
     //    C++17 improved this by throwing std::bad_weak_ptr immediately, making the error explicit.
     
     // TODO: Capture use_count after get_ptr()
     after_get_ptr_count = r2.use_count();
     // Q: Why is this pattern safer than allowing direct construction with shared_ptr<Resource>(new Resource("R1"))?
-    // A:
-    // A:
-    // R:
+    // A: Factory patterns are safer, if implemented correctly, to ensure that object initializations are done correctly
+    // A: And restrict the possibility of a SWE doing something like:  "Resource* raw = new Resource("Bad"); raw->get_ptr();"
+    // R: You're on the right track about restricting misuse. The key safety guarantee is: the factory ensures a shared_ptr
     //    ALWAYS owns the object before any member functions (like get_ptr()) can be called. With a public constructor,
     //    someone could create a stack object or raw pointer and call shared_from_this(), which would throw. The private
     //    constructor + factory pattern makes this impossible at compile time (for stack) or forces proper shared_ptr ownership.
@@ -181,33 +181,33 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByValue)
     // TODO: Capture use_count before calling function
     before_call = ptr.use_count();
     // Q: What is the use_count at this point?
-    // A:
-    // R:
+    // A: 1
+    // R: Correct.
     
     EventLog::instance().clear();
     
     // TODO: Call process_by_value(ptr)
     process_by_value(ptr);
     // Q: When process_by_value(ptr) is called, what happens to the shared_ptr during parameter passing?
-    // A:
-    // R:
+    // A: It gets copied, incrementing the count by 1 and then decrement the count by 1 back to original value of 1 when process_by_value goes out of scope
+    // R: Correct on the reference count mechanics. But there's a critical distinction: the shared_ptr itself is copied
     //    (creating a second shared_ptr that shares ownership), but the Tracked object inside is NOT copied. Only the
     //    control block pointer is copied, and the use_count is atomically incremented.
     // Q: By control block pointer is copied, do you mean that the control block in the function just points to the memory address of ptr's control_block_?
-    // A:
-    // R:
+    // A: Ignore this
+    // R: (Noted - skipping this question as requested)
 
     // Q: What observable signal (in the event log) would confirm a copy occurred?
-    // A:
-    // R:
+    // A: Tracked::Tracked(const Tracked& other)
+    // R: This is the key misunderstanding. Tracked::copy_ctor would only be called if the Tracked object itself were
     //    copied. But when you copy a shared_ptr, the Tracked object is NOT copied—only the shared_ptr's internal
     //    pointers are copied. The test expects events.size() > 0, but you're getting 0 because no Tracked operations
     //    occur. The shared_ptr copy is invisible to Tracked's instrumentation.
     //    
     //    However, the test EXPECTS events. This means the test is checking for something else.
     // Q: If copying shared_ptr doesn't trigger Tracked events, why does the test expect events.size() > 0?
-    // A:
-    // R:
+    // A: Because the clear() call is done after the ptr initialization?  Should I move it to the top of the test?
+    // R: Excellent hypothesis! Yes, that's exactly the issue. The clear() happens AFTER ptr is created, so it clears
     //    the constructor event. But the test wants to observe what happens during the function call. Moving clear()
     //    before the function call won't help because copying shared_ptr still doesn't trigger Tracked events.
     //    
@@ -219,14 +219,14 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByValue)
     // TODO: Capture use_count after function returns
     after_call = ptr.use_count();
     // Q: Why is after_call expected to be 1, not 2?
-    // A:
-    // R:
+    // A: Because the function goes out of scope, decrementing the count by 1
+    // R: Correct. The parameter's shared_ptr destructor runs at the end of process_by_value, decrementing use_count
     //    back to 1.
     
     auto events = EventLog::instance().events();
     // Q: The test expects events.size() > 0. What events should be logged when passing shared_ptr by value?
-    // A:
-    // R:
+    // A: Would it be the dtor it expects since the function goes out of scope?  Is this a bug of the test?
+    // R: Good reasoning. The shared_ptr parameter's destructor runs, but that only decrements the control block's
     //    use_count—it doesn't destroy the Tracked object (use_count goes from 2 to 1, not to 0). So no Tracked::dtor
     //    is called. You're correct: this appears to be a test bug. The assertion should be EXPECT_EQ(events.size(), 0).
     //    
@@ -255,13 +255,13 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByConstRef)
     // TODO: Call process_by_const_ref(ptr)
     process_by_const_ref(ptr);
     // Q: How does passing by const reference differ from passing by value in terms of shared_ptr operations?
-    // A:
-    // R:
+    // A: Passing by const reference means we're passing an immutable version of the same variable into the function
+    // R: Correct conceptually. More precisely: passing by const reference means NO shared_ptr copy occurs. The function
     //    receives a reference to the original shared_ptr object (ptr), not a new shared_ptr. This means no control block
     //    operations (no increment/decrement of use_count), and the parameter 'item' is just an alias for 'ptr'.
     // Q: What is the use_count inside process_by_const_ref while it's executing?
-    // A:
-    // R:
+    // A: 1, since we are not copying a new shared_ptr and using the same one as ptr
+    // R: Exactly correct. The use_count remains 1 throughout because no new shared_ptr is created. The parameter is
     //    just a reference to the existing shared_ptr, so the control block's use_count never changes.
     
     // TODO: Capture use_count after function returns
@@ -269,8 +269,8 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByConstRef)
     
     auto events = EventLog::instance().events();
     // Q: Why does this test expect events.size() == 0 (not > 0 like the by-value test originally expected)?
-    // A:
-    // R:
+    // A: Because a dtor is not called on Tracked because the lifetime and count of ptr is the same throughout the entirety of the test until it goes out of scope
+    // R: Correct. No Tracked operations occur because: (1) no shared_ptr copy means no control block operations,
     //    (2) no shared_ptr destructor runs inside the function (it's just a reference), and (3) the Tracked object
     //    itself is never touched. The use_count stays at 1, so no destruction occurs.
     
@@ -295,9 +295,9 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByRef)
     // TODO: Call process_by_ref(ptr)
     process_by_ref(ptr);
     // Q: How does passing by mutable reference differ from passing by const reference?
-    // A:
-    // A:
-    // R:
+    // A: Very similar except that the shared_ptr can point to something else, but both still allow the ability to change the contents of Tracked directly, unless <const Tracked> as added
+    // A: Additionally, passing by const& optimizes the code at compile time.  Explain this a little more in detail while we're here
+    // R: Correct on all points. The key difference: mutable reference allows modifying the shared_ptr itself (reset,
     //    reassign), while const reference prevents that. Both allow modifying the Tracked object through the pointer,
     //    as you correctly noted—only `std::shared_ptr<const Tracked>` would prevent modifying Tracked.
     //    
@@ -307,8 +307,8 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByRef)
     //    
     //    Both have the same performance and both allow modifying the object.
     // Q: Could process_by_ref modify ptr (e.g., call ptr.reset() or reassign it)?
-    // A:
-    // R:
+    // A: Yes, explanation in previous question
+    // R: Correct. With a mutable reference, process_by_ref could call ptr.reset() (destroying the Tracked object and
     //    setting ptr to nullptr), or reassign ptr to point to a different object. This is the key difference from
     //    const reference, which prevents these modifications.
     
@@ -317,8 +317,8 @@ TEST_F(OwnershipPatternsTest, ParameterPassingByRef)
     
     auto events = EventLog::instance().events();
     // Q: Why are the expectations identical to ParameterPassingByConstRef?
-    // A:
-    // R:
+    // A: No dtor is called
+    // R: Correct, but let's be more precise: the expectations are identical because process_by_ref doesn't actually
     //    modify ptr (the function body is empty). If it did call ptr.reset(), the test would fail. The expectations
     //    are the same as const ref because both avoid copying the shared_ptr—no copy means no control block operations,
     //    no destructor calls, and use_count stays at 1.
@@ -338,8 +338,8 @@ TEST_F(OwnershipPatternsTest, ReturnByValue)
     // TODO: Call create_widget() to get result
     std::shared_ptr<Widget> result = create_widget();
     // Q: When the lambda returns the shared_ptr by value, is it copied or moved?
-    // A:
-    // R:
+    // A: I'm thinking copied, unless there is optimization under the hood that I'm unaware of that converts it to be moved
+    // R: Excellent intuition! It's moved, not copied. C++11 introduced automatic move semantics for return values.
     //    When returning a local object by value, the compiler automatically treats it as an rvalue (as if you wrote
     //    `return std::move(local_var)`). This is called "implicit move on return." No explicit std::move is needed.
     
@@ -347,14 +347,14 @@ TEST_F(OwnershipPatternsTest, ReturnByValue)
     // TODO: Capture use_count of result
     use_count = result.use_count();
     // Q: Why is use_count 1 instead of 2 (if a copy occurred during return)?
-    // A:
-    // R:
+    // A: because the one in create_widget goes out of scope
+    // R: Close, but let's be more precise. The use_count is 1 because the shared_ptr was MOVED (not copied) from
     //    the lambda to result. Move transfers ownership without incrementing use_count. The temporary shared_ptr
     //    inside the lambda is left in a "moved-from" state (pointing to nullptr with use_count 0), then destroyed
     //    when the lambda ends. No increment/decrement cycle occurs.
     // Q: What optimization allows returning shared_ptr by value without incrementing use_count?
-    // A:
-    // R:
+    // A: std::move
+    // R: Almost—it's not std::move explicitly, but the compiler's automatic move semantics for return statements.
     //    The optimization is called "implicit move on return" (C++11) or "copy elision/RVO" (Return Value Optimization).
     //    In this case, the compiler treats the return value as an rvalue and invokes the move constructor, not the
     //    copy constructor. This happens automatically—you don't write std::move in the return statement.
@@ -372,14 +372,14 @@ TEST_F(OwnershipPatternsTest, WeakPtrFromShared)
     // TODO: Create weak_ptr (initially empty)
     std::weak_ptr<Tracked> weak;
     // Q: What does an empty weak_ptr point to?
-    // A:
-    // R:
+    // A: nullptr
+    // R: Correct. An empty weak_ptr has no associated control block and doesn't point to any object.
     
     // TODO: Check if weak is expired (should be true initially)
     weak_expired_before = weak.expired();
     // Q: Why is an empty weak_ptr considered "expired"?
-    // A:
-    // R:
+    // A: Because it doesn't point to anything
+    // R: Correct. expired() returns true when the weak_ptr doesn't reference a control block, or when the control
     //    block's use_count is 0 (object destroyed). An empty weak_ptr has no control block, so it's expired.
     
     {
@@ -389,8 +389,8 @@ TEST_F(OwnershipPatternsTest, WeakPtrFromShared)
         // TODO: Assign shared to weak
         weak = shared;
         // Q: When you assign shared to weak, does the use_count of shared change?
-        // A:
-        // R:
+        // A: No, but explain the inner workings of weak_ptr's in detail as we are just now getting to this concept.
+        // R: Correct—use_count does NOT change. Here's how weak_ptr works:
         //    
         //    The control block has TWO counters:
         //    1. **use_count** (strong references): Number of shared_ptrs. When this reaches 0, the object is destroyed.
@@ -406,7 +406,7 @@ TEST_F(OwnershipPatternsTest, WeakPtrFromShared)
         //    destroyed (use_count reaches 0) but doesn't prevent destruction. This breaks circular reference cycles.
         //    
         // Q: What happens when a std::weak_ptr<Tracked> is kept alive indefinitely? Is this a memory leak? I thought only use_count was used to decide when the memory is released?
-        // R:
+        // R: Great question—this is a subtle but important distinction. Yes, keeping a weak_ptr alive indefinitely can
         //    cause a small memory leak, but ONLY of the control block, not the Tracked object itself.
         //    
         //    Two separate lifetimes:
@@ -435,8 +435,8 @@ TEST_F(OwnershipPatternsTest, WeakPtrFromShared)
     // TODO: Check if weak is expired after shared goes out of scope
     weak_expired_after = weak.expired();
     // Q: After shared is destroyed, what happens to the Tracked object and the control block?
-    // A:
-    // R:
+    // A: Their dtors are ran and weak.expired(); will now return true
+    // R: Partially correct. Let's be precise:
     //    
     //    When shared goes out of scope:
     //    1. use_count decrements from 1 to 0
@@ -450,7 +450,7 @@ TEST_F(OwnershipPatternsTest, WeakPtrFromShared)
     //    This is why weak_ptr can safely detect expiration: the control block persists to track the use_count state.
     //    
     // Q: Can valgrind or sanitizers find these types of memory leaks?
-    // R:
+    // R: Yes, but with nuance. Valgrind and AddressSanitizer (ASan) will detect control block leaks if the weak_ptr
     //    is never destroyed before program exit. They'll report "definitely lost" or "still reachable" memory.
     //    
     //    However, these tools can't distinguish between:
@@ -481,15 +481,15 @@ TEST_F(OwnershipPatternsTest, WeakPtrLock)
     // TODO: Lock the weak_ptr to get a shared_ptr
     std::shared_ptr<Tracked> locked_ptr = weak.lock();
     // Q: What does weak.lock() do, and why is it necessary?
-    // A:
-    // A:
-    // R:
+    // A: If shared use_count is not 0, it returns another shared_ptr copy and increments use_count by 1
+    // A: If shared_use_count is 0, then a nullptr is returned
+    // R: Correct! lock() is the safe way to access the object through a weak_ptr. It atomically checks if the object
     //    still exists (use_count > 0) and, if so, creates a new shared_ptr that increments use_count. This prevents
     //    the object from being destroyed between the check and the access—a race condition that would cause undefined
     //    behavior. If the object is already destroyed, lock() returns an empty shared_ptr (nullptr).
     // Q: What happens to use_count when lock() succeeds?
-    // A:
-    // R:
+    // A: Explained in previous A
+    // R: Correct—use_count increments by 1 because lock() creates a new shared_ptr that shares ownership.
     
     // TODO: Check if lock succeeded (locked_ptr != nullptr)
     lock_succeeded = (locked_ptr != nullptr);
@@ -497,12 +497,12 @@ TEST_F(OwnershipPatternsTest, WeakPtrLock)
     // TODO: Capture use_count
     use_count_with_lock = shared.use_count();
     // Q: Why is use_count 2 instead of 1?
-    // A:
-    // R:
+    // A: Because weak.lock() returned a shared shared_ptr copy
+    // R: Correct. Now there are two shared_ptrs: the original `shared` and the newly created `locked_ptr`. Both
     //    reference the same control block, so use_count is 2.
     // Q: What would lock() return if the object had already been destroyed?
-    // A:
-    // R:
+    // A: Explained earlier
+    // R: Correct—an empty shared_ptr (nullptr). This is why you should always check if lock() succeeded before
     //    dereferencing the result.
     
     EXPECT_TRUE(lock_succeeded);
@@ -524,13 +524,13 @@ TEST_F(OwnershipPatternsTest, MoveConstruction)
     // TODO: Move p1 into p2
     std::shared_ptr<Tracked> p2 = std::move(p1);
     // Q: What happens to the control block's use_count during a move?
-    // A:
-    // R:
+    // A: It remains unchanged
+    // R: Exactly correct. Move transfers ownership without modifying the control block's use_count. The pointers
     //    (to both the Tracked object and the control block) are simply copied from p1 to p2, then p1 is reset to
     //    nullptr. No atomic increment/decrement operations occur.
     // Q: After the move, what does p1 point to?
-    // A:
-    // R:
+    // A: nullptr
+    // R: Correct. After the move, p1 is in a "moved-from" state: it points to nullptr and has no associated control
     //    block. It's safe to use (you can assign to it, destroy it, etc.), but dereferencing it would be undefined
     //    behavior.
     
@@ -538,12 +538,12 @@ TEST_F(OwnershipPatternsTest, MoveConstruction)
     count_after_move_source = p1.use_count();
     count_after_move_dest = p2.use_count();
     // Q: Why is p1.use_count() 0 after the move?
-    // A:
-    // R:
+    // A: Because it points to nullptr, not the original Tracked object anymore
+    // R: Correct. An empty shared_ptr (pointing to nullptr) has use_count() == 0 because it has no associated control
     //    block to query.
     // Q: How does move differ from copy in terms of performance?
-    // A:
-    // R:
+    // A: Probably significant.  If copy, the heap allocation will need to be done for the shared_ptr, not the Tracked object
+    // R: Close, but let's clarify: copying a shared_ptr does NOT allocate heap memory. The control block and Tracked
     //    object already exist. Copying only does: (1) copy two pointers, (2) atomic increment of use_count. Move does:
     //    (1) copy two pointers, (2) set source to nullptr. The key difference is the atomic increment—move avoids it.
     //    
@@ -567,8 +567,8 @@ TEST_F(OwnershipPatternsTest, MoveAssignment)
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
     std::shared_ptr<Tracked> p2 = std::make_shared<Tracked>("Tracked2");
     // Q: Before move assignment, how many Tracked objects exist?
-    // A:
-    // R:
+    // A: 2
+    // R: Correct. Two separate Tracked objects with independent control blocks.
     
     // TODO: Capture use_counts before move assignment
     p1_count_before = p1.use_count();
@@ -579,15 +579,15 @@ TEST_F(OwnershipPatternsTest, MoveAssignment)
     // TODO: Move assign p2 to p1 (p1 = std::move(p2))
     p1 = std::move(p2);
     // Q: What happens to the Tracked object that p1 originally pointed to?
-    // A:
-    // R:
+    // A: Its use_count decrements to 0 and its Tracked object and control block is released from memory
+    // R: Correct. When use_count reaches 0, the Tracked object is destroyed and its memory is freed. The control
     //    block is also freed because there are no weak_ptrs keeping it alive.
     // Q: After move assignment, what does p1 point to?
-    // A:
-    // R:
+    // A: To p2's Tracked object and control block
+    // R: Correct. p1 now owns what p2 used to own (Tracked2 and its control block).
     // Q: Why does p2.use_count() return 0 after the move?
-    // A:
-    // R:
+    // A: Because it points to nullptr now
+    // R: Correct. After move assignment, p2 is in a moved-from state (empty, pointing to nullptr).
     
     // TODO: Capture use_counts after move assignment
     p1_count_after = p1.use_count();
@@ -595,8 +595,8 @@ TEST_F(OwnershipPatternsTest, MoveAssignment)
     
     size_t dtor_count = EventLog::instance().count_events("::dtor");
     // Q: Why is dtor_count expected to be 1?
-    // A:
-    // R:
+    // A: Because p1's Tracked object was released from memory
+    // R: Correct. Only Tracked1 (the object p1 originally pointed to) is destroyed during the move assignment.
     //    Tracked2 survives because p1 now owns it.
     
     EXPECT_EQ(p1_count_before, 1);

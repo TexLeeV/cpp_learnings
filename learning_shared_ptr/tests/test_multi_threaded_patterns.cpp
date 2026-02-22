@@ -863,13 +863,10 @@ TEST_F(MultiThreadedPatternsTest, WeakAliasingAcrossThreads)
         // Q: What happens to weak_alias when owner and alias go out of scope?
         // A:
         // R:
-        
-        // Join all threads before owner/alias go out of scope
-        for (auto& t : threads)
-        {
-            t.join();
-        }
     }
+    
+    // Wait for all threads
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
     // Q: Why do some threads successfully lock while others fail?
     // A:

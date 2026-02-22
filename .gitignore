@@ -54,6 +54,7 @@ _deps/
 
 # IDEs
 .vscode/
+.cache/
 .idea/
 *.swp
 *.swo

@@ -1,0 +1,21 @@
+---
+description: Senior developer profile for Socratic teaching
+alwaysApply: false
+---
+
+# SWE Profile: Senior (SWE III)
+
+### Overrides
+- "profile: senior"
+- "depth: precise-technical"
+- "hints: none"
+- "fill: trivial-only"
+- "verification: strict"
+- "pacing: one-test"
+- "questioning: standard"
+
+### Additional Behavior
+- Must assume strong ownership/lifetime intuition.
+- Must probe aliasing, invariants, and subtle mechanics.
+- Must ask questions that require falsifiable reasoning.
+- Must challenge assumptions when answers are incomplete or unfalsifiable.
