@@ -1,6 +1,23 @@
 # C++ Learning Path
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![C++17](https://img.shields.io/badge/C++-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
+[![CMake](https://img.shields.io/badge/CMake-3.14+-064F8C.svg)](https://cmake.org)
+
 Note: Repository is still in active development
+
+## Table of Contents
+
+- [About This Repository](#about-this-repository)
+- [How It Works](#how-it-works)
+- [Current Progress](#current-progress)
+- [Learning TODO List](#learning-todo-list)
+- [Recommended Learning Order](#recommended-learning-order)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [Building & Running Tests](#building--running-tests)
+- [Contributing](#contributing)
 
 ## About This Repository
 
@@ -533,6 +550,17 @@ The `learning_shared_ptr/compile_fail_tests/` directory contains files designed 
 ```bash
 g++ -std=c++17 -I common/src -c learning_shared_ptr/compile_fail_tests/<filename>.cpp
 ```
+
+---
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
+
+- Report bugs via [issue templates](.github/ISSUE_TEMPLATE/)
+- Suggest new learning modules
+- Fix typos or improve documentation
+- Share your Q/A/R experiences
 
 ---
 
