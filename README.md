@@ -85,6 +85,64 @@ See `.cursor/rules/socratic-software-engineering.mdc` for full details.
 
 The exercises are self-contained. The Q/A/R comments, TODO markers, and test assertions work without any AI assistance. Cursor just enhances the experience with active Socratic dialogue.
 
+## How It Works
+
+### The Q/A/R Pattern (Configurable)
+
+Tests use inline comments for guided learning:
+- `// Q:` -- Question posed about the code's behavior
+- `// A:` -- Space for your answer (fill this in)
+- `// R:` -- Response/feedback on your answer (provided after you answer)
+
+You fill in the `// A:` lines with your predictions, run the test, observe the results, and receive feedback in the `// R:` lines.
+
+### Instrumentation System
+
+The `EventLog` singleton and instrumented classes (`Tracked`, `MoveTracked`, `Resource`) make runtime behavior observable:
+
+```cpp
+EventLog::instance().clear();  // Clear before test
+// ... your code ...
+auto events = EventLog::instance().events();  // Inspect what happened
+EventLog::instance().dump();  // Print full log
+```
+
+Every constructor, destructor, copy, move, and custom deleter is logged. This turns abstract concepts (reference counting, move semantics, destruction order) into concrete, verifiable output.
+
+### Exercise Patterns
+
+**Fill-in exercises**: Complete code with `// TODO:` markers. Run tests to validate.
+
+**Broken/Fixed pattern** (deadlocks): Study the broken implementation that demonstrates the bug, then implement the `*_fixed()` version.
+
+**Compile-fail tests**: Files designed to fail compilation. Predict why, compile manually, reason about the error, fix it.
+
+## Using with Cursor
+
+### Automatic Socratic Teaching
+
+The `.cursor/rules/` directory contains AI teaching rules that activate automatically in Cursor. The AI will:
+- Ask questions before explaining
+- Validate your answers against test behavior
+- Add follow-up questions to deepen understanding
+- Write feedback directly into your files
+
+### Customizing Your Experience
+
+The Socratic method is configurable. Tell the AI your preferences in chat:
+
+- **Pacing**: "one test at a time" (default), "bulk mode", "self-directed"
+- **Hints**: "no hints unless I ask" (default), "offer hints when stuck"
+- **Feedback**: inline Q/A/R (default), "chat-only", "mixed mode"
+- **Response depth**: "precise technical" (default), "beginner-friendly"
+- **Verification**: "always verify" (default), "trust context"
+
+See `.cursor/rules/socratic-software-engineering.mdc` for full details.
+
+### Works Without Cursor
+
+The exercises are self-contained. The Q/A/R comments, TODO markers, and test assertions work without any AI assistance. Cursor just enhances the experience with active Socratic dialogue.
+
 ## Current Progress
 
 - ✅ **Smart Pointers (`learning_shared_ptr/`)**: Comprehensive `shared_ptr` test suite with 17 test files covering ownership, lifetime, aliasing, weak_ptr, and multi-threaded patterns
