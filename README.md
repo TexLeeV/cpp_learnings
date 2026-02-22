@@ -13,7 +13,7 @@ This repository is a hands-on learning path for advanced C++ concepts. It exists
 
 ## Who This Is For
 
-Developers with solid C++ fundamentals who want to deepen their understanding of smart pointers, move semantics, concurrency, and related topics. The default pacing assumes senior-SWE-level systems intuition; the teaching style is configurable (e.g. beginner-friendly, bulk mode).
+Developers with solid C++ fundamentals who want to deepen their understanding of smart pointers, move semantics, concurrency, and related topics. The teaching system adapts across five skill levels (Junior → Intermediate → Senior → Staff → Principal) with configurable pacing, questioning style, and feedback depth. Default profile: Staff-level with mechanism-oriented reasoning.
 
 ## What Makes This Different
 
@@ -50,14 +50,18 @@ See [docs/TEACHING_METHOD.md](docs/TEACHING_METHOD.md) for the Q/A/R pattern, in
 
 ## Using with Cursor
 
-The `.cursor/rules/` directory contains AI teaching rules (e.g. [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc)). They activate automatically in Cursor. Tell the AI your preferences (pacing, hints, feedback mode) in chat. See [Teaching Method](docs/TEACHING_METHOD.md) for details.
+The `.cursor/rules/` directory contains an adaptive Socratic teaching framework with five skill profiles:
+- **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) - Core methodology and preferences
+- **Profiles:** `profile-junior.mdc`, `profile-intermediate.mdc`, `profile-senior.mdc`, `profile-staff.mdc`, `profile-principal.mdc`
+
+Rules activate automatically in Cursor. Activate a profile by stating the exact override string (e.g., `"profile: staff"`) in chat. Configure preferences: pacing, hints, questioning style, feedback mode, verification rigor, response depth, fill level, and C++ standard focus. See [Teaching Method](docs/TEACHING_METHOD.md) for details.
 
 ## Repository Structure
 
 ```
 cpp/
 ├── README.md                    # This file
-├── .cursor/rules/               # Socratic teaching rules for Cursor IDE
+├── .cursor/rules/               # Adaptive Socratic teaching framework (5 skill profiles)
 ├── common/                      # Shared instrumentation library (EventLog, Tracked, MoveTracked, Resource)
 │   └── src/
 ├── cmake/                       # CMake helper functions (add_learning_test)
