@@ -145,41 +145,41 @@ TEST_F(FillInExercisesTest, Exercise2_WeakPtrCache)
     Cache cache;
 
     // Q: How many shared_ptr instances exist after this call? Where are they?
-    // A:
-    // R:
+    // A: 1
+    // R: Correct. One shared_ptr exists: r1. The cache holds a weak_ptr which doesn't count toward use_count().
     std::shared_ptr<Tracked> r1 = cache.get("key1");
     EXPECT_EQ(cache.size(), 1);
     // Q: If the cache stored shared_ptr instead of weak_ptr, what would use_count() be here?
-    // A:
-    // R:
+    // A: 2
+    // R: Correct. One in r1, one in the cache. This would prevent the caller from controlling lifetime.
     EXPECT_EQ(r1.use_count(), 1);
 
     // Q: What does weak_ptr::lock() return? What happens to the reference count when assigned to r2?
-    // A:
-    // R:
+    // A: Returns a shared_ptr and increments the count.  It ensure's that something else cares about the result still
+    // R: Correct. lock() returns shared_ptr<Tracked>. Assigning to r2 increments the count from 1 to 2. The lock() operation atomically checks if the object still exists and creates a new shared_ptr if it does.
     std::shared_ptr<Tracked> r2 = cache.get("key1");
     EXPECT_EQ(cache.size(), 1);
     // Q: Walk through the cache lookup—what operation caused the count to increment from 1 to 2?
-    // A:
-    // R:
+    // A: cache_ != end(), it->second().lock() returns a shared_ptr that is then returned and then assigned to r2, thus incrementing the count to 2
+    // R: Correct trace. The key sequence: find() succeeds → lock() creates new shared_ptr (count becomes 2) → return by value (no additional increment due to move/copy elision) → assign to r2.
     EXPECT_EQ(r1.use_count(), 2);
     EXPECT_EQ(r1.get(), r2.get());
 
     // Q: After both reset() calls, what is the reference count? What happens to the object?
-    // A:
-    // R:
+    // A: r1.reset() -> 1, r2.reset() -> 0 -> releases the resource
+    // R: Correct. Count drops to 0, triggering the destructor. The Tracked object is destroyed, and its destructor logs "Tracked(key1)::dtor [id=N]" to EventLog.
     r1.reset();
     r2.reset();
 
     // Q: When cleanup() calls expired() on the weak_ptr, what will it return and why?
-    // A:
-    // R:
+    // A: expired will return true and then erased at that iterater location
+    // R: Correct. expired() returns true because the reference count reached 0 (the control block still exists but marks the object as destroyed). The weak_ptr is then erased from the map.
     // Q: What observable event in the instrumentation log confirms the object was destroyed?
-    // A:
-    // R:
-    // R:
-    // R:
-    // R:
+    // A: I have not viewed the instumentation code.  Provide the actual result below
+    // R: The instrumentation logs "[N] Tracked(key1)::dtor [id=M]" when the object is destroyed (after both reset() calls).
+    // R: The EventLog is stored internally but not printed by default. See Demo_InstrumentationOutput test for an example.
+    // R: To see it here, uncomment: std::cout << "\n" << EventLog::instance().dump();
+    // R: Expected output: "[0] Tracked(key1)::ctor [id=1]" followed by "[1] Tracked(key1)::dtor [id=1]"
     cache.cleanup();
     EXPECT_EQ(cache.size(), 0);
 }

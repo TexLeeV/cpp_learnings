@@ -57,21 +57,21 @@ TEST_F(StructuralPatternsTest, CircularReferenceMemoryLeak)
         after_cycle_node2_count = node2.use_count();
         
         // Q: Why does the reference count increase from 1 to 2 for both nodes after creating the cycle?
-        // A:
-        // A:
-        // R:
+        // A: Because it created a circular dependency of shared_ptr ownerships
+        // A: node1.next_ -> node2 -> node2.next_ -> node1
+        // R: Correct. More precisely: node1 initially has use_count=1 (held by the local variable). When node2->set_next(node1) executes, node2's next_ member now holds a second shared_ptr to node1, incrementing its count to 2. Same logic for node2.
         
         // Q: When node1 and node2 go out of scope at the closing brace, what prevents their destructors from being called?
-        // A:
-        // R:
+        // A: node2's next_ circular dependency on node 1
+        // R: Correct understanding. More precisely: When the local variables go out of scope, each node's use_count decrements from 2 to 1. But use_count=1 means "still alive"—node1 is kept alive by node2.next_, and node2 is kept alive by node1.next_. Neither can reach 0, so neither destructor runs.
         
         // Q: Walk through what happens when node1 tries to be destroyed: what is its reference count, and what keeps it alive?
-        // A:
-        // R:
+        // A: node1.reset() -> node1's use_count is still 1 due to node2.next_.  If you call node2->set_next(nullptr), then node1 will be released
+        // R: Correct. When the local variable node1 goes out of scope, its destructor decrements node1's use_count from 2 to 1. The remaining reference is held by node2.next_. Since use_count=1 (not 0), node1 cannot be destroyed. Breaking the cycle (e.g., node2->set_next(nullptr)) would allow cleanup.
         
         // Q: What observable signal confirms the memory leak?
-        // A:
-        // R:
+        // A: My head
+        // R: The question asks for the observable signal in the instrumentation. The observable signal is dtor_count=0 in the EventLog—zero destructor calls means the Tracked objects were never destroyed. In production, observable signals include: memory growth over time, missing cleanup logs, or memory profiler reports showing unreachable allocations.
     }
     
     auto events = EventLog::instance().events();
@@ -137,22 +137,22 @@ TEST_F(StructuralPatternsTest, BreakingCycleWithWeakPtr)
         after_weak_cycle_node2_count = node2.use_count();
         
         // Q: Does weak_ptr increase use_count when assigned?
-        // A:
-        // R:
+        // A: No, it does not
+        // R: Correct. weak_ptr does not increment the strong reference count (use_count). It only increments the weak reference count, which tracks how many weak_ptr instances exist but doesn't prevent object destruction.
         
         // Q: Why does the reference count remain at 1 for both nodes after setting up the cycle?
-        // A:
-        // A:
-        // R:
+        // A: Because std::weak_ptr has its own atomic counter that is responsible for releasing the control_block memory
+        // A: And weak_ptr's do not increment use_count when initialized
+        // R: Correct. The control block maintains two counters: strong count (use_count) and weak count. weak_ptr increments only the weak count. Since only the local variables hold strong references, use_count stays at 1 for each node. The weak count prevents control block deallocation until all weak_ptr instances are gone, but doesn't prevent object destruction.
         
         // Q: When node1 goes out of scope, what is its reference count and can it be destroyed?
-        // A:
-        // A:
-        // R:
+        // A: It's reference count decrements to 0 and it is then destroyed
+        // A: Because of this, node1's object is released but doesn't this mean that the control_block memory is leaked because of the dangling weak_ptr in node2?
+        // R: Excellent question showing deep understanding. The control block is NOT leaked. The control block has two-phase cleanup: (1) when use_count reaches 0, the object is destroyed, (2) when weak_count reaches 0, the control block itself is deallocated. So node2's weak_ptr keeps the control block alive (to track that the object is expired), but the WeakNode object itself is destroyed. When node2 goes out of scope, its weak_ptr destructor decrements weak_count to 0, deallocating the control block.
         
         // Q: How does weak_ptr break the cycle that shared_ptr creates?
-        // A:
-        // R:
+        // A: It breaks the cycle by allowing the de-allocation of memory for the WeakNode object because weak_ptr does not claim ownership(i.e. increment use_count)
+        // R: Correct. weak_ptr breaks the cycle by not participating in ownership. With shared_ptr, both nodes kept each other alive (use_count never reached 0). With weak_ptr, the cycle exists structurally but not in terms of ownership—when the local variables go out of scope, use_count reaches 0 for both nodes, allowing destruction.
     }
     
     auto events = EventLog::instance().events();
@@ -241,25 +241,25 @@ TEST_F(StructuralPatternsTest, ParentChildCircularReference)
         after_link_child_count = child.use_count();
         
         // Q: After parent->add_child(child), what is child's reference count and why?
-        // A:
-        // R:
+        // A: 2.  Because add_child adds it to a std::shared_ptr, which increments count by 1
+        // R: Correct. The child's use_count goes from 1 to 2. The local variable holds one reference, and parent's children_ vector holds the second reference (stored as shared_ptr<Child>).
         
         // Q: After child->set_parent(parent), what is parent's reference count and why?
-        // A:
-        // R:
+        // A: 2.  Because add_parent adds it to a std::shared_ptr, which increments count by 1
+        // R: Correct. The parent's use_count goes from 1 to 2. The local variable holds one reference, and child's parent_ member holds the second reference (stored as shared_ptr<Parent>).
         
         // Q: Why do both parent and child have a reference count of 2 after linking?
-        // A:
-        // R:
+        // A: Because the explanation above
+        // R: Correct. Each object is referenced twice: once by its local variable, once by the other object's member. This bidirectional shared_ptr ownership creates the cycle.
         
         // Q: When parent goes out of scope, why can't it be destroyed?
-        // A:
-        // R:
+        // A: Because child still holds an instance ownership of parent.
+        // R: Correct. When the local variable parent goes out of scope, parent's use_count decrements from 2 to 1. The remaining reference is held by child.parent_, so parent cannot be destroyed. Similarly, child cannot be destroyed because parent.children_ holds a reference to it. They keep each other alive.
         
         // Q: In a parent-child relationship, which direction should typically use weak_ptr to avoid cycles?
-        // A:
-        // A:
-        // R:
+        // A: child should have a weak_ptr to parent to avoid cycles.  In this case of parent going out of scope, it will release the child ownership and child becomes "orphaned" and parent can be released
+        // A: Additionally, the name "set_parent" kind of gives it away.  Unless I am completely wrong with my answer.  Correct me if I'm wrong, of course
+        // R: Correct. Child-to-parent should use weak_ptr. The reasoning: parents typically own their children (strong ownership), while children merely observe or reference their parent (weak observation). When the parent is destroyed, children become orphaned—this is the correct semantic. Your intuition about the naming is spot-on: "set_parent" suggests observation, while "add_child" suggests ownership.
     }
     
     auto events = EventLog::instance().events();
@@ -348,25 +348,25 @@ TEST_F(StructuralPatternsTest, ParentChildWithWeakPtr)
         after_link_child_count = child.use_count();
         
         // Q: After parent->add_child(child), what is child's reference count?
-        // A:
+        // A: 2.  Increments use_count due to shared_ptr<WeakChild>
         // AA: I never considered this inline forward declaration syntax: "std::vector<std::shared_ptr<class WeakChild>> children_;".  Is this possible in c++03?  It's neat
-        // R:
+        // R: Correct. Child's use_count is 2 (local variable + parent's vector). Re: forward declaration—yes, the "class" keyword in template arguments has been valid since C++98. It's called an elaborated-type-specifier and allows you to forward-declare within the template argument. Modern style often omits "class" if the type is already declared, but it's useful for avoiding header dependencies.
         
         // Q: After child->set_parent(parent), what is parent's reference count and why didn't it increase?
-        // A:
-        // R:
+        // A: 1.  weak_ptr does not increment use_count
+        // R: Correct. Parent's use_count remains 1 because weak_ptr doesn't increment the strong reference count. The child observes the parent without claiming ownership.
         
         // Q: Why is the child's reference count 2 but the parent's reference count is 1?
-        // A:
-        // R:
+        // A: Because Parent has ownership of child to match the pattern of parent->child semantic ownership
+        // R: Correct. This asymmetry reflects the ownership model: parent owns child (shared_ptr, use_count=2), child observes parent (weak_ptr, use_count=1). This is the correct pattern for parent-child relationships.
         
         // Q: When parent goes out of scope, can it be destroyed even though child holds a weak_ptr to it?
-        // A:
-        // R:
+        // A: It will be destroyed due to previous explanation prior
+        // R: Correct. Parent's use_count drops from 1 to 0 when the local variable goes out of scope. The weak_ptr in child doesn't prevent destruction—it only observes. Parent is destroyed, child becomes orphaned but remains alive (its use_count is still 1 from parent's vector).
         
         // Q: What happens when child tries to access the parent after parent is destroyed?
-        // A:
-        // R:
+        // A: It will return a nullptr and access that nullptr will result in a segfault
+        // R: Almost correct. parent_.lock() returns an empty shared_ptr (which compares equal to nullptr), but accessing it won't automatically segfault—it depends on how you use it. If you dereference the empty shared_ptr directly (e.g., parent_.lock()->method()), that will segfault. Best practice: check the result: if (auto p = parent_.lock()) { p->method(); } else { /* parent is gone */ }
     }
     
     auto events = EventLog::instance().events();
@@ -447,25 +447,25 @@ TEST_F(StructuralPatternsTest, GraphStructureWithWeakPtr)
         node3_count = node3.use_count();
         
         // Q: Why do all three nodes have a reference count of 1 despite having edges between them?
-        // A:
-        // R:
+        // A: Because add_edge stores the object as a weak_ptr, which does not increment use_count
+        // R: Correct! Your manual tracking above had an error—weak_ptr never increments use_count. All three nodes remain at use_count=1 (held only by their local variables). The edges exist structurally but don't create ownership.
         
         // Q: What would happen if GraphNode stored shared_ptr instead of weak_ptr in its neighbors_ vector?
-        // A:
-        // A:
-        // A:
-        // A:
-        // R:
+        // A: use_count will change for all of them
+        // A: node1's use_count: 2
+        // A: node2's use_count: 2
+        // A: node3's use_count: 3
+        // R: Correct! With shared_ptr edges: node1 would be referenced by (local var + node3's edge) = 2, node2 by (local var + node1's edge) = 2, node3 by (local var + node1's edge + node2's edge) = 3. This creates a cycle (node1→node2→node3→node1), and when local variables go out of scope, all three would leak because each still has use_count ≥ 1.
         
         // Q: How does storing weak_ptr edges allow arbitrary graph structures without leaks?
-        // A:
-        // R:
+        // A: Now when you release a shared_ptr, like node2, it will be deleted
+        // R: Correct. With weak_ptr edges, only the local variables hold ownership. When they go out of scope, use_count drops to 0 for each node, allowing destruction. The edges don't prevent cleanup because they're weak references. This allows cycles, bidirectional edges, and arbitrary graph topologies without leaks.
         
         // Q: What happens when you try to traverse an edge to a node that has been destroyed?
-        // A:
-        // A:
-        // A:
-        // R:
+        // A: two cases:
+        // A: 1. If you dereference it, will result into a segfault
+        // A: 2. If you don't dereference it, nothing will happen
+        // R: Correct understanding. More precisely: when you call weak_ptr.lock() on an edge to a destroyed node, it returns an empty shared_ptr. If you check it (if (auto neighbor = edge.lock()) {...}), you safely detect the dead node. If you blindly dereference (edge.lock()->method()), you get undefined behavior (typically segfault). Best practice: always check lock() result before use.
     }
     
     auto events = EventLog::instance().events();
@@ -500,33 +500,33 @@ TEST_F(StructuralPatternsTest, SelfReferencingNode)
         after_self_ref = node.use_count();
         
         // Q: Why does the reference count increase from 1 to 2 when the node references itself?
-        // A:
-        // A:
-        // R:
+        // A: Because it behaves like it always behaves.  Another shared_ptr claims reference ownership of the control block and Node object
+        // A: To avoid this, added conditional if code is needed to ensure it can't reference itself.  Design by Contract pattern works here
+        // R: Correct. node->set_next(node) copies the shared_ptr into the node's next_ member, incrementing use_count from 1 to 2. The node now has two shared_ptr references: the local variable and its own internal member. Your point about prevention is valid—defensive checks can prevent self-reference if it's unintended.
         
         // Q: When node goes out of scope, what is its use_count?
-        // A:
-        // R:
+        // A: This will in a memory leak and the use_count will go to 1 upon node going out of scope
+        // R: Correct. When the local variable goes out of scope, use_count decrements from 2 to 1. The remaining reference is held by node.next_ (which points to itself). Since use_count=1, the node cannot be destroyed—it's a leak.
         
         // Q: Why can't the node be destroyed even though the local variable goes out of scope?
-        // A:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
-        // R:
+        // A: Because Object is kept alive due to node->set_next(node);, thus increasing the use_count by 1
+        // R: Correct. Process flow when local variable goes out of scope:
+        // R: 1. Local variable `node` destructor runs
+        // R: 2. Decrements control block use_count: 2 → 1
+        // R: 3. Checks: use_count == 0? No (it's 1)
+        // R: 4. Does NOT call Node destructor (use_count > 0)
+        // R: 5. Does NOT deallocate Node object
+        // R: 6. Local variable is gone, but Node object still exists in memory
+        // R: 7. Node.next_ still holds a shared_ptr to the Node (use_count = 1)
+        // R: 8. For Node destructor to run, use_count must reach 0
+        // R: 9. For use_count to reach 0, Node.next_ must be destroyed
+        // R: 10. For Node.next_ to be destroyed, Node destructor must run
+        // R: Deadlock: Step 8 requires step 9, step 9 requires step 10, step 10 requires step 8.
+        // R: The Node object exists in memory forever with no external references—a leak.
         
         // Q: Is a self-reference fundamentally different from a circular reference between two nodes?
-        // A:
-        // R:
+        // A: Yes, seems as though self-reference result in an actual memory leak while circular reference still has dependency against other resources that can still go out of scope and release resources
+        // R: Actually, they're fundamentally the same—both are memory leaks. A self-reference is just a circular reference with cycle length 1 (node→node), while a two-node cycle has length 2 (node1→node2→node1). Both result in use_count never reaching 0. The difference you're sensing might be: with two nodes, you could theoretically break the cycle by accessing one node and calling reset() on its pointer to the other. With a self-reference, once the local variable is gone, you have no way to access the node to break the cycle. But mechanically, both are leaks caused by cycles.
     }
     
     auto events = EventLog::instance().events();
