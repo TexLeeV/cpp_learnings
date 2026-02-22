@@ -1,0 +1,1 @@
+add_learning_test(test_try_it_out test_try_it_out.cpp instrumentation)

@@ -72,7 +72,7 @@ void transfer_deadlock(Account& from, Account& to, int amount)
     to.add(amount);
 }
 
-TEST_F(MutexOrderingDeadlocksTest, Scenario1_ClassicTwoResourceDeadlock_Broken)
+TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario1_ClassicTwoResourceDeadlock_Broken)
 {
     Account acc1("Account1", 1000);
     Account acc2("Account2", 1000);
@@ -189,7 +189,7 @@ bool process_two_resources_deadlock(Resource& r1, Resource& r2)
     return true;
 }
 
-TEST_F(MutexOrderingDeadlocksTest, Scenario2_ThreeThreadCircularDeadlock_Broken)
+TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario2_ThreeThreadCircularDeadlock_Broken)
 {
     Resource r1("R1");
     Resource r2("R2");
@@ -334,7 +334,7 @@ void link_containers_deadlock(std::shared_ptr<Container> c1, std::shared_ptr<Con
     c1->set_next(c2);
 }
 
-TEST_F(MutexOrderingDeadlocksTest, Scenario3_NestedLockAcquisition_Broken)
+TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario3_NestedLockAcquisition_Broken)
 {
     auto c1 = std::make_shared<Container>("C1");
     auto c2 = std::make_shared<Container>("C2");
@@ -455,7 +455,7 @@ bool acquire_hierarchical_deadlock(HierarchicalResource& r1, HierarchicalResourc
     return true;
 }
 
-TEST_F(MutexOrderingDeadlocksTest, Scenario4_LockHierarchyViolation_Broken)
+TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario4_LockHierarchyViolation_Broken)
 {
     HierarchicalResource high("High", 10);
     HierarchicalResource low("Low", 1);

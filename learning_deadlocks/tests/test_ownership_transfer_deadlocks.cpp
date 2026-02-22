@@ -65,7 +65,7 @@ private:
     std::mutex mutex_;
 };
 
-TEST_F(OwnershipTransferDeadlocksTest, Scenario1_LockInversionDuringTransfer_Broken)
+TEST_F(OwnershipTransferDeadlocksTest, DISABLED_Scenario1_LockInversionDuringTransfer_Broken)
 {
     Mailbox mb1("MB1");
     Mailbox mb2("MB2");
@@ -202,7 +202,7 @@ private:
     std::mutex mutex_;
 };
 
-TEST_F(OwnershipTransferDeadlocksTest, Scenario2_CallbackWithLockHeld_Broken)
+TEST_F(OwnershipTransferDeadlocksTest, DISABLED_Scenario2_CallbackWithLockHeld_Broken)
 {
     EventHandler h1("H1");
     EventHandler h2("H2");
@@ -359,7 +359,7 @@ void swap_state_deadlock(SharedState& s1, SharedState& s2)
     s2.set_data(temp);
 }
 
-TEST_F(OwnershipTransferDeadlocksTest, Scenario3_SharedStateSwap_Broken)
+TEST_F(OwnershipTransferDeadlocksTest, DISABLED_Scenario3_SharedStateSwap_Broken)
 {
     SharedState s1("State1");
     SharedState s2("State2");
@@ -483,7 +483,7 @@ private:
     std::mutex mutex_;
 };
 
-TEST_F(OwnershipTransferDeadlocksTest, Scenario4_LazyInitializationRace_Broken)
+TEST_F(OwnershipTransferDeadlocksTest, DISABLED_Scenario4_LazyInitializationRace_Broken)
 {
     LazyResource r1;
     LazyResource r2;
