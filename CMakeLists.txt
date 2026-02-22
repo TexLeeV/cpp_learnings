@@ -14,6 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(AddLearningTest)
 
 add_subdirectory(common)
+add_subdirectory(examples)
 
 add_subdirectory(learning_shared_ptr)
 add_subdirectory(learning_deadlocks)

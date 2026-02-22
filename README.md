@@ -1,8 +1,68 @@
 # C++ Learning Path
 
+Note: Repository is still in active development
+
 ## About This Repository
 
 This repository contains hands-on learning exercises for advanced C++ concepts, using a Socratic teaching methodology with fill-in exercises, broken code to fix, and guided Q/A/R (Question/Answer/Response) patterns.
+
+## How It Works
+
+### The Q/A/R Pattern (Configurable)
+
+Tests use inline comments for guided learning:
+- `// Q:` -- Question posed about the code's behavior
+- `// A:` -- Space for your answer (fill this in)
+- `// R:` -- Response/feedback on your answer (provided after you answer)
+
+You fill in the `// A:` lines with your predictions, run the test, observe the results, and receive feedback in the `// R:` lines.
+
+### Instrumentation System
+
+The `EventLog` singleton and instrumented classes (`Tracked`, `MoveTracked`, `Resource`) make runtime behavior observable:
+
+```cpp
+EventLog::instance().clear();  // Clear before test
+// ... your code ...
+auto events = EventLog::instance().events();  // Inspect what happened
+EventLog::instance().dump();  // Print full log
+```
+
+Every constructor, destructor, copy, move, and custom deleter is logged. This turns abstract concepts (reference counting, move semantics, destruction order) into concrete, verifiable output.
+
+### Exercise Patterns
+
+**Fill-in exercises**: Complete code with `// TODO:` markers. Run tests to validate.
+
+**Broken/Fixed pattern** (deadlocks): Study the broken implementation that demonstrates the bug, then implement the `*_fixed()` version.
+
+**Compile-fail tests**: Files designed to fail compilation. Predict why, compile manually, reason about the error, fix it.
+
+## Using with Cursor
+
+### Automatic Socratic Teaching
+
+The `.cursor/rules/` directory contains AI teaching rules that activate automatically in Cursor. The AI will:
+- Ask questions before explaining
+- Validate your answers against test behavior
+- Add follow-up questions to deepen understanding
+- Write feedback directly into your files
+
+### Customizing Your Experience
+
+The Socratic method is configurable. Tell the AI your preferences in chat:
+
+- **Pacing**: "one test at a time" (default), "bulk mode", "self-directed"
+- **Hints**: "no hints unless I ask" (default), "offer hints when stuck"
+- **Feedback**: inline Q/A/R (default), "chat-only", "mixed mode"
+- **Response depth**: "precise technical" (default), "beginner-friendly"
+- **Verification**: "always verify" (default), "trust context"
+
+See `.cursor/rules/socratic-software-engineering.mdc` for full details.
+
+### Works Without Cursor
+
+The exercises are self-contained. The Q/A/R comments, TODO markers, and test assertions work without any AI assistance. Cursor just enhances the experience with active Socratic dialogue.
 
 ## Current Progress
 
@@ -261,7 +321,7 @@ Based on topic dependencies and progressive difficulty:
 
 ---
 
-### **Phase 3: Advanced Concurrency (Leverage Your Multi-threaded Experience)**
+### **Phase 3: Advanced Concurrency**
 7. Complete Concurrency Patterns (12-13 hours remaining after deadlocks)
 8. Memory Management Deep Dive (15-18 hours)
 
@@ -320,9 +380,11 @@ After completing this learning path, you will be able to:
 ```
 cpp/
 ├── README.md                    # This file
+├── .cursor/rules/               # Socratic teaching rules for Cursor IDE
 ├── common/                      # Shared instrumentation library (EventLog, Tracked, MoveTracked, Resource)
 │   └── src/
 ├── cmake/                       # CMake helper functions (add_learning_test)
+├── examples/                    # Try-it-out test to experience the Socratic method
 ├── learning_shared_ptr/         # ✅ Complete - Smart pointer deep dive (17 test files)
 │   ├── tests/
 │   └── compile_fail_tests/      # Manual compilation exercises
@@ -346,23 +408,30 @@ cpp/
 
 ## Getting Started
 
-### Current Focus: Complete Deadlock Patterns
+### First Time Here?
 
-You're currently working on `learning_deadlocks/` with 16 scenarios to fix:
+1. **Try the example** -- Run `examples/test_try_it_out.cpp` to experience the Socratic method and discover your learning preferences
+2. **Pick a module** -- Start with `learning_shared_ptr` (complete) or `learning_move_semantics` (ready)
+3. **Follow the pattern** -- Fill in TODOs, answer Q/A/R questions, run tests, iterate
 
-1. Navigate to `learning_deadlocks/`
-2. Read `SUMMARY.txt` for overview
-3. Start with `test_mutex_ordering_deadlocks.cpp` Scenario 1
-4. Follow the Socratic Q/A/R pattern
-5. Implement the `*_fixed()` functions
+### Build and Run
 
-**Estimated Completion**: 8-12 hours remaining
+```bash
+# Build the examples
+cmake --preset gcc
+cmake --build --preset gcc --target test_try_it_out
+
+# Run the trial exercise
+./build/gcc/examples/test_try_it_out
+```
+
+After completing the example, pick a learning module and follow the same workflow.
 
 ---
 
-## Contributing
+## Learning Pattern
 
-This is a personal learning repository. Each module follows the same pattern:
+Each module follows a consistent structure:
 
 1. **Broken implementations** - Complete code demonstrating anti-patterns
 2. **Empty fix sections** - You implement the correct solution
@@ -387,21 +456,21 @@ All test modules are part of a single unified CMake project:
 
 ```bash
 # Using CMake presets (recommended)
-cmake --preset gcc14
-cmake --build --preset gcc14
+cmake --preset gcc
+cmake --build --preset gcc
 
 # Run all tests
-ctest --preset gcc14 --verbose
+ctest --preset gcc --verbose
 
 # Run specific test suite
-./build/gcc14/learning_shared_ptr/test_reference_counting
-./build/gcc14/learning_deadlocks/test_mutex_ordering_deadlocks
+./build/gcc/learning_shared_ptr/test_reference_counting
+./build/gcc/learning_deadlocks/test_mutex_ordering_deadlocks
 
 # Run with gtest filter
-./build/gcc14/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
 # Build specific target only
-cmake --build --preset gcc14 --target test_mutex_ordering_deadlocks
+cmake --build --preset gcc --target test_mutex_ordering_deadlocks
 ```
 
 ### Requirements
@@ -452,8 +521,9 @@ g++ -std=c++17 -I common/src -c learning_shared_ptr/compile_fail_tests/<filename
 
 ## Next Steps
 
-1. 🔄 Complete `learning_deadlocks/` (current focus)
-2. 📋 Begin Phase 2: Move Semantics (recommended next)
+1. Run `examples/test_try_it_out` to try the Socratic method
+2. Pick a module: `learning_shared_ptr`, `learning_move_semantics`
+3. Follow the Q/A/R pattern and fill in exercises
 
 ---
 
