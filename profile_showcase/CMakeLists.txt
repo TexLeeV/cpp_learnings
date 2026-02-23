@@ -1,0 +1,1 @@
+add_learning_test(profile_showcase tests/profile_showcase.cpp instrumentation move_instrumentation)

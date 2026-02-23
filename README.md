@@ -9,23 +9,76 @@ Note: Repository is still in active development
 
 ## Why This Exists
 
-This repository is a hands-on learning path for advanced C++ concepts. It exists to make ownership, concurrency, and modern C++ mechanics **observable and verifiable**—you predict behavior, run instrumented code, and learn from evidence rather than from long explanations. It is designed to work with or without AI assistance.
+This repository is an **AI-powered adaptive teaching system** for advanced C++ concepts. It uses Socratic methodology to make ownership, concurrency, and modern C++ mechanics **observable and verifiable**—you predict behavior, run instrumented code, and learn from evidence rather than from long explanations. The AI adapts to your skill level, asking targeted questions that build understanding through mechanism-based reasoning. All exercises work standalone without AI, but the full Socratic experience is available through [Cursor IDE](https://cursor.sh).
 
 ## Who This Is For
 
-Developers with solid C++ fundamentals who want to deepen their understanding of smart pointers, move semantics, concurrency, and related topics. The teaching system adapts across five skill levels (Junior → Intermediate → Senior → Staff → Principal) with configurable pacing, questioning style, and feedback depth. Default profile: Staff-level with mechanism-oriented reasoning.
+Developers with solid C++ fundamentals who want to deepen their understanding of smart pointers, move semantics, concurrency, and related topics. The AI teaching system adapts across five skill levels (Junior → Intermediate → Senior → Staff → Principal) with configurable pacing, questioning style, and feedback depth. Default profile: Senior
+
+## AI Socratic Teaching System
+
+The repository features an adaptive AI framework that guides learning through evidence-based Socratic dialogue. The system adapts to your skill level and provides targeted questions that build understanding through mechanism-based reasoning.
+
+### Framework Overview
+
+- **Q/A/R Pattern** — Inline questions (`// Q:`), your answers (`// A:`), and AI feedback (`// R:`) written directly into code files. The AI validates your reasoning against actual test behavior, not guesses or speculation.
+- **Evidence-Based Validation** — Your mental model is tested against observable runtime behavior. The AI requires falsifiable reasoning backed by logs, counters, and test output.
+- **Observable Instrumentation** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) capture every constructor, destructor, copy, move, and deleter call so you can verify predictions.
+- **Adaptive Questioning** — The system adjusts questioning style, hint policy, verification rigor, and response depth based on your selected skill level.
+
+### Skill Profiles
+
+Activate a profile by stating the exact override string (e.g., `"profile: staff"`) in Cursor chat:
+
+- **Junior (SWE I)** — `"profile: junior"`
+  - Beginner-friendly explanations with term definitions
+  - Proactive hints and scaffolding questions
+  - Minimal code fill, relaxed verification
+  - Avoids multi-step reasoning leaps
+
+- **Intermediate (SWE II)** — `"profile: intermediate"`
+  - Simplified explanations connecting concepts explicitly
+  - Ladder hints after 2 attempts, one test at a time
+  - Gradual edge case introduction
+  - Questions require reasoning over memorization
+
+- **Senior (SWE III)** — `"profile: senior"`
+  - Precise technical depth, no hints
+  - Strict verification with falsifiable reasoning
+  - Probes aliasing, invariants, and subtle mechanics
+  - Challenges incomplete or unfalsifiable assumptions
+
+- **Staff (SWE IV)** — `"profile: staff"` (Default)
+  - Mechanism-focused, adversarial questioning
+  - Explores invariants, failure modes, multi-object ownership
+  - Requires explicit reasoning about system consequences
+  - Emphasizes observable signals over intuition
+
+- **Principal (SWE V)** — `"profile: principal"`
+  - Architecture-level reasoning about lifetime and ownership
+  - Pathological edge cases, aliasing traps, systemic consequences
+  - Requires justification with observable signals
+  - Deep mechanism-level investigation of every scenario
+
+### Configuration
+
+The framework lives in `.cursor/rules/` and activates automatically in Cursor IDE:
+
+- **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) — Core methodology and all configurable preferences
+- **Profile files:** `profile-junior.mdc`, `profile-intermediate.mdc`, `profile-senior.mdc`, `profile-staff.mdc`, `profile-principal.mdc`
+
+Beyond profiles, you can configure: pacing (one-test vs self-directed), hints (none/ladder/proactive), questioning style (standard/adversarial/pathological), feedback mode (inline/chat/mixed), verification rigor (strict/relaxed), response depth, fill level, and C++ standard focus. See [Teaching Method](docs/TEACHING_METHOD.md) for full details.
 
 ## What Makes This Different
 
+- **Socratic Q/A/R pattern** — Inline questions (`// Q:`), your answers (`// A:`), and feedback (`// R:`); the AI validates against test behavior, not guesses. Adaptive teaching across five skill levels.
 - **Observable runtime behavior** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) log every constructor, destructor, copy, move, and deleter so you can verify your mental model.
-- **Socratic Q/A/R pattern** — Inline questions (`// Q:`), your answers (`// A:`), and feedback (`// R:`); the AI (when used) validates against test behavior, not guesses.
 - **Broken/fixed patterns** — Study buggy implementations, then implement the correct version (e.g. deadlock fixes).
-- **Compile-fail tests** — Files that intentionally fail to compile; you predict the error, compile, and reason about it.
-- **Cursor integration (optional)** — AI-powered Socratic teaching in [Cursor IDE](https://cursor.sh); all exercises work standalone without AI.
+- **Works with or without AI** — Full standalone functionality; AI-powered Socratic teaching available in [Cursor IDE](https://cursor.sh).
 
 ## How It Works
 
-You fill in TODOs and answer inline questions, run tests, and observe what actually happens (via EventLog). Feedback is evidence-based: your answers are checked against test output. For full details on the Q/A/R pattern, instrumentation, and exercise types, see [Teaching Method](docs/TEACHING_METHOD.md).
+You fill in TODOs and answer inline questions, run tests, and observe what actually happens (via EventLog). The adaptive teaching framework adjusts to your skill level, providing targeted questions and feedback that build mechanism-based understanding. Feedback is evidence-based: your answers are checked against test output, not speculation. For full details on the Q/A/R pattern, instrumentation, and exercise types, see [Teaching Method](docs/TEACHING_METHOD.md).
 
 ## Quickstart
 
@@ -48,14 +101,6 @@ See [docs/LEARNING_PATH.md](docs/LEARNING_PATH.md) for detailed module descripti
 
 See [docs/TEACHING_METHOD.md](docs/TEACHING_METHOD.md) for the Q/A/R pattern, instrumentation system, exercise types, and Cursor configuration options.
 
-## Using with Cursor
-
-The `.cursor/rules/` directory contains an adaptive Socratic teaching framework with five skill profiles:
-- **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) - Core methodology and preferences
-- **Profiles:** `profile-junior.mdc`, `profile-intermediate.mdc`, `profile-senior.mdc`, `profile-staff.mdc`, `profile-principal.mdc`
-
-Rules activate automatically in Cursor. Activate a profile by stating the exact override string (e.g., `"profile: staff"`) in chat. Configure preferences: pacing, hints, questioning style, feedback mode, verification rigor, response depth, fill level, and C++ standard focus. See [Teaching Method](docs/TEACHING_METHOD.md) for details.
-
 ## Repository Structure
 
 ```
@@ -67,8 +112,7 @@ cpp/
 ├── cmake/                       # CMake helper functions (add_learning_test)
 ├── examples/                    # Try-it-out test to experience the Socratic method
 ├── learning_shared_ptr/         # Complete - Smart pointer deep dive (18 test files)
-│   ├── tests/
-│   └── compile_fail_tests/      # Manual compilation exercises
+│   └── tests/
 ├── learning_deadlocks/          # In Progress - 16 deadlock scenarios
 │   └── tests/
 ├── learning_move_semantics/     # Ready - Move semantics & perfect forwarding (5 test files)
@@ -87,7 +131,7 @@ cpp/
 
 ## Building & Running
 
-Quick build: `cmake --preset gcc` then `cmake --build --preset gcc`. Run all tests: `ctest --preset gcc --verbose`. For dependencies (GoogleTest, Asio), platform-specific installs, compile-fail workflow, and running specific tests, see [docs/BUILDING.md](docs/BUILDING.md).
+Quick build: `cmake --preset gcc` then `cmake --build --preset gcc`. Run all tests: `ctest --preset gcc --verbose`. For dependencies (GoogleTest, Asio), platform-specific installs, and running specific tests, see [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Contributing
 
