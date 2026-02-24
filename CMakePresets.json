@@ -1,34 +1,38 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 23,
-        "patch": 0
+  "version": 3,
+  "cmakeMinimumRequired": {"major": 3, "minor": 23, "patch": 0},
+  "configurePresets": [
+    {
+      "name": "gcc",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
     },
-    "configurePresets": [
-      {
-        "name": "gcc",
-        "generator": "Ninja",
-        "binaryDir": "${sourceDir}/build/gcc",
-        "cacheVariables": {
-          "CMAKE_C_COMPILER": "gcc",
-          "CMAKE_CXX_COMPILER": "g++",
-          "CMAKE_CXX_STANDARD": "17",
-          "CMAKE_BUILD_TYPE": "Debug",
-          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-        }
+    {
+      "name": "clang",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/clang",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
-    ],
-    "buildPresets": [
-      {
-        "name": "gcc",
-        "configurePreset": "gcc"
-      }
-    ],
-    "testPresets": [
-      {
-        "name": "gcc",
-        "configurePreset": "gcc"
-      }
-    ]
+    }
+  ],
+  "buildPresets": [
+    {"name": "gcc", "configurePreset": "gcc"},
+    {"name": "clang", "configurePreset": "clang"}
+  ],
+  "testPresets": [
+    {"name": "gcc", "configurePreset": "gcc"},
+    {"name": "clang", "configurePreset": "clang"}
+  ]
 }
