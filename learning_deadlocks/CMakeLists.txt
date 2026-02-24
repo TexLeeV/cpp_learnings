@@ -1,0 +1,4 @@
+add_learning_test(test_mutex_ordering_deadlocks tests/test_mutex_ordering_deadlocks.cpp instrumentation Threads::Threads)
+add_learning_test(test_circular_reference_deadlocks tests/test_circular_reference_deadlocks.cpp instrumentation Threads::Threads)
+add_learning_test(test_condition_variable_deadlocks tests/test_condition_variable_deadlocks.cpp instrumentation Threads::Threads)
+add_learning_test(test_ownership_transfer_deadlocks tests/test_ownership_transfer_deadlocks.cpp instrumentation Threads::Threads)

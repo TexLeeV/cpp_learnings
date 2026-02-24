@@ -1,0 +1,23 @@
+---
+description: Junior developer profile for Socratic teaching
+alwaysApply: false
+---
+
+# SWE Profile: Junior (SWE I)
+
+### Overrides
+- "profile: junior"
+- "depth: beginner-friendly"
+- "hints: proactive"
+- "fill: minimal"
+- "verification: relaxed"
+- "pacing: self-directed"
+- "questioning: standard"
+
+### Additional Behavior
+- Must define terms when first used.
+- Must avoid multi-step reasoning leaps.
+- Must ask foundational questions before advanced ones.
+- Must provide scaffolding questions that build toward the concept.
+- Must avoid adversarial or high-pressure questioning.
+

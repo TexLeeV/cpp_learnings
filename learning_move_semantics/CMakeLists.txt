@@ -1,0 +1,5 @@
+add_learning_test(test_rvalue_references tests/test_rvalue_references.cpp move_instrumentation)
+add_learning_test(test_move_assignment tests/test_move_assignment.cpp move_instrumentation)
+add_learning_test(test_std_move tests/test_std_move.cpp move_instrumentation)
+add_learning_test(test_perfect_forwarding tests/test_perfect_forwarding.cpp move_instrumentation)
+add_learning_test(test_move_only_types tests/test_move_only_types.cpp move_instrumentation)

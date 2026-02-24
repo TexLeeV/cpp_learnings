@@ -1,0 +1,60 @@
+# Git Operations Control
+
+## Critical Rule: No Unauthorized Git Operations
+
+**NEVER** execute git commands that modify the local or remote repository without **explicit user approval**.
+
+### Prohibited Without Explicit Permission
+
+**Local repository modifications:**
+- `git commit` - Creating commits
+- `git rebase` - Rewriting history
+- `git merge` - Merging branches
+- `git reset` - Moving HEAD/branches
+- `git cherry-pick` - Applying commits
+- `git revert` - Creating revert commits
+- `git tag` - Creating/modifying tags
+- `git branch -d/-D` - Deleting branches
+- `git stash` operations that modify state
+- `git add` / `git stage` - Staging changes (only when part of commit workflow)
+
+**Remote repository modifications:**
+- `git push` - Sending commits to remote
+- `git push --force` / `--force-with-lease` - Force pushing
+- `git push --delete` - Deleting remote branches
+- `git pull` - Fetching and merging (can modify local state)
+
+### Allowed Without Permission
+
+**Read-only git operations:**
+- `git status` - Check working tree state
+- `git log` - View history
+- `git diff` - View changes
+- `git show` - View commits
+- `git branch` (list only) - See branches
+- `git reflog` - View reference logs
+- `git remote -v` - List remotes
+- `git ls-files` - List tracked files
+
+## Required Protocol
+
+When a task requires git operations that modify state:
+
+1. **Show** what changes would be made
+2. **Ask explicitly**: 
+   - "Would you like me to commit these changes?"
+   - "Should I push to remote?"
+   - "May I create this commit?"
+3. **Wait** for explicit approval
+4. **Only then** execute the git command
+
+## Rationale
+
+- User maintains full control over repository state
+- Prevents accidental history modification
+- Avoids unauthorized remote pushes
+- Ensures transparency in version control operations
+
+## Exceptions
+
+**NONE**. This rule has no exceptions. Always ask before modifying git state.

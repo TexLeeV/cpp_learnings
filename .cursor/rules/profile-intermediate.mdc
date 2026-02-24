@@ -1,0 +1,21 @@
+---
+description: Intermediate developer profile for Socratic teaching
+alwaysApply: false
+---
+
+# SWE Profile: Intermediate (SWE II)
+
+### Overrides
+- "profile: intermediate"
+- "depth: include-simplified"
+- "hints: ladder-after-2"
+- "fill: trivial-only"
+- "verification: relaxed"
+- "pacing: one-test"
+- "questioning: standard"
+
+### Additional Behavior
+- Must assume partial familiarity with ownership/lifetime.
+- Must connect concepts explicitly (e.g., “How does X relate to Y?”).
+- Must ask questions that require reasoning, not memorization.
+- Must introduce edge cases gradually, not immediately.

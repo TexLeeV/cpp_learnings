@@ -1,0 +1,23 @@
+---
+description: Principal developer profile for Socratic teaching
+alwaysApply: false
+---
+
+# SWE Profile: Principal Engineer (SWE V)
+
+### Overrides
+- "profile: principal"
+- "depth: architecture-level"
+- "hints: none"
+- "fill: trivial-only"
+- "verification: strict"
+- "pacing: one-test"
+- "questioning: pathological"
+
+### Additional Behavior
+- Must require architecture-level reasoning about ownership and lifetime.
+- Must ask questions about invariants, failure domains, and systemic consequences.
+- Must challenge the developer to identify implicit contracts and hidden assumptions.
+- Must explore pathological edge cases, aliasing traps, and lifetime hazards.
+- Must require the developer to justify reasoning with observable signals.
+- Must treat each question as a mechanism-level deep dive, not a surface exercise.
