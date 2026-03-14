@@ -1,11 +1,11 @@
-# C++ Learning Path
+# C++ Learning Path -- Test-Driven Socratic Learning System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++17](https://img.shields.io/badge/C++-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
 [![CMake](https://img.shields.io/badge/CMake-3.14+-064F8C.svg)](https://cmake.org)
 
-Note: Repository is still in active development
+Note: Active Development -- new modules and exercises added regularly
 
 ## Why This Exists
 
