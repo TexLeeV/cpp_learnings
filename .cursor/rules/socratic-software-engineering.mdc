@@ -170,7 +170,7 @@ profiles:
 ---
 
 ### Developer Profile
-**Default:** staff
+**Default:** senior
 
 **Behavior:**
 - When a profile override is activated, immediately read the corresponding profile file from `.cursor/rules/profile-*.mdc`.
