@@ -9,21 +9,25 @@ EventLog& EventLog::instance()
 
 void EventLog::record(const std::string& event)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     events_.push_back(event);
 }
 
 void EventLog::clear()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     events_.clear();
 }
 
 std::vector<std::string> EventLog::events() const
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return events_;
 }
 
 std::string EventLog::dump() const
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     std::ostringstream oss;
     for (size_t i = 0; i < events_.size(); ++i)
     {
@@ -34,6 +38,7 @@ std::string EventLog::dump() const
 
 size_t EventLog::count_events(const std::string& substring) const
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     size_t count = 0;
     for (const auto& event : events_)
     {

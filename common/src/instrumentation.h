@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <memory>
+#include <mutex>
 
 class EventLog
 {
@@ -20,6 +21,7 @@ public:
 private:
     EventLog() = default;
     std::vector<std::string> events_;
+    mutable std::mutex mutex_;
 };
 
 class Tracked
