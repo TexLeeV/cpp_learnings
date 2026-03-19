@@ -8,7 +8,7 @@ This document covers build setup, dependencies, and running tests. For an overvi
 
 - CMake 3.14+
 - GCC/Clang with C++17 support
-- GoogleTest
+- GoogleTest & GoogleMock
 - Threads (for multi-threaded tests)
 
 ---
@@ -46,18 +46,18 @@ cmake --build --preset gcc --target test_mutex_ordering_deadlocks
 
 ## Installing Dependencies
 
-### GoogleTest (Required)
+### GoogleTest & GoogleMock (Required)
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt update
-sudo apt install libgtest-dev cmake build-essential ninja-build
+sudo apt install libgtest-dev libgmock-dev cmake build-essential ninja-build
 ```
 
 **Fedora/RHEL:**
 ```bash
-sudo dnf install gtest-devel cmake gcc-c++ ninja-build
-sudo yum install gtest-devel cmake gcc-c++ ninja-build
+sudo dnf install gtest-devel gmock-devel cmake gcc-c++ ninja-build
+sudo yum install gtest-devel gmock-devel cmake gcc-c++ ninja-build
 ```
 
 **macOS:**
@@ -65,7 +65,7 @@ sudo yum install gtest-devel cmake gcc-c++ ninja-build
 brew install googletest cmake ninja
 ```
 
-CMake will find GoogleTest via `find_package(GTest REQUIRED)`. If installed to a non-standard location:
+Note: GoogleMock is bundled with GoogleTest in most modern distributions. CMake will find both via `find_package(GTest REQUIRED)`. If installed to a non-standard location:
 
 ```bash
 cmake --preset gcc -DGTest_DIR=/path/to/gtest/lib/cmake/GTest
@@ -98,6 +98,6 @@ cmake -DASIO_INCLUDE_DIR=/path/to/asio/include ..
 
 - **Compiler**: GCC 14 / Clang with C++17 support
 - **Build System**: CMake 3.14+ (Ninja recommended)
-- **Testing**: GoogleTest
+- **Testing**: GoogleTest & GoogleMock
 - **IDE**: Cursor (with AI assistance for Socratic learning)
 - **Optional**: Standalone Asio (header-only) for multi-threaded shared_ptr tests

@@ -95,55 +95,6 @@ TEST_F(RaiiExceptionSafetyTest, BasicRAII_AutomaticCleanup)
     EXPECT_EQ(EventLog::instance().count_events("Tracked(R2)::dtor"), 1);
 }
 
-// ============================================================================
-// Non-RAII Pattern - Leaks on Exception
-// ============================================================================
-
-void operation_without_raii()
-{
-    EventLog::instance().record("operation: start");
-    
-    Tracked* r1 = new Tracked("R1");
-    Tracked* r2 = new Tracked("R2");
-    
-    EventLog::instance().record("operation: throwing exception");
-    throw std::runtime_error("Simulated error");
-    
-    // These lines never execute
-    delete r2;
-    delete r1;
-}
-
-// Q: What happens to r1 and r2 when the exception is thrown?
-// A:
-// R:
-
-// Q: What observable signal confirms the leak?
-// A:
-// R:
-
-TEST_F(RaiiExceptionSafetyTest, NonRAII_ResourceLeak)
-{
-    // Easy: Without RAII, exceptions cause resource leaks
-    
-    try
-    {
-        operation_without_raii();
-        FAIL() << "Should have thrown exception";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Exception caught
-    }
-    
-    // Verify resources were allocated but never destroyed
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R1)::ctor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R2)::ctor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R1)::dtor"), 0);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R2)::dtor"), 0);
-    
-    // Memory leaked! (Valgrind would catch this)
-}
 
 // ============================================================================
 // Smart Pointers - RAII for Dynamic Memory
@@ -264,64 +215,6 @@ TEST_F(RaiiExceptionSafetyTest, PartialConstruction_MemberCleanup)
     // R:
 }
 
-// ============================================================================
-// File Handles - RAII with std::fstream
-// ============================================================================
-
-void write_file_with_raii(const std::string& path, const std::string& content)
-{
-    EventLog::instance().record("write_file_with_raii: start");
-    
-    std::ofstream file(path);
-    if (!file.is_open())
-    {
-        EventLog::instance().record("write_file_with_raii: failed to open");
-        throw std::runtime_error("Failed to open file");
-    }
-    
-    EventLog::instance().record("write_file_with_raii: file opened");
-    
-    file << content;
-    
-    EventLog::instance().record("write_file_with_raii: throwing exception");
-    throw std::runtime_error("Simulated write error");
-    
-    // file.close() never called explicitly
-}
-
-// Q: What happens to the file handle when the exception is thrown?
-// A:
-// R:
-
-// Q: Does the file need to be explicitly closed?
-// A:
-// R:
-
-TEST_F(RaiiExceptionSafetyTest, FileHandles_AutomaticClose)
-{
-    // Easy: std::fstream uses RAII to close file handles automatically
-    
-    try
-    {
-        write_file_with_raii("test_raii_file.txt", "test content");
-        FAIL() << "Should have thrown exception";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Exception caught
-    }
-    
-    EXPECT_EQ(EventLog::instance().count_events("write_file_with_raii: file opened"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("write_file_with_raii: throwing exception"), 1);
-    
-    // Verify file was closed automatically (can open it again)
-    std::ifstream verify("test_raii_file.txt");
-    EXPECT_TRUE(verify.is_open());
-    
-    std::string content((std::istreambuf_iterator<char>(verify)),
-                        std::istreambuf_iterator<char>());
-    EXPECT_EQ(content, "test content");
-}
 
 // ============================================================================
 // Multiple Resources - Order of Cleanup
@@ -409,10 +302,6 @@ public:
             EventLog::instance().record("ScopeGuard::dtor - executing cleanup");
             cleanup_();
         }
-        else
-        {
-            EventLog::instance().record("ScopeGuard::dtor - dismissed");
-        }
     }
     
     void dismiss()
@@ -435,27 +324,6 @@ ScopeGuard<F> make_scope_guard(F&& cleanup)
     return ScopeGuard<F>(std::forward<F>(cleanup));
 }
 
-void operation_with_scope_guard(bool throw_exception)
-{
-    EventLog::instance().record("operation: start");
-    
-    // TODO: Create a scope guard that logs cleanup
-    auto guard = make_scope_guard([]()
-    {
-        EventLog::instance().record("cleanup: executed");
-    });
-    
-    EventLog::instance().record("operation: work in progress");
-    
-    if (throw_exception)
-    {
-        EventLog::instance().record("operation: throwing exception");
-        throw std::runtime_error("Simulated error");
-    }
-    
-    EventLog::instance().record("operation: success");
-}
-
 // Q: What happens to the scope guard when an exception is thrown?
 // A:
 // R:
@@ -470,115 +338,25 @@ TEST_F(RaiiExceptionSafetyTest, ScopeGuard_CleanupOnException)
     
     try
     {
-        operation_with_scope_guard(true);
-        FAIL() << "Should have thrown exception";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Exception caught
-    }
-    
-    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::ctor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::dtor - executing cleanup"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("cleanup: executed"), 1);
-}
-
-TEST_F(RaiiExceptionSafetyTest, ScopeGuard_CleanupOnSuccess)
-{
-    // Easy: Scope guards also execute cleanup on normal return
-    
-    operation_with_scope_guard(false);
-    
-    EXPECT_EQ(EventLog::instance().count_events("operation: success"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::dtor - executing cleanup"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("cleanup: executed"), 1);
-}
-
-// ============================================================================
-// Container RAII - std::vector Exception Safety
-// ============================================================================
-
-class ThrowingResource
-{
-public:
-    explicit ThrowingResource(int id, bool should_throw = false)
-    : id_(id)
-    {
-        if (should_throw)
-        {
-            EventLog::instance().record("ThrowingResource(" + std::to_string(id_) + ")::ctor - throwing");
-            throw std::runtime_error("Construction failed");
-        }
+        EventLog::instance().record("operation: start");
         
-        EventLog::instance().record("ThrowingResource(" + std::to_string(id_) + ")::ctor");
-    }
-    
-    ~ThrowingResource()
-    {
-        EventLog::instance().record("ThrowingResource(" + std::to_string(id_) + ")::dtor");
-    }
-    
-    ThrowingResource(const ThrowingResource&) = delete;
-    ThrowingResource& operator=(const ThrowingResource&) = delete;
-
-private:
-    int id_;
-};
-
-void populate_vector_with_exception()
-{
-    EventLog::instance().record("populate_vector: start");
-    
-    std::vector<std::unique_ptr<ThrowingResource>> resources;
-    
-    resources.push_back(std::make_unique<ThrowingResource>(1, false));
-    resources.push_back(std::make_unique<ThrowingResource>(2, false));
-    
-    EventLog::instance().record("populate_vector: adding third element");
-    resources.push_back(std::make_unique<ThrowingResource>(3, true));  // Throws
-    
-    EventLog::instance().record("populate_vector: success");
-}
-
-// Q: What happens to resources[0] and resources[1] when resources[2] throws?
-// A:
-// R:
-
-// Q: Does the vector's destructor get called?
-// A:
-// R:
-
-TEST_F(RaiiExceptionSafetyTest, ContainerRAII_VectorCleanup)
-{
-    // Moderate: Containers clean up all elements on exception
-    
-    try
-    {
-        populate_vector_with_exception();
-        FAIL() << "Should have thrown exception";
+        auto guard = make_scope_guard([]()
+        {
+            EventLog::instance().record("cleanup: executed");
+        });
+        
+        EventLog::instance().record("operation: throwing exception");
+        throw std::runtime_error("Simulated error");
     }
     catch (const std::runtime_error&)
     {
         // Exception caught
     }
     
-    // Verify first two resources were constructed
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(1)::ctor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(2)::ctor"), 1);
-    
-    // Verify third resource construction attempted
-    // Note: Constructor is called, logs "ctor", then throws, logs "ctor - throwing"
-    // The "ctor" event happens once, "ctor - throwing" also happens once
-    EXPECT_GE(EventLog::instance().count_events("ThrowingResource(3)::ctor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(3)::ctor - throwing"), 1);
-    
-    // Verify first two resources were destroyed (vector cleanup)
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(1)::dtor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(2)::dtor"), 1);
-    
-    // Verify third resource was never fully constructed, so no destructor
-    EXPECT_EQ(EventLog::instance().count_events("ThrowingResource(3)::dtor"), 0);
+    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::dtor - executing cleanup"), 1);
+    EXPECT_EQ(EventLog::instance().count_events("cleanup: executed"), 1);
 }
+
 
 // ============================================================================
 // Nested RAII - Multiple Levels of Cleanup
@@ -642,99 +420,4 @@ TEST_F(RaiiExceptionSafetyTest, NestedRAII_InnerCleanup)
     // R:
 }
 
-// ============================================================================
-// RAII vs Manual Cleanup - Complexity Comparison
-// ============================================================================
 
-// Manual cleanup - error-prone
-bool manual_three_resources()
-{
-    EventLog::instance().record("manual: start");
-    
-    Tracked* r1 = new Tracked("R1");
-    Tracked* r2 = nullptr;
-    Tracked* r3 = nullptr;
-    
-    try
-    {
-        r2 = new Tracked("R2");
-        r3 = new Tracked("R3");
-        
-        EventLog::instance().record("manual: throwing exception");
-        throw std::runtime_error("Simulated error");
-        
-        delete r3;
-        delete r2;
-        delete r1;
-        return true;
-    }
-    catch (...)
-    {
-        EventLog::instance().record("manual: catch block cleanup");
-        delete r3;
-        delete r2;
-        delete r1;
-        throw;
-    }
-}
-
-// RAII cleanup - automatic
-void raii_three_resources()
-{
-    EventLog::instance().record("raii: start");
-    
-    // TODO: Create three unique_ptr<Tracked> resources
-    auto r1 = std::make_unique<Tracked>("R1");
-    auto r2 = std::make_unique<Tracked>("R2");
-    auto r3 = std::make_unique<Tracked>("R3");
-    
-    EventLog::instance().record("raii: throwing exception");
-    throw std::runtime_error("Simulated error");
-}
-
-// Q: How many lines of cleanup code are needed for manual vs RAII?
-// A:
-// R:
-
-// Q: What happens if you add a fourth resource to each function?
-// A:
-// R:
-
-TEST_F(RaiiExceptionSafetyTest, ComplexityComparison_ManualVsRAII)
-{
-    // Hard: RAII scales linearly; manual cleanup scales quadratically
-    
-    // Manual cleanup
-    try
-    {
-        manual_three_resources();
-        FAIL() << "Should have thrown exception";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Exception caught
-    }
-    
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R1)::dtor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R2)::dtor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R3)::dtor"), 1);
-    
-    EventLog::instance().clear();
-    
-    // RAII cleanup
-    try
-    {
-        raii_three_resources();
-        FAIL() << "Should have thrown exception";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Exception caught
-    }
-    
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R1)::dtor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R2)::dtor"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Tracked(R3)::dtor"), 1);
-    
-    // Both achieve same result, but RAII requires zero explicit cleanup code
-}

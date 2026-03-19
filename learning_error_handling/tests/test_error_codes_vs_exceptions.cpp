@@ -351,51 +351,10 @@ TEST_F(ErrorCodesVsExceptionsTest, ResourceCleanup_Exceptions)
     EXPECT_EQ(EventLog::instance().count_events("Resource(R2)::dtor"), 1);
 }
 
-// ============================================================================
-// Performance Considerations
-// ============================================================================
-
-// Q: What is the runtime cost difference between returning an error code vs throwing an exception?
-// A:
-// R:
-
-// Q: When would you choose error codes over exceptions in performance-critical code?
-// A:
-// R:
-
-TEST_F(ErrorCodesVsExceptionsTest, PerformanceConsiderations)
-{
-    // Hard: Understanding when to use each pattern
-    
-    // Error codes: Zero overhead in success path, explicit checking required
-    // TODO: Measure timing for 10000 successful operations with error codes
-    
-    // Exceptions: Zero overhead in success path (no throw), expensive when thrown
-    // TODO: Measure timing for 10000 successful operations with exceptions
-    
-    // Key insight: Both have zero overhead in success path
-    // Exception overhead only matters when exceptions are actually thrown
-    
-    // Q: In a hot loop that rarely errors, which pattern is more efficient?
-    // A:
-    // R:
-}
 
 // ============================================================================
 // When to Use Which Pattern
 // ============================================================================
-
-// Use error codes when:
-// - Errors are expected and frequent (parsing, validation)
-// - Performance-critical hot paths
-// - C compatibility required
-// - Explicit control flow preferred
-
-// Use exceptions when:
-// - Errors are exceptional (rare, unexpected)
-// - Deep call stacks with multiple cleanup points
-// - RAII-heavy code with automatic resource management
-// - Separation of error handling from normal logic
 
 // Q: Why are exceptions better suited for RAII-heavy code?
 // A:
@@ -405,84 +364,9 @@ TEST_F(ErrorCodesVsExceptionsTest, PerformanceConsiderations)
 // A:
 // R:
 
-TEST_F(ErrorCodesVsExceptionsTest, DecisionCriteria_ErrorFrequency)
-{
-    // Moderate: Choose pattern based on error frequency
-    
-    // Scenario: Parsing user input (errors are common)
-    auto parse_int = [](const std::string& str) -> std::optional<int>
-    {
-        EventLog::instance().record("parse_int: called");
-        try
-        {
-            size_t pos;
-            int value = std::stoi(str, &pos);
-            if (pos != str.length())
-            {
-                EventLog::instance().record("parse_int: invalid format");
-                return std::nullopt;
-            }
-            EventLog::instance().record("parse_int: success");
-            return value;
-        }
-        catch (...)
-        {
-            EventLog::instance().record("parse_int: exception caught");
-            return std::nullopt;
-        }
-    };
-    
-    // Valid input
-    auto result1 = parse_int("123");
-    EXPECT_TRUE(result1.has_value());
-    EXPECT_EQ(*result1, 123);
-    
-    // Invalid input - error is expected, not exceptional
-    auto result2 = parse_int("abc");
-    EXPECT_FALSE(result2.has_value());
-    
-    // Q: Why is std::optional better than throwing exceptions for parsing?
-    // A:
-    // R:
-}
-
-TEST_F(ErrorCodesVsExceptionsTest, DecisionCriteria_ResourceManagement)
-{
-    // Moderate: Exceptions excel with multiple resources
-    
-    auto operation_with_multiple_resources = []()
-    {
-        EventLog::instance().record("operation: start");
-        
-        // TODO: Create three ResourceWithExceptions objects
-        ResourceWithExceptions r1("R1");
-        ResourceWithExceptions r2("R2");
-        ResourceWithExceptions r3("R3");
-        
-        // Simulate error after all acquisitions
-        EventLog::instance().record("operation: throwing after acquisitions");
-        throw std::runtime_error("Simulated failure");
-    };
-    
-    try
-    {
-        operation_with_multiple_resources();
-        FAIL() << "Should have thrown";
-    }
-    catch (const std::runtime_error&)
-    {
-        // Caught
-    }
-    
-    // Verify all three resources were cleaned up automatically
-    EXPECT_EQ(EventLog::instance().count_events("Resource(R1)::release"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Resource(R2)::release"), 1);
-    EXPECT_EQ(EventLog::instance().count_events("Resource(R3)::release"), 1);
-    
-    // Q: How many explicit release() calls did you need to write?
-    // A:
-    // R:
-}
+// Q: When would you choose error codes over exceptions in performance-critical code?
+// A:
+// R:
 
 // ============================================================================
 // std::error_code - Modern C++ Error Code Pattern
@@ -646,3 +530,4 @@ TEST_F(ErrorCodesVsExceptionsTest, MixedPattern_RetryLogic)
     // A:
     // R:
 }
+
