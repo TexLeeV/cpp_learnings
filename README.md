@@ -130,9 +130,9 @@ cpp/
 │   └── tests/
 ├── learning_raii/               # Complete - RAII & resource management (4 test files)
 │   └── tests/
-├── learning_deadlocks/          # In Progress - Deadlock patterns (4 test files)
+├── learning_deadlocks/          # Complete
 │   └── tests/
-├── learning_move_semantics/     # Ready - Move semantics & perfect forwarding (5 test files)
+├── learning_move_semantics/     # Complete
 │   └── tests/
 ├── learning_error_handling/    # Complete - Error handling patterns (5 test files)
 │   └── tests/
