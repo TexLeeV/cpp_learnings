@@ -647,7 +647,10 @@ TEST_F(NoexceptTest, Noexcept_FunctionPointers)
 void violate_noexcept() noexcept
 {
     EventLog::instance().record("violate_noexcept: about to throw");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wterminate"
     throw std::runtime_error("Violating noexcept");
+#pragma GCC diagnostic pop
     EventLog::instance().record("violate_noexcept: after throw");  // Never executed
 }
 
