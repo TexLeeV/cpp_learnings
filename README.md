@@ -7,6 +7,8 @@
 
 Note: Active Development -- new modules and exercises added regularly
 
+**TODO**: De-bloat `learning_error_handling` test files (currently 600-1000+ lines, target 200-400 lines). Files have too many helper classes outside TEST_F blocks. Need to consolidate helpers and move Q/A/R questions primarily inside TEST_F blocks.
+
 ## Why This Exists
 
 This repository is an **AI-powered adaptive teaching system** for advanced C++ concepts. It uses Socratic methodology to make ownership, concurrency, and modern C++ mechanics **observable and verifiable**—you predict behavior, run instrumented code, and learn from evidence rather than from long explanations. The AI adapts to your skill level, asking targeted questions that build understanding through mechanism-based reasoning. All exercises work standalone without AI, but the full Socratic experience is available through [Cursor IDE](https://cursor.sh).
@@ -89,9 +91,18 @@ You fill in TODOs and answer inline questions, run tests, and observe what actua
 ## Modules (High-Level)
 
 - **Smart Pointers** — Complete. 18 test files covering `shared_ptr`, `weak_ptr`, aliasing, multi-threading.
+- **Memory Management** — Complete. 4 test files covering placement new, custom allocators, pool allocators, alignment.
+- **Modern C++ Features** — Complete. 8 test files covering lambdas, auto, C++11/14/17 features.
+- **RAII & Resource Management** — Complete. 4 test files covering scope guards, file handles, custom managers, smart pointers from scratch.
+- **Error Handling** — Complete. 5 test files covering error codes, exceptions, RAII safety, optional/result types, noexcept.
+- **STL Deep Dive** — Complete. 5 test files covering containers, iterators, algorithms, comparators, invalidation.
+- **Concurrency** — Complete. 5 test files covering thread-safe singletons, reader-writer locks, producer-consumer, lock-free basics, thread pools.
+- **Design Patterns** — Complete. 4 test files covering creational, structural, behavioral, and modern C++ pattern implementations.
+- **Debugging** — Complete. 3 test files covering GoogleMock, debugging techniques, benchmarking, assertions, observable state.
+- **Performance** — Complete. 6 test files covering cache-friendly design, copy elision, constexpr, SSO, profiling, benchmarking.
+- **Templates** — Complete. 6 test files covering function/class templates, specialization, SFINAE, variadic templates, type traits, metaprogramming.
 - **Deadlocks** — In progress. 4 test files, 16 scenarios; fix implementations to be filled in.
 - **Move Semantics** — Ready. 5 test files; not yet worked through.
-- **10+ more planned** — Concurrency, templates, STL, design patterns, memory, error handling, performance, debugging. See [Full Curriculum](docs/LEARNING_PATH.md).
 
 ## Full Curriculum
 
@@ -113,20 +124,30 @@ cpp/
 ├── examples/                    # Try-it-out test to experience the Socratic method
 ├── learning_shared_ptr/         # Complete - Smart pointer deep dive (18 test files)
 │   └── tests/
-├── learning_deadlocks/          # In Progress - 16 deadlock scenarios
+├── learning_memory/             # Complete - Memory management (4 test files)
+│   └── tests/
+├── learning_modern_cpp/         # Complete - Modern C++ features (8 test files)
+│   └── tests/
+├── learning_raii/               # Complete - RAII & resource management (4 test files)
+│   └── tests/
+├── learning_deadlocks/          # In Progress - Deadlock patterns (4 test files)
 │   └── tests/
 ├── learning_move_semantics/     # Ready - Move semantics & perfect forwarding (5 test files)
 │   └── tests/
-├── learning_concurrency/       # Planned - Phase 3
-├── learning_templates/         # Planned - Phase 5
-├── learning_raii/              # Planned - Phase 2
-├── learning_design_patterns/   # Planned - Phase 4
-├── learning_memory/            # Planned - Phase 3
-├── learning_error_handling/    # Planned - Phase 4
-├── learning_stl/               # Planned - Phase 4
-├── learning_modern_cpp/        # Planned - Phase 2
-├── learning_performance/       # Planned - Phase 5
-└── learning_debugging/         # Planned - Phase 5
+├── learning_error_handling/    # Complete - Error handling patterns (5 test files)
+│   └── tests/
+├── learning_stl/               # Complete - STL deep dive (5 test files)
+│   └── tests/
+├── learning_concurrency/        # Complete - Concurrency patterns (5 test files)
+│   └── tests/
+├── learning_design_patterns/    # Complete - Design patterns (4 test files)
+│   └── tests/
+├── learning_debugging/          # Complete - Testing and debugging (3 test files)
+│   └── tests/
+├── learning_performance/        # Complete - Performance optimization (6 test files)
+│   └── tests/
+└── learning_templates/          # Complete - Template metaprogramming (6 test files)
+    └── tests/
 ```
 
 ## Building & Running
