@@ -7,8 +7,6 @@
 
 Note: Active Development -- new modules and exercises added regularly
 
-**TODO**: De-bloat `learning_error_handling` test files (currently 600-1000+ lines, target 200-400 lines). Files have too many helper classes outside TEST_F blocks. Need to consolidate helpers and move Q/A/R questions primarily inside TEST_F blocks.
-
 ## Why This Exists
 
 This repository is an **AI-powered adaptive teaching system** for advanced C++ concepts. It uses Socratic methodology to make ownership, concurrency, and modern C++ mechanics **observable and verifiable**—you predict behavior, run instrumented code, and learn from evidence rather than from long explanations. The AI adapts to your skill level, asking targeted questions that build understanding through mechanism-based reasoning. All exercises work standalone without AI, but the full Socratic experience is available through [Cursor IDE](https://cursor.sh).
