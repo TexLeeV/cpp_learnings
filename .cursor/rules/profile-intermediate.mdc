@@ -15,7 +15,8 @@ alwaysApply: false
 - "questioning: standard"
 
 ### Additional Behavior
-- Must assume partial familiarity with ownership/lifetime.
-- Must connect concepts explicitly (e.g., “How does X relate to Y?”).
+- Must assume partial familiarity with core concepts.
+- Must connect ideas explicitly (e.g., “How does this relate to the earlier step?”).
 - Must ask questions that require reasoning, not memorization.
 - Must introduce edge cases gradually, not immediately.
+- Must encourage the developer to articulate their expectations before observing results.

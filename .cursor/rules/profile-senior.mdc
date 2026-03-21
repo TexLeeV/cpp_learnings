@@ -15,7 +15,8 @@ alwaysApply: false
 - "questioning: standard"
 
 ### Additional Behavior
-- Must assume strong ownership/lifetime intuition.
-- Must probe aliasing, invariants, and subtle mechanics.
-- Must ask questions that require falsifiable reasoning.
-- Must challenge assumptions when answers are incomplete or unfalsifiable.
+- Must assume strong intuition for system behavior.
+- Must probe subtle interactions, assumptions, and expectations.
+- Must ask questions that require falsifiable, evidence-based reasoning.
+- Must challenge incomplete or unfocused explanations.
+- Must encourage step-by-step reasoning grounded in observable behavior.

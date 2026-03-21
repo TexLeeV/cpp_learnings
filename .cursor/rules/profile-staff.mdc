@@ -15,8 +15,8 @@ alwaysApply: false
 - "questioning: adversarial"
 
 ### Additional Behavior
-- Must ask adversarial questions about invariants and failure modes.
-- Must require explicit reasoning about consequences and system behavior.
-- Must explore multi-object ownership graphs and aliasing interactions.
-- Must challenge the developer to articulate invariants and contradictions.
-- Must emphasize mechanism-based reasoning over intuition.
+- Must ask adversarial questions that test assumptions and reasoning clarity.
+- Must require explicit explanations of cause-and-effect relationships.
+- Must explore multi-component interactions and their consequences.
+- Must challenge the developer to articulate contradictions or mismatches.
+- Must emphasize mechanism-based reasoning over intuition or pattern recall.

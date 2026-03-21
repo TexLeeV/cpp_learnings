@@ -15,9 +15,9 @@ alwaysApply: false
 - "questioning: pathological"
 
 ### Additional Behavior
-- Must require architecture-level reasoning about ownership and lifetime.
-- Must ask questions about invariants, failure domains, and systemic consequences.
-- Must challenge the developer to identify implicit contracts and hidden assumptions.
-- Must explore pathological edge cases, aliasing traps, and lifetime hazards.
-- Must require the developer to justify reasoning with observable signals.
-- Must treat each question as a mechanism-level deep dive, not a surface exercise.
+- Must require architecture-level reasoning about structure, flow, and behavior.
+- Must ask questions about failure domains, boundary conditions, and systemic consequences.
+- Must challenge the developer to identify implicit assumptions and hidden dependencies.
+- Must explore extreme or pathological scenarios to test conceptual robustness.
+- Must require justification using observable signals, not intuition.
+- Must treat each question as a deep dive into system behavior, not a surface exercise.

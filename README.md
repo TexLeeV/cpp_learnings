@@ -47,17 +47,17 @@ Activate a profile by stating the exact override string (e.g., `"profile: staff"
 - **Senior (SWE III)** — `"profile: senior"`
   - Precise technical depth, no hints
   - Strict verification with falsifiable reasoning
-  - Probes aliasing, invariants, and subtle mechanics
+  - Probes aliasing, structural consistency (bookkeeping vs references—e.g. refcounts and control blocks in C++), and subtle mechanics
   - Challenges incomplete or unfalsifiable assumptions
 
 - **Staff (SWE IV)** — `"profile: staff"` (Default)
   - Mechanism-focused, adversarial questioning
-  - Explores invariants, failure modes, multi-object ownership
+  - Explores contracts, structural consistency across the object/resource dependency graph, and failure modes
   - Requires explicit reasoning about system consequences
   - Emphasizes observable signals over intuition
 
 - **Principal (SWE V)** — `"profile: principal"`
-  - Architecture-level reasoning about lifetime and ownership
+  - Architecture-level reasoning about responsibility, lifetimes, and cross-boundary cleanup
   - Pathological edge cases, aliasing traps, systemic consequences
   - Requires justification with observable signals
   - Deep mechanism-level investigation of every scenario
