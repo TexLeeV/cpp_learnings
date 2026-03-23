@@ -1,319 +1,89 @@
 # Full Learning Path
 
-This document contains the detailed curriculum for the C++ Learning Path repository. For an overview and quickstart, see the [main README](../README.md).
+Curriculum for this repository. For the quickstart, see the [main README](../README.md). For pedagogy (Q/A/R, instrumentation), see [Teaching Method](TEACHING_METHOD.md).
 
 ---
 
-## Learning TODO List
+## Audience and prerequisites
 
-Recommended learning modules in progressive order:
+These exercises assume you can **read and write C++ at a working-engineer level** (classes, templates at a basic level, STL, building with CMake). They are **not** a first programming course.
 
----
+- **New to advanced topics but solid on basics:** Use Cursor with `"profile: junior"` for gentler explanations and proactive hints; you still work the same tests.
+- **Absolute beginners:** Use an introductory C++ resource first, then return here for ownership, concurrency, and related depth.
 
-### 1. ✅ C++20 Standard Configuration
-**Status**: Complete  
-**Difficulty**: ⭐☆☆☆☆ (Trivial)
-
-Global **C++20** standard is set in root `CMakeLists.txt` and `CMakePresets.json`. All modules inherit this setting. GCC 14 is the reference compiler. Individual lessons may still call out when a feature was introduced (for example C++11, C++14, or C++17).
+The project **compiles as C++20**; individual lessons may still name the standard that introduced a feature (C++11, C++14, C++17).
 
 ---
 
-### 2. Move Semantics & Perfect Forwarding
-**Status**: ✅ Ready for Learning  
-**Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 12-16 hours
+## Modules (current state)
 
-**Available Modules**:
-- [ ] Rvalue references and move constructors (4 hours) - `test_rvalue_references.cpp`
-- [ ] Move assignment and Rule of Five (3 hours) - `test_move_assignment.cpp`
-- [ ] `std::move` vs `std::forward` mechanics (3 hours) - `test_std_move.cpp`
-- [ ] Perfect forwarding and universal references (4 hours) - `test_perfect_forwarding.cpp`
-- [ ] Move-only types and return value optimization (3 hours) - `test_move_only_types.cpp`
+Each row is a `learning_*` directory. **Registered tests** are targets listed in that module’s `CMakeLists.txt` and run under `ctest`. **Sources on disk** may include extra `.cpp` files not yet wired into CMake.
 
-**Prerequisites**: Strong understanding of `shared_ptr` ownership (✅ Complete)
+| Module | Registered tests | Notes |
+|--------|-------------------|--------|
+| [learning_shared_ptr](../learning_shared_ptr/) | 16 | 18 `.cpp` files under `tests/`; `test_multi_threaded_patterns.cpp` and `test_asio_basics.cpp` are not registered yet (optional Asio). |
+| [learning_memory](../learning_memory/) | 4 | Placement new, allocators, pools, alignment. |
+| [learning_modern_cpp](../learning_modern_cpp/) | 8 | C++11/14/17 *language features*; build is still C++20. |
+| [learning_raii](../learning_raii/) | 4 | Scope guards, handles, custom managers, pointers from scratch. |
+| [learning_move_semantics](../learning_move_semantics/) | 5 | Value categories, move, forward, move-only types. |
+| [learning_error_handling](../learning_error_handling/) | 5 | Exceptions, optional/result, noexcept, etc. |
+| [learning_stl](../learning_stl/) | 5 | Containers, iterators, algorithms, comparators, invalidation. |
+| [learning_concurrency](../learning_concurrency/) | 5 | Requires `Threads::Threads`. |
+| [learning_design_patterns](../learning_design_patterns/) | 4 | Creational, structural, behavioral, modern idioms. |
+| [learning_templates](../learning_templates/) | 6 | Specialization, SFINAE, variadics, traits, etc. |
+| [learning_performance](../learning_performance/) | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks. |
+| [learning_debugging](../learning_debugging/) | 3 | GoogleMock, debugging techniques, benchmark exercise. |
+| [learning_deadlocks](../learning_deadlocks/) | **0** | Four test sources exist (16 scenarios); **`add_learning_test` lines are commented out** in `CMakeLists.txt` — not part of default `ctest` until enabled. |
+| [examples](../examples/) | 1 | `test_try_it_out` — good first run after build. |
+| [profile_showcase](../profile_showcase/) | 1 | Demonstrates move instrumentation. |
 
-**Location**: `learning_move_semantics/tests/`
-
-**Key Learning Outcomes**:
-- Understand value categories (lvalue, rvalue, xvalue)
-- Master move constructor and move assignment implementation
-- Distinguish `std::move` (unconditional cast) from `std::forward` (conditional)
-- Implement perfect forwarding with universal references
-- Recognize RVO and copy elision optimizations
-- Design move-only types for resource management
-
----
-
-### 3. Concurrency Patterns
-**Status**: Partially Started (Deadlock tests in progress)  
-**Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 20-25 hours
-
-**Planned Modules**:
-- [x] Deadlock patterns (8-12 hours) - **In Progress**
-- [ ] Thread-safe singleton patterns (3 hours)
-- [ ] Reader-writer locks and `shared_mutex` (4 hours)
-- [ ] Lock-free data structures basics (6 hours)
-- [ ] Producer-consumer advanced patterns (4 hours)
-- [ ] Thread pools and work stealing (5 hours)
-
-**Prerequisites**: Deadlock patterns (🔄 In Progress)
-
-**Deliverable**: 6-8 test suites covering synchronization primitives, lock-free basics, and async patterns
+**Also:** Root `CMakeLists.txt` sets `CMAKE_CXX_STANDARD` to **20**. Prefer **`cmake --preset gcc`** (or `clang`); see [BUILDING.md](BUILDING.md) for CMake version notes.
 
 ---
 
-### 4. Template Metaprogramming
-**Status**: Not Started  
-**Difficulty**: ⭐⭐⭐⭐⭐ (Very Hard)  
-**Estimated Time**: 25-30 hours
+## Suggested learning order
 
-**Planned Modules**:
-- [ ] Function and class templates (4 hours)
-- [ ] Template specialization (full and partial) (5 hours)
-- [ ] SFINAE and `std::enable_if` (6 hours)
-- [ ] Variadic templates and fold expressions (6 hours)
-- [ ] Type traits and metafunctions (5 hours)
-- [ ] Practical applications (generic containers, type-safe APIs) (6 hours)
+Dependencies are soft; adjust for your goals.
 
-**Prerequisites**: Strong C++ fundamentals (✅ Complete)
-
-**Deliverable**: 8-10 test files with progressive complexity, focusing on practical applications
-
-**Note**: This is the steepest learning curve on the list. Recommend tackling after Move Semantics and Concurrency.
+1. **Orientation** — Build the project, run `./build/gcc/examples/test_try_it_out` (or your preset output directory).
+2. **Ownership baseline** — `learning_shared_ptr` (then `learning_raii` / `learning_memory` as needed).
+3. **Move semantics** — `learning_move_semantics` (pairs well after shared_ptr).
+4. **Modern syntax and STL** — `learning_modern_cpp`, `learning_stl`.
+5. **Error handling and templates** — `learning_error_handling`, `learning_templates` (order flexible).
+6. **Concurrency** — `learning_concurrency` after you are comfortable with mutex/RAII basics.
+7. **Deadlocks (optional lab)** — Uncomment targets in `learning_deadlocks/CMakeLists.txt` when you are ready; complete scenarios one file at a time.
+8. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
 
 ---
 
-### 5. RAII & Resource Management
-**Status**: Partially Complete (via `shared_ptr` tests)  
-**Difficulty**: ⭐⭐☆☆☆ (Easy-Moderate)  
-**Estimated Time**: 8-10 hours
+## Time and scope (rough)
 
-**Planned Modules**:
-- [ ] Scope guards and cleanup patterns (2 hours)
-- [ ] File handle and socket management (2 hours)
-- [ ] Custom resource managers (3 hours)
-- [ ] Building smart pointers from scratch (4 hours)
+Estimates assume focused study; your pace will vary.
 
-**Requires**: Smart Pointers (✅ Complete), Move Semantics
+| Area | Indicative hours | Comment |
+|------|------------------|--------|
+| Shared pointers + RAII + memory | 25–45 | Largest conceptual load for many learners. |
+| Move semantics | 12–16 | Five registered tests. |
+| Modern C++ + STL | 25–35 | Eight + five test files. |
+| Concurrency + (optional) deadlocks | 20–35+ | Five concurrency tests; deadlocks add substantial lab time when enabled. |
+| Templates | 25–35 | Steep curve; do after moves/STL if possible. |
+| Error handling, patterns, performance, debugging | 40–60 combined | Mix and match. |
 
-**Deliverable**: 4-5 test files with practical resource management scenarios
-
----
-
-### 6. Design Patterns (C++ Specific)
-**Status**: Not Started  
-**Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 18-22 hours
-
-**Planned Modules**:
-- [ ] Creational patterns (Factory, Builder, Singleton) (5 hours)
-- [ ] Structural patterns (Adapter, Decorator, Proxy, Flyweight) (6 hours)
-- [ ] Behavioral patterns (Observer, Strategy, Visitor, Command) (7 hours)
-- [ ] Modern C++ pattern implementations (5 hours)
-
-**Requires**: Move Semantics, RAII
-
-**Deliverable**: 10-12 test files, each implementing a pattern with broken/correct versions
+**Full pass** over all registered material is on the order of **roughly 150–250+ hours** depending on depth and whether you enable deadlock exercises.
 
 ---
 
-### 7. Memory Management Deep Dive
-**Status**: Not Started  
-**Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 15-18 hours
+## Success metrics
 
-**Planned Modules**:
-- [ ] Custom allocators and `std::allocator` interface (4 hours)
-- [ ] Pool allocators (fixed-size and variable-size) (5 hours)
-- [ ] Memory alignment and cache-friendly structures (4 hours)
-- [ ] Placement new and aligned storage (3 hours)
-- [ ] Memory profiling and leak detection (3 hours)
+After working through the modules you care about, you should be better able to:
 
-**Requires**: RAII, Smart Pointers (✅ Complete)
-
-**Deliverable**: 6-7 test files with allocator implementations and performance comparisons
+- Reason about **ownership, lifetimes, and aliasing** with observable checks (tests, `EventLog` where used).
+- Use **move semantics** and **forwarding** deliberately.
+- Navigate **concurrency** pitfalls (ordering, `condition_variable`, lock-free basics at the level of these tests).
+- Read and write **template** code with SFINAE/traits patterns reflected in the suite.
+- Apply **RAII**, **error-handling** trade-offs, and **STL** invalidation and complexity considerations.
+- **Profile and benchmark** without mistaking noise for signal (see performance tests and caveats in code).
 
 ---
 
-### 8. Error Handling
-**Status**: Not Started  
-**Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 10-12 hours
-
-**Planned Modules**:
-- [ ] Exception safety guarantees (basic, strong, no-throw) (3 hours)
-- [ ] RAII for exception safety (2 hours)
-- [ ] `std::optional` and result types (3 hours)
-- [ ] Error codes vs exceptions (when to use which) (2 hours)
-- [ ] `noexcept` specifications and move operations (3 hours)
-
-**Requires**: RAII, Move Semantics
-
-**Deliverable**: 5-6 test files demonstrating exception-safe code patterns
-
----
-
-### 9. STL Deep Dive
-**Status**: Partially Started (using STL in tests)  
-**Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 14-16 hours
-
-**Planned Modules**:
-- [ ] Container internals (vector growth, deque, map vs unordered_map) (4 hours)
-- [ ] Iterator categories and custom iterators (4 hours)
-- [ ] Algorithm complexity and parallel algorithms (3 hours)
-- [ ] Custom comparators and hash functions (3 hours)
-- [ ] Iterator invalidation rules (2 hours)
-
-**Requires**: Templates
-
-**Deliverable**: 6-8 test files exploring container internals and performance characteristics
-
----
-
-### 10. Modern C++ Features (C++11/14/17)
-**Status**: Partially Using (C++11 in current tests)  
-**Difficulty**: ⭐⭐☆☆☆ (Easy-Moderate)  
-**Estimated Time**: 12-15 hours
-
-**Planned Modules**:
-
-**C++11/14**:
-- [ ] Lambda expressions (captures, mutable, generic) (3 hours)
-- [ ] `auto` and type deduction rules (2 hours)
-- [ ] Uniform initialization and initializer lists (2 hours)
-- [ ] Delegating and inheriting constructors (2 hours)
-
-**C++17**:
-- [ ] Structured bindings (2 hours)
-- [ ] `std::optional`, `std::variant`, `std::any` (3 hours)
-- [ ] `std::string_view` (2 hours)
-- [ ] `if constexpr` and fold expressions (3 hours)
-
-**Requires**: Templates (for C++17-era features in this module)
-
-**Deliverable**: 8-10 test files demonstrating feature usage and gotchas
-
----
-
-### 11. Performance & Optimization
-**Status**: Not Started  
-**Difficulty**: ⭐⭐⭐⭐☆ (Hard)  
-**Estimated Time**: 16-20 hours
-
-**Planned Modules**:
-- [ ] Profiling and identifying bottlenecks (4 hours)
-- [ ] Cache-friendly data structures (4 hours)
-- [ ] Copy elision and RVO (3 hours)
-- [ ] Small object optimization (3 hours)
-- [ ] `constexpr` and compile-time computation (4 hours)
-- [ ] Benchmarking methodology (3 hours)
-
-**Requires**: Move Semantics, Memory Management
-
-**Deliverable**: 6-8 test files with before/after optimization comparisons and benchmarks
-
----
-
-### 12. Testing & Debugging
-**Status**: Partially Started (using GoogleTest)  
-**Difficulty**: ⭐⭐⭐☆☆ (Moderate)  
-**Estimated Time**: 12-14 hours
-
-**Planned Modules**:
-- [ ] GoogleMock for mocking (4 hours)
-- [ ] Benchmark testing with Google Benchmark (3 hours)
-- [ ] Static analysis tools (clang-tidy, cppcheck) (3 hours)
-- [ ] Sanitizers (AddressSanitizer, ThreadSanitizer, UBSan) (3 hours)
-- [ ] Property-based testing (2 hours)
-
-**Requires**: None - can start anytime
-
-**Deliverable**: Enhanced test infrastructure, CI/CD integration examples
-
----
-
-## Recommended Learning Order
-
-Based on topic dependencies and progressive difficulty:
-
-### **Phase 1: Foundations (Complete Current Work)**
-1. ✅ Finish `shared_ptr` tests (if any remaining)
-2. 🔄 Complete `learning_deadlocks/` (8-12 hours remaining)
-3. ⭐ C++11 version support documentation (30 minutes)
-
-**Total Phase 1**: ~8-12 hours
-
----
-
-### **Phase 2: Core Modern C++ (Build on Ownership Knowledge)**
-4. Move Semantics & Perfect Forwarding (12-16 hours)
-5. RAII & Resource Management (8-10 hours)
-6. Modern C++ Features C++11/14/17 (12-15 hours)
-
-**Total Phase 2**: ~32-41 hours (~1-1.5 months at 2-3 hours/day)
-
----
-
-### **Phase 3: Advanced Concurrency**
-7. Complete Concurrency Patterns (12-13 hours remaining after deadlocks)
-8. Memory Management Deep Dive (15-18 hours)
-
-**Total Phase 3**: ~27-31 hours (~3-4 weeks at 2-3 hours/day)
-
----
-
-### **Phase 4: Practical Patterns (Apply Everything)**
-9. Design Patterns (18-22 hours)
-10. Error Handling (10-12 hours)
-11. STL Deep Dive (14-16 hours)
-
-**Total Phase 4**: ~42-50 hours (~1.5-2 months at 2-3 hours/day)
-
----
-
-### **Phase 5: Advanced Topics (Mastery)**
-12. Template Metaprogramming (25-30 hours)
-13. Performance & Optimization (16-20 hours)
-14. Testing & Debugging (12-14 hours)
-
-**Total Phase 5**: ~53-64 hours (~2-2.5 months at 2-3 hours/day)
-
----
-
-## Overall Estimates
-
-| Category | Total Hours | Difficulty |
-|----------|-------------|------------|
-| **Foundations** | 8-12 | ⭐⭐☆☆☆ |
-| **Core Modern C++** | 32-41 | ⭐⭐⭐☆☆ |
-| **Advanced Concurrency** | 27-31 | ⭐⭐⭐⭐☆ |
-| **Practical Patterns** | 42-50 | ⭐⭐⭐☆☆ |
-| **Advanced Topics** | 53-64 | ⭐⭐⭐⭐⭐ |
-| **TOTAL** | **162-198 hours** | **6-8 months at 2-3 hours/day** |
-
----
-
-## Success Metrics
-
-After completing this learning path, you will be able to:
-
-- ✅ Write exception-safe, move-aware modern C++ code
-- ✅ Design and implement lock-free data structures
-- ✅ Create generic, reusable template libraries
-- ✅ Optimize code with profiling and benchmarking
-- ✅ Debug complex multi-threaded issues with sanitizers
-- ✅ Implement custom allocators and resource managers
-- ✅ Apply appropriate design patterns in C++
-- ✅ Make informed decisions about C++11/14/17/20 features
-
----
-
-## Notes
-
-- All time estimates assume 2-3 focused hours per day
-- Prerequisites are suggestions, not strict requirements
-- Feel free to jump around based on project needs or interest
-
-For teaching methodology (Q/A/R pattern, instrumentation), see [Teaching Method](TEACHING_METHOD.md).
+For methodology details, see [Teaching Method](TEACHING_METHOD.md).

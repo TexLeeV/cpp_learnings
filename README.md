@@ -3,9 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
-[![CMake](https://img.shields.io/badge/CMake-3.14+-064F8C.svg)](https://cmake.org)
-
-Note: Active Development -- new modules and exercises added regularly
+[![CMake](https://img.shields.io/badge/CMake-3.23+%20(presets)-064F8C.svg)](https://cmake.org)
 
 ## Why This Exists
 
@@ -13,7 +11,13 @@ This repository is an **AI-powered adaptive teaching system** for advanced C++ c
 
 ## Who This Is For
 
-Developers with solid C++ fundamentals who want to deepen their understanding of smart pointers, move semantics, concurrency, and related topics. The AI teaching system adapts across five skill levels (Junior → Intermediate → Senior → Staff → Principal) with configurable pacing, questioning style, and feedback depth. Default profile: Senior
+**Primary audience:** Developers with **solid C++ fundamentals** who want to deepen understanding of smart pointers, move semantics, concurrency, the STL, templates, and related topics.
+
+**If you are earlier in your career:** Say `"profile: junior"` in Cursor chat for beginner-friendly depth, proactive hints, and scaffolding. The exercises are the same; the mentor behavior is gentler.
+
+**If you are new to programming or to C++:** This repo is not a zero-to-hero introduction. Use an introductory C++ course or book first, then use this path for **mechanism-level** practice.
+
+The AI teaching system adapts across five skill levels (Junior → Intermediate → Senior → Staff → Principal) with configurable pacing, questioning style, and feedback depth. **Default profile:** Senior (see `.cursor/rules/socratic-software-engineering.mdc`).
 
 ## AI Socratic Teaching System
 
@@ -23,7 +27,7 @@ The repository features an adaptive AI framework that guides learning through ev
 
 - **Q/A/R Pattern** — Inline questions (`// Q:`), your answers (`// A:`), and AI feedback (`// R:`) written directly into code files. The AI validates your reasoning against actual test behavior, not guesses or speculation.
 - **Evidence-Based Validation** — Your mental model is tested against observable runtime behavior. The AI requires falsifiable reasoning backed by logs, counters, and test output.
-- **Observable Instrumentation** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) capture every constructor, destructor, copy, move, and deleter call so you can verify predictions.
+- **Observable Instrumentation** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) capture constructor, destructor, copy, move, and deleter activity so you can verify predictions.
 - **Adaptive Questioning** — The system adjusts questioning style, hint policy, verification rigor, and response depth based on your selected skill level.
 
 ### Skill Profiles
@@ -42,122 +46,95 @@ Activate a profile by stating the exact override string (e.g., `"profile: staff"
   - Gradual edge case introduction
   - Questions require reasoning over memorization
 
-- **Senior (SWE III)** — `"profile: senior"`
-  - Precise technical depth, no hints
-  - Strict verification with falsifiable reasoning
-  - Probes aliasing, structural consistency (bookkeeping vs references—e.g. refcounts and control blocks in C++), and subtle mechanics
-  - Challenges incomplete or unfalsifiable assumptions
+- **Senior (SWE III)** — `"profile: senior"` (**default**)
+  - Precise technical depth, hints on request
+  - Verification trusts context unless a claim contradicts visible code
+  - Probes aliasing, structural consistency (e.g. refcounts and control blocks), and subtle mechanics
 
-- **Staff (SWE IV)** — `"profile: staff"` (Default)
+- **Staff (SWE IV)** — `"profile: staff"`
   - Mechanism-focused, adversarial questioning
   - Explores contracts, structural consistency across the object/resource dependency graph, and failure modes
   - Requires explicit reasoning about system consequences
-  - Emphasizes observable signals over intuition
 
 - **Principal (SWE V)** — `"profile: principal"`
   - Architecture-level reasoning about responsibility, lifetimes, and cross-boundary cleanup
   - Pathological edge cases, aliasing traps, systemic consequences
   - Requires justification with observable signals
-  - Deep mechanism-level investigation of every scenario
 
 ### Configuration
 
 The framework lives in `.cursor/rules/` and activates automatically in Cursor IDE:
 
-- **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) — Core methodology and all configurable preferences
-- **Profile files:** `profile-junior.mdc`, `profile-intermediate.mdc`, `profile-senior.mdc`, `profile-staff.mdc`, `profile-principal.mdc`
+- **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) — Core methodology and configurable preferences
+- **Profile files:** [profiles/junior.mdc](.cursor/rules/profiles/junior.mdc), [profiles/intermediate.mdc](.cursor/rules/profiles/intermediate.mdc), [profiles/senior.mdc](.cursor/rules/profiles/senior.mdc), [profiles/staff.mdc](.cursor/rules/profiles/staff.mdc), [profiles/principal.mdc](.cursor/rules/profiles/principal.mdc)
 
-Beyond profiles, you can configure: pacing (one-test vs self-directed), hints (none/ladder/proactive), questioning style (standard/adversarial/pathological), feedback mode (inline/chat/mixed), verification rigor (strict/relaxed), response depth, fill level, and C++ standard focus. See [Teaching Method](docs/TEACHING_METHOD.md) for full details.
+Beyond profiles, you can configure pacing, hints, questioning style, feedback mode, verification rigor, response depth, fill level, and C++ standard focus in chat. See [Teaching Method](docs/TEACHING_METHOD.md) for a summary and the main rule file for the full list.
 
 ## What Makes This Different
 
-- **Socratic Q/A/R pattern** — Inline questions (`// Q:`), your answers (`// A:`), and feedback (`// R:`); the AI validates against test behavior, not guesses. Adaptive teaching across five skill levels.
-- **Observable runtime behavior** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) log every constructor, destructor, copy, move, and deleter so you can verify your mental model.
-- **Broken/fixed patterns** — Study buggy implementations, then implement the correct version (e.g. deadlock fixes).
-- **Works with or without AI** — Full standalone functionality; AI-powered Socratic teaching available in [Cursor IDE](https://cursor.sh).
+- **Socratic Q/A/R pattern** — Inline questions, your answers, and feedback; validation against test behavior, not guesses.
+- **Observable runtime behavior** — EventLog and instrumented types make lifetimes and moves concrete.
+- **Broken/fixed patterns** — Study buggy implementations, then implement corrected versions (e.g. deadlock labs).
+- **Works with or without AI** — Full standalone functionality; Cursor enhances the experience.
 
 ## How It Works
 
-You fill in TODOs and answer inline questions, run tests, and observe what actually happens (via EventLog). The adaptive teaching framework adjusts to your skill level, providing targeted questions and feedback that build mechanism-based understanding. Feedback is evidence-based: your answers are checked against test output, not speculation. For full details on the Q/A/R pattern, instrumentation, and exercise types, see [Teaching Method](docs/TEACHING_METHOD.md).
+You fill in TODOs and answer inline questions, run tests, and observe what happens (via `EventLog` and assertions). The adaptive framework adjusts to your profile. For Q/A/R details, instrumentation, and exercise types, see [Teaching Method](docs/TEACHING_METHOD.md).
 
 ## Quickstart
 
-1. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
-2. **Run the try-it-out example** — `./build/gcc/examples/test_try_it_out`
-3. **Pick a module** — Start with `learning_shared_ptr` (complete) or `learning_move_semantics` (ready). See [Full Curriculum](docs/LEARNING_PATH.md) for the full list.
+1. **Prerequisites** — CMake **3.23+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; C++20 is set in the root file and presets.
+2. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
+3. **Try it** — `./build/gcc/examples/test_try_it_out`
+4. **Next** — Start with `learning_shared_ptr` or follow [Full Curriculum](docs/LEARNING_PATH.md).
 
-## Modules (High-Level)
+## Modules (high level)
 
-- **Smart Pointers** — Complete. 18 test files covering `shared_ptr`, `weak_ptr`, aliasing, multi-threading.
-- **Memory Management** — Complete. 4 test files covering placement new, custom allocators, pool allocators, alignment.
-- **Modern C++ Features** — Complete. 8 test files covering lambdas, auto, and C++11/14/17 language features (project builds as C++20).
-- **RAII & Resource Management** — Complete. 4 test files covering scope guards, file handles, custom managers, smart pointers from scratch.
-- **Error Handling** — Complete. 5 test files covering error codes, exceptions, RAII safety, optional/result types, noexcept.
-- **STL Deep Dive** — Complete. 5 test files covering containers, iterators, algorithms, comparators, invalidation.
-- **Concurrency** — Complete. 5 test files covering thread-safe singletons, reader-writer locks, producer-consumer, lock-free basics, thread pools.
-- **Design Patterns** — Complete. 4 test files covering creational, structural, behavioral, and modern C++ pattern implementations.
-- **Debugging** — Complete. 3 test files covering GoogleMock, debugging techniques, benchmarking, assertions, observable state.
-- **Performance** — Complete. 6 test files covering cache-friendly design, copy elision, constexpr, SSO, profiling, benchmarking.
-- **Templates** — Complete. 6 test files covering function/class templates, specialization, SFINAE, variadic templates, type traits, metaprogramming.
-- **Deadlocks** — In progress. 4 test files, 16 scenarios; fix implementations to be filled in.
-- **Move Semantics** — Ready. 5 test files; not yet worked through.
+Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs). Some folders contain extra `.cpp` sources not yet added to CMake.
 
-## Full Curriculum
+| Module | Registered tests | Topic (short) |
+|--------|------------------|----------------|
+| `learning_shared_ptr` | 16 | `shared_ptr` / `weak_ptr`, ownership, aliasing (18 `.cpp` on disk; see Learning Path) |
+| `learning_memory` | 4 | Placement new, allocators, pools, alignment |
+| `learning_modern_cpp` | 8 | C++11/14/17 features (build is C++20) |
+| `learning_raii` | 4 | Scope guards, handles, smart pointers from scratch |
+| `learning_move_semantics` | 5 | Moves, forwarding, move-only types |
+| `learning_error_handling` | 5 | Exceptions, optional/result, noexcept |
+| `learning_stl` | 5 | Containers, iterators, algorithms, invalidation |
+| `learning_concurrency` | 5 | Threads, mutexes, lock-free basics, pools |
+| `learning_design_patterns` | 4 | Creational, structural, behavioral, modern |
+| `learning_templates` | 6 | Templates, SFINAE, variadics, traits |
+| `learning_performance` | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks |
+| `learning_debugging` | 3 | GoogleMock, debugging, benchmark exercise |
+| `learning_deadlocks` | **0** | Four scenario files exist; **CMake targets commented out** until you enable them |
+| `examples` | 1 | Onboarding test |
+| `profile_showcase` | 1 | Move instrumentation demo |
 
-See [docs/LEARNING_PATH.md](docs/LEARNING_PATH.md) for detailed module descriptions, time estimates, prerequisites, recommended order, and success metrics.
+## Full curriculum and structure
 
-## Teaching Method
+- **Curriculum, prerequisites, and order:** [docs/LEARNING_PATH.md](docs/LEARNING_PATH.md)
+- **Teaching method:** [docs/TEACHING_METHOD.md](docs/TEACHING_METHOD.md)
 
-See [docs/TEACHING_METHOD.md](docs/TEACHING_METHOD.md) for the Q/A/R pattern, instrumentation system, exercise types, and Cursor configuration options.
-
-## Repository Structure
+## Repository layout
 
 ```
-cpp/
-├── README.md                    # This file
-├── .cursor/rules/               # Adaptive Socratic teaching framework (5 skill profiles)
-├── common/                      # Shared instrumentation library (EventLog, Tracked, MoveTracked, Resource)
-│   └── src/
-├── cmake/                       # CMake helper functions (add_learning_test)
-├── examples/                    # Try-it-out test to experience the Socratic method
-├── learning_shared_ptr/         # Complete - Smart pointer deep dive (18 test files)
-│   └── tests/
-├── learning_memory/             # Complete - Memory management (4 test files)
-│   └── tests/
-├── learning_modern_cpp/         # Complete - Modern C++ features (8 test files)
-│   └── tests/
-├── learning_raii/               # Complete - RAII & resource management (4 test files)
-│   └── tests/
-├── learning_deadlocks/          # Complete
-│   └── tests/
-├── learning_move_semantics/     # Complete
-│   └── tests/
-├── learning_error_handling/    # Complete - Error handling patterns (5 test files)
-│   └── tests/
-├── learning_stl/               # Complete - STL deep dive (5 test files)
-│   └── tests/
-├── learning_concurrency/        # Complete - Concurrency patterns (5 test files)
-│   └── tests/
-├── learning_design_patterns/    # Complete - Design patterns (4 test files)
-│   └── tests/
-├── learning_debugging/          # Complete - Testing and debugging (3 test files)
-│   └── tests/
-├── learning_performance/        # Complete - Performance optimization (6 test files)
-│   └── tests/
-└── learning_templates/          # Complete - Template metaprogramming (6 test files)
-    └── tests/
+<repo_root>/
+├── README.md
+├── CMakeLists.txt
+├── CMakePresets.json
+├── .cursor/rules/          # Socratic rules and profiles
+├── cmake/                  # add_learning_test helper
+├── common/                 # instrumentation, move_instrumentation
+├── docs/                   # BUILDING, LEARNING_PATH, TEACHING_METHOD
+├── examples/
+├── profile_showcase/
+└── learning_*/             # One directory per topic (see table above)
 ```
 
-## Building & Running
+## Building and running
 
-Quick build: `cmake --preset gcc` then `cmake --build --preset gcc`. Run all tests: `ctest --preset gcc --verbose`. For dependencies (GoogleTest, Asio), platform-specific installs, and running specific tests, see [docs/BUILDING.md](docs/BUILDING.md).
+Quick path: `cmake --preset gcc`, `cmake --build --preset gcc`, `ctest --preset gcc --verbose`. Dependencies (GoogleTest, optional Asio), targeted tests, and CMake notes: [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
-
-- Report bugs via [issue templates](.github/ISSUE_TEMPLATE/)
-- Suggest new learning modules
-- Fix typos or improve documentation
-- Share your Q/A/R experiences
-
+See [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md). Report issues via [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/).

@@ -1,104 +1,94 @@
 # Building & Running Tests
 
-This document covers build setup, dependencies, and running tests. For an overview and quickstart, see the [main README](../README.md).
+Build setup, dependencies, and how to run tests. For project overview, see the [main README](../README.md).
 
 ---
 
 ## Requirements
 
-- CMake 3.14+
-- GCC/Clang with C++20 support
-- GoogleTest & GoogleMock
-- Threads (for multi-threaded tests)
+- **CMake** — **3.23 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.14)` for manual configures; presets are the documented workflow.
+- **Compiler** — **C++20** (GCC 14 or recent Clang recommended).
+- **GoogleTest & GoogleMock** — Required (`find_package(GTest REQUIRED)`).
+- **Threads** — For concurrency tests (and deadlock tests when enabled).
 
 ---
 
-## Quick Build
+## Quick build
 
-All test modules are part of a single unified CMake project:
+From the repository root:
 
 ```bash
-# Configure and build
-cd <project_root>
 cmake --preset gcc
 cmake --build --preset gcc
 
-# Run all tests
+# Run all tests registered with CTest
 ctest --preset gcc --verbose
 ```
 
+Use `cmake --preset clang` / `cmake --build --preset clang` if you prefer Clang.
+
 ---
 
-## Running Specific Tests
+## Running specific tests
 
 ```bash
-# Run a specific test suite
+# Run one executable (path matches your preset output directory)
 ./build/gcc/learning_shared_ptr/test_reference_counting
-./build/gcc/learning_deadlocks/test_mutex_ordering_deadlocks
 
-# Run with gtest filter
+# GoogleTest filter
 ./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
-# Build specific target only
-cmake --build --preset gcc --target test_mutex_ordering_deadlocks
+# Build one target
+cmake --build --preset gcc --target test_reference_counting
 ```
+
+**Filter by name with ctest:**
+
+```bash
+cd build/gcc
+ctest -R test_reference_counting --output-on-failure
+```
+
+### `learning_deadlocks`
+
+Targets are **not** registered by default (`add_learning_test` lines are commented in `learning_deadlocks/CMakeLists.txt`). After you uncomment them and reconfigure, binaries would appear under `build/gcc/learning_deadlocks/`. See [learning_deadlocks/SUMMARY.txt](../learning_deadlocks/SUMMARY.txt) for scenario layout.
 
 ---
 
-## Installing Dependencies
+## Installing dependencies
 
-### GoogleTest & GoogleMock (Required)
+### GoogleTest & GoogleMock (required)
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt update
 sudo apt install libgtest-dev libgmock-dev cmake build-essential ninja-build
 ```
 
 **Fedora/RHEL:**
+
 ```bash
 sudo dnf install gtest-devel gmock-devel cmake gcc-c++ ninja-build
-sudo yum install gtest-devel gmock-devel cmake gcc-c++ ninja-build
 ```
 
 **macOS:**
+
 ```bash
 brew install googletest cmake ninja
 ```
 
-Note: GoogleMock is bundled with GoogleTest in most modern distributions. CMake will find both via `find_package(GTest REQUIRED)`. If installed to a non-standard location:
+---
 
-```bash
-cmake --preset gcc -DGTest_DIR=/path/to/gtest/lib/cmake/GTest
-```
+## Tools and environment
 
-### Asio Setup (Optional)
-
-Required only for `test_asio_basics` and `test_multi_threaded_patterns` in `learning_shared_ptr/`:
-
-```bash
-# Ubuntu/Debian
-sudo apt install libasio-dev
-
-# Fedora/RHEL
-sudo dnf install asio-devel
-
-# macOS
-brew install asio
-```
-
-CMake will auto-detect Asio via `find_path`. If installed to a non-standard location:
-
-```bash
-cmake -DASIO_INCLUDE_DIR=/path/to/asio/include ..
-```
+- **Compiler:** GCC 14 / recent Clang with **C++20**
+- **Build:** CMake **3.23+** for presets; Ninja recommended (generator in presets)
+- **Tests:** GoogleTest & GoogleMock
+- **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`)
 
 ---
 
-## Tools & Environment
+## Known caveats
 
-- **Compiler**: GCC 14 / Clang with C++20 support
-- **Build System**: CMake 3.14+ (Ninja recommended)
-- **Testing**: GoogleTest & GoogleMock
-- **IDE**: Cursor (with AI assistance for Socratic learning)
-- **Optional**: Standalone Asio (header-only) for multi-threaded shared_ptr tests
+- **Timing-sensitive tests** (e.g. cache/branch microbenchmarks) may occasionally fail on virtualized or heavily loaded machines; re-run or compare trends rather than single-shot wall clock on CI-like hosts.

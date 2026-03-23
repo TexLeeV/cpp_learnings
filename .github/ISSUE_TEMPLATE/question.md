@@ -15,7 +15,7 @@ What would you like to know?
 Where are you in the learning path, and what prompted this question?
 
 - **Module**: [e.g., `learning_shared_ptr`, `learning_deadlocks`]
-- **Test File**: [e.g., `test_weak_ptr.cpp`] (if applicable)
+- **Test File**: [e.g., `test_aliasing_weak.cpp`] (if applicable)
 - **Exercise/Test Case**: [e.g., specific Q/A/R question or test name]
 
 ## What You've Tried

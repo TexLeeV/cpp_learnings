@@ -18,8 +18,8 @@ Thank you for your interest in contributing! This repository helps developers le
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/cpp.git
-   cd cpp
+   git clone https://github.com/YOUR_USERNAME/YOUR_FORK.git
+   cd YOUR_FORK   # or your local directory name
    ```
 3. **Create a branch** for your changes:
    ```bash
@@ -30,7 +30,7 @@ Thank you for your interest in contributing! This repository helps developers le
 
 ### Required Dependencies
 
-- **CMake 3.14+** (3.28+ recommended)
+- **CMake 3.23+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.14+ for manual configures
 - **C++20 compatible compiler**:
   - GCC 14 (reference compiler)
   - Clang 17+
@@ -133,7 +133,7 @@ SignalHandler::SignalHandler(asio::io_context& io_context)
 - **DO NOT** add large summary sections at the end of code files
 - **DO** add concise inline comments for specific code sections
 - **DO** use Q/A/R pattern for learning content
-- **DO** update main README.md with new module information
+- **DO** update the main README.md module table and `docs/LEARNING_PATH.md` when adding or changing modules
 
 ### Comments
 
@@ -168,11 +168,11 @@ If adding a new module (e.g., `learning_coroutines`):
    add_subdirectory(learning_coroutines)
    ```
 
-3. Create module `CMakeLists.txt`:
+3. Create module `CMakeLists.txt` (same pattern as existing modules — `AddLearningTest` is already included from the root):
    ```cmake
-   include(${CMAKE_SOURCE_DIR}/cmake/AddLearningTest.cmake)
-   add_learning_test(test_basic_coroutines tests/test_basic_coroutines.cpp)
+   add_learning_test(test_basic_coroutines tests/test_basic_coroutines.cpp instrumentation)
    ```
+   Link `Threads::Threads` as a fourth argument if the test uses `std::thread` or similar.
 
 4. Include instrumentation headers:
    ```cpp
@@ -180,10 +180,7 @@ If adding a new module (e.g., `learning_coroutines`):
    #include <gtest/gtest.h>
    ```
 
-5. Update main README.md with:
-   - Module description in "Learning TODO List"
-   - Status and difficulty rating
-   - Prerequisites
+5. Update main **README.md** module table and [docs/LEARNING_PATH.md](../docs/LEARNING_PATH.md) if the curriculum or registered test count changes.
 
 ## Testing Your Changes
 
@@ -279,7 +276,7 @@ Looking for something to work on?
 - **Improve Q/A/R questions** for clarity
 - **Add compile-fail tests** for common mistakes
 - **Enhance instrumentation output** for better debugging
-- **Create new learning modules** from the TODO list in README
+- **Create new learning modules** (see [docs/LEARNING_PATH.md](../docs/LEARNING_PATH.md) and the README module table)
 - **Add cross-platform tests** (Windows, additional compilers)
 - **Improve build system** (better dependency detection, install targets)
 

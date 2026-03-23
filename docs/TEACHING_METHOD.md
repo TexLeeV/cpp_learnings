@@ -59,12 +59,16 @@ The `.cursor/rules/` directory contains AI teaching rules that activate automati
 The Socratic method is configurable. Tell the AI your preferences in chat:
 
 - **Pacing**: "one test at a time" (default), "bulk mode", "self-directed"
-- **Hints**: "no hints unless I ask" (default), "offer hints when stuck"
+- **Hints**: "on request" (default for most profiles), "proactive", "ladder-after-2"
 - **Feedback**: inline Q/A/R (default), "chat-only", "mixed mode"
-- **Response depth**: "precise technical" (default), "beginner-friendly"
-- **Verification**: "always verify" (default), "trust context"
+- **Response depth**: depends on profile (e.g. senior: precise technical); override with "beginner-friendly", "mechanism-focused", etc.
+- **Verification**: "trust context" (default in the main rule), or "relaxed" / stricter modes as documented in the rule file
 
-See [.cursor/rules/socratic-software-engineering.mdc](../.cursor/rules/socratic-software-engineering.mdc) for full details.
+See [.cursor/rules/socratic-software-engineering.mdc](../.cursor/rules/socratic-software-engineering.mdc) for authoritative defaults and the full option list.
+
+### Audience
+
+Exercises assume **working familiarity with C++** (see [Learning Path](LEARNING_PATH.md)). The **junior profile** adjusts explanation depth and hints; it does not replace a first course in the language.
 
 ### Works Without Cursor
 
