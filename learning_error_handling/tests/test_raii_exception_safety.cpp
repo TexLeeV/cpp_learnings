@@ -1,7 +1,7 @@
 // Test Suite: RAII for Exception Safety
 // Estimated Time: 2 hours
 // Difficulty: Easy
-// C++ Standard: C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

@@ -1,7 +1,7 @@
 // Test Suite: Structured Bindings
 // Estimated Time: 2 hours
 // Difficulty: Easy
-// C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

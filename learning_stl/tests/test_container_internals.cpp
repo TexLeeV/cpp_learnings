@@ -1,7 +1,7 @@
 // Test Suite: Container Internals (vector, deque, map vs unordered_map)
 // Estimated Time: 3 hours
 // Difficulty: Easy
-// C++ Standard: C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

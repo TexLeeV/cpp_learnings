@@ -1,7 +1,7 @@
 // Test Suite: Variadic Templates
 // Estimated Time: 4 hours
 // Difficulty: Hard
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

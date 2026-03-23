@@ -1,7 +1,7 @@
 // Test Suite: Thread-Safe Singleton Patterns
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

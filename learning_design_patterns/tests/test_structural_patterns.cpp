@@ -1,7 +1,7 @@
 // Test Suite: Structural Patterns (Adapter, Decorator, Proxy, Flyweight)
 // Estimated Time: 6 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

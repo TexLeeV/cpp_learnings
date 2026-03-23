@@ -1,7 +1,7 @@
 // Test Suite: Iterator Invalidation Rules
 // Estimated Time: 3 hours
 // Difficulty: Hard
-// C++ Standard: C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

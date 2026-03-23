@@ -1,7 +1,7 @@
 // Test Suite: Practical Template Metaprogramming
 // Estimated Time: 4 hours
 // Difficulty: Hard
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

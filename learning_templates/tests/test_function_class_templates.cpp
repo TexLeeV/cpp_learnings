@@ -1,7 +1,7 @@
 // Test Suite: Function and Class Templates Basics
 // Estimated Time: 3 hours
 // Difficulty: Easy to Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

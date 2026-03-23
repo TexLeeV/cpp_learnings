@@ -1,7 +1,7 @@
 // Test Suite: Comparators and Hash Functions
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

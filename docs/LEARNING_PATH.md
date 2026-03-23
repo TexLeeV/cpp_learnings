@@ -10,11 +10,11 @@ Recommended learning modules in progressive order:
 
 ---
 
-### 1. ✅ C++17 Standard Configuration
+### 1. ✅ C++20 Standard Configuration
 **Status**: Complete  
 **Difficulty**: ⭐☆☆☆☆ (Trivial)
 
-Global C++17 standard configured in root CMakeLists.txt and CMakePresets.json. All modules inherit this setting. GCC 14 is the reference compiler.
+Global **C++20** standard is set in root `CMakeLists.txt` and `CMakePresets.json`. All modules inherit this setting. GCC 14 is the reference compiler. Individual lessons may still call out when a feature was introduced (for example C++11, C++14, or C++17).
 
 ---
 
@@ -191,7 +191,7 @@ Global C++17 standard configured in root CMakeLists.txt and CMakePresets.json. A
 - [ ] `std::string_view` (2 hours)
 - [ ] `if constexpr` and fold expressions (3 hours)
 
-**Requires**: Templates (for C++17 features)
+**Requires**: Templates (for C++17-era features in this module)
 
 **Deliverable**: 8-10 test files demonstrating feature usage and gotchas
 

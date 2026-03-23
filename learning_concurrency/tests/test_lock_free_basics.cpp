@@ -1,7 +1,7 @@
 // Test Suite: Lock-Free Data Structures Basics
 // Estimated Time: 6 hours
 // Difficulty: Hard
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

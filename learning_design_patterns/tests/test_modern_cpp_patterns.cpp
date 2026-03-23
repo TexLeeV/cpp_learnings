@@ -1,7 +1,7 @@
 // Test Suite: Modern C++ Pattern Implementations
 // Estimated Time: 5 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

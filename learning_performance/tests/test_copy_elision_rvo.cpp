@@ -1,7 +1,7 @@
 // Test Suite: Copy Elision and Return Value Optimization
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

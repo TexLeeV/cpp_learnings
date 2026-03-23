@@ -1,7 +1,7 @@
 // Test Suite: Performance Testing and Benchmarking
 // Estimated Time: 3 hours
 // Difficulty: Easy
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

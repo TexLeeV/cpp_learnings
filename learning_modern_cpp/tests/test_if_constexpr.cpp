@@ -1,7 +1,7 @@
 // Test Suite: if constexpr and Fold Expressions
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

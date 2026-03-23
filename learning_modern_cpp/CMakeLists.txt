@@ -6,7 +6,7 @@ add_learning_test(test_auto_type_deduction tests/test_auto_type_deduction.cpp in
 add_learning_test(test_uniform_initialization tests/test_uniform_initialization.cpp instrumentation)
 add_learning_test(test_delegating_constructors tests/test_delegating_constructors.cpp instrumentation)
 
-# C++17 features
+# C++11/14/17 language-feature modules (project compiles as C++20)
 add_learning_test(test_structured_bindings tests/test_structured_bindings.cpp instrumentation)
 add_learning_test(test_optional_variant_any tests/test_optional_variant_any.cpp instrumentation)
 add_learning_test(test_string_view tests/test_string_view.cpp instrumentation)

@@ -1,7 +1,7 @@
 // Test Suite: Debugging Techniques and Assertions
 // Estimated Time: 4 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

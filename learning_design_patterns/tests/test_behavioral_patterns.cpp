@@ -1,7 +1,7 @@
 // Test Suite: Behavioral Patterns (Observer, Strategy, Visitor, Command)
 // Estimated Time: 7 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"

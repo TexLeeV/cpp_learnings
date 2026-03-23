@@ -31,7 +31,7 @@ Thank you for your interest in contributing! This repository helps developers le
 ### Required Dependencies
 
 - **CMake 3.14+** (3.28+ recommended)
-- **C++17 compatible compiler**:
+- **C++20 compatible compiler**:
   - GCC 14 (reference compiler)
   - Clang 17+
 - **GoogleTest** (for testing)
@@ -104,7 +104,7 @@ We follow specific C++ coding standards defined in `.cursor/rules/`:
 
 ### Syntax Rules
 
-- **C++17 standard** is required
+- **C++20 standard** is required (root `CMakeLists.txt` and presets)
 - **Add newlines before opening braces** for readability
 - **No trailing whitespace** on any line
 - **File must end with exactly one newline**

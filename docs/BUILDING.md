@@ -7,7 +7,7 @@ This document covers build setup, dependencies, and running tests. For an overvi
 ## Requirements
 
 - CMake 3.14+
-- GCC/Clang with C++17 support
+- GCC/Clang with C++20 support
 - GoogleTest & GoogleMock
 - Threads (for multi-threaded tests)
 
@@ -19,6 +19,7 @@ All test modules are part of a single unified CMake project:
 
 ```bash
 # Configure and build
+cd <project_root>
 cmake --preset gcc
 cmake --build --preset gcc
 
@@ -96,7 +97,7 @@ cmake -DASIO_INCLUDE_DIR=/path/to/asio/include ..
 
 ## Tools & Environment
 
-- **Compiler**: GCC 14 / Clang with C++17 support
+- **Compiler**: GCC 14 / Clang with C++20 support
 - **Build System**: CMake 3.14+ (Ninja recommended)
 - **Testing**: GoogleTest & GoogleMock
 - **IDE**: Cursor (with AI assistance for Socratic learning)

@@ -1,7 +1,7 @@
 // Test Suite: std::optional, std::variant, std::any
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

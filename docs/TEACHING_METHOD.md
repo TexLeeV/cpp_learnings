@@ -6,7 +6,7 @@ This document explains the pedagogical approach used in this repository. For an 
 
 ## Overview
 
-The repository uses a **Socratic teaching methodology**: you are asked questions before receiving explanations. Exercises combine fill-in code, broken implementations to fix, and guided Q/A/R (Question/Answer/Response) patterns. Every exercise uses **instrumentation** so that runtime behavior (constructors, destructors, copies, moves) is observable. You predict what will happen, run the code, see the results, and learn from evidence-based feedback.
+The repository uses a **Socratic teaching methodology**: you are asked questions before receiving explanations. Exercises combine fill-in code, broken implementations to fix, and guided Q/A/R (Question/Answer/Response) patterns. Every exercise uses **instrumentation** so that runtime behavior (constructors, destructors, copies, moves) is observable. You predict what will happen, run the code, see the results, and learn from evidence-based feedback. The codebase **builds as C++20** by default (`CMakeLists.txt` and `CMakePresets.json`); comments and Q/A/R may still refer to the standard that introduced a feature (for example C++11, C++14, or C++17).
 
 ---
 

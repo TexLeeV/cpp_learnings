@@ -1,7 +1,7 @@
 # C++ Learning Path -- Test-Driven Socratic Learning System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![C++17](https://img.shields.io/badge/C++-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
 [![CMake](https://img.shields.io/badge/CMake-3.14+-064F8C.svg)](https://cmake.org)
 
@@ -90,7 +90,7 @@ You fill in TODOs and answer inline questions, run tests, and observe what actua
 
 - **Smart Pointers** — Complete. 18 test files covering `shared_ptr`, `weak_ptr`, aliasing, multi-threading.
 - **Memory Management** — Complete. 4 test files covering placement new, custom allocators, pool allocators, alignment.
-- **Modern C++ Features** — Complete. 8 test files covering lambdas, auto, C++11/14/17 features.
+- **Modern C++ Features** — Complete. 8 test files covering lambdas, auto, and C++11/14/17 language features (project builds as C++20).
 - **RAII & Resource Management** — Complete. 4 test files covering scope guards, file handles, custom managers, smart pointers from scratch.
 - **Error Handling** — Complete. 5 test files covering error codes, exceptions, RAII safety, optional/result types, noexcept.
 - **STL Deep Dive** — Complete. 5 test files covering containers, iterators, algorithms, comparators, invalidation.

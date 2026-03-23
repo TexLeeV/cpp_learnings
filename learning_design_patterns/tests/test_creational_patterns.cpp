@@ -1,7 +1,7 @@
 // Test Suite: Creational Patterns (Factory, Builder, Singleton)
 // Estimated Time: 5 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 // LEAVE THIS FILE ALONE.  It makes sense that it is 500+ lines due to the 5 patterns being tested
 

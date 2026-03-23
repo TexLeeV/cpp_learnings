@@ -1,7 +1,7 @@
 // Test Suite: Exception Safety Guarantees (Basic, Strong, No-Throw)
 // Estimated Time: 3 hours
 // Difficulty: Moderate
-// C++ Standard: C++17
+
 
 #include "instrumentation.h"
 #include <gtest/gtest.h>

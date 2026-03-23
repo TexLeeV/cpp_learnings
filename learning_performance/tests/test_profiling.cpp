@@ -1,7 +1,7 @@
 // Test Suite: Performance Profiling and Analysis
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
-// C++ Standard: C++17
+
 
 #include <gtest/gtest.h>
 #include "instrumentation.h"
