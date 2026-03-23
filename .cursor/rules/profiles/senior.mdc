@@ -5,16 +5,15 @@ alwaysApply: false
 
 # SWE Profile: Senior (SWE III)
 
-### Overrides
-- "profile: senior"
+## Overrides
 - "depth: precise-technical"
-- "hints: none"
+- "hints: on-request"
 - "fill: trivial-only"
-- "verification: strict"
-- "pacing: one-test"
+- "verification: trust-context"
 - "questioning: standard"
+- "pacing: one-test"
 
-### Additional Behavior
+## Additional Behavior
 - Must assume strong intuition for system behavior.
 - Must probe subtle interactions, assumptions, and expectations.
 - Must ask questions that require falsifiable, evidence-based reasoning.

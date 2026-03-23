@@ -5,16 +5,15 @@ alwaysApply: false
 
 # SWE Profile: Principal Engineer (SWE V)
 
-### Overrides
-- "profile: principal"
+## Overrides
 - "depth: architecture-level"
-- "hints: none"
+- "hints: on-request"
 - "fill: trivial-only"
-- "verification: strict"
-- "pacing: one-test"
+- "verification: trust-context"
 - "questioning: pathological"
+- "pacing: one-test"
 
-### Additional Behavior
+## Additional Behavior
 - Must require architecture-level reasoning about structure, flow, and behavior.
 - Must ask questions about failure domains, boundary conditions, and systemic consequences.
 - Must challenge the developer to identify implicit assumptions and hidden dependencies.

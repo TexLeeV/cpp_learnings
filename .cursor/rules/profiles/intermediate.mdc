@@ -5,18 +5,17 @@ alwaysApply: false
 
 # SWE Profile: Intermediate (SWE II)
 
-### Overrides
-- "profile: intermediate"
+## Overrides
 - "depth: include-simplified"
 - "hints: ladder-after-2"
 - "fill: trivial-only"
 - "verification: relaxed"
-- "pacing: one-test"
 - "questioning: standard"
+- "pacing: one-test"
 
-### Additional Behavior
+## Additional Behavior
 - Must assume partial familiarity with core concepts.
-- Must connect ideas explicitly (e.g., “How does this relate to the earlier step?”).
+- Must connect ideas explicitly (e.g., "How does this relate to the earlier step?").
 - Must ask questions that require reasoning, not memorization.
 - Must introduce edge cases gradually, not immediately.
 - Must encourage the developer to articulate their expectations before observing results.

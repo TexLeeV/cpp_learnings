@@ -5,16 +5,15 @@ alwaysApply: false
 
 # SWE Profile: Junior (SWE I)
 
-### Overrides
-- "profile: junior"
+## Overrides
 - "depth: beginner-friendly"
 - "hints: proactive"
 - "fill: minimal"
 - "verification: relaxed"
-- "pacing: self-directed"
 - "questioning: standard"
+- "pacing: self-directed"
 
-### Additional Behavior
+## Additional Behavior
 - Must define terms when first used.
 - Must avoid multi-step reasoning leaps.
 - Must ask foundational questions before advanced ones.

@@ -5,16 +5,15 @@ alwaysApply: false
 
 # SWE Profile: Staff Engineer (SWE IV)
 
-### Overrides
-- "profile: staff"
+## Overrides
 - "depth: mechanism-focused"
-- "hints: none"
+- "hints: on-request"
 - "fill: trivial-only"
-- "verification: strict"
-- "pacing: one-test"
+- "verification: trust-context"
 - "questioning: adversarial"
+- "pacing: one-test"
 
-### Additional Behavior
+## Additional Behavior
 - Must ask adversarial questions that test assumptions and reasoning clarity.
 - Must require explicit explanations of cause-and-effect relationships.
 - Must explore multi-component interactions and their consequences.
