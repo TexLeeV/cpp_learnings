@@ -117,10 +117,12 @@ TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario1_ClassicTwoResourceDeadlock
 // FIX VERSION: Implement correct lock ordering
 void transfer_fixed(Account& from, Account& to, int amount)
 {
-    // TODO: Implement deadlock-free transfer
-    // Hint: Consider ordering locks by address or using std::lock()
+    std::lock(from.get_mutex(), to.get_mutex());
+    std::lock_guard<std::mutex> lock1(from.get_mutex(), std::adopt_lock);
+    std::lock_guard<std::mutex> lock2(to.get_mutex(), std::adopt_lock);
     
-    // YOUR CODE HERE
+    from.subtract(amount);
+    to.add(amount);
 }
 
 TEST_F(MutexOrderingDeadlocksTest, Scenario1_ClassicTwoResourceDeadlock_Fixed)
@@ -242,12 +244,30 @@ TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario2_ThreeThreadCircularDeadloc
 // FIX VERSION: Implement deadlock-free processing
 bool process_two_resources_fixed(Resource& r1, Resource& r2)
 {
-    // TODO: Implement deadlock-free resource processing
-    // Hint: Establish a global ordering for all resources
+    Resource* first = &r1;
+    Resource* second = &r2;
     
-    // YOUR CODE HERE
+    if (first > second)
+    {
+        std::swap(first, second);
+    }
     
-    return false;
+    std::unique_lock<std::timed_mutex> lock1(first->get_mutex(), std::chrono::milliseconds(100));
+    if (!lock1.owns_lock())
+    {
+        return false;
+    }
+    
+    std::unique_lock<std::timed_mutex> lock2(second->get_mutex(), std::chrono::milliseconds(100));
+    if (!lock2.owns_lock())
+    {
+        return false;
+    }
+    
+    auto data1 = first->get_data();
+    auto data2 = second->get_data();
+    
+    return true;
 }
 
 TEST_F(MutexOrderingDeadlocksTest, Scenario2_ThreeThreadCircularDeadlock_Fixed)
@@ -378,10 +398,12 @@ TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario3_NestedLockAcquisition_Brok
 // FIX VERSION: Implement safe nested locking
 void link_containers_fixed(std::shared_ptr<Container> c1, std::shared_ptr<Container> c2)
 {
-    // TODO: Implement deadlock-free container linking
-    // Hint: Consider lock ordering or std::lock for multiple mutexes
+    if (c1.get() > c2.get())
+    {
+        std::swap(c1, c2);
+    }
     
-    // YOUR CODE HERE
+    c1->set_next(c2);
 }
 
 TEST_F(MutexOrderingDeadlocksTest, Scenario3_NestedLockAcquisition_Fixed)
@@ -507,12 +529,28 @@ TEST_F(MutexOrderingDeadlocksTest, DISABLED_Scenario4_LockHierarchyViolation_Bro
 // FIX VERSION: Implement hierarchy-respecting locks
 bool acquire_hierarchical_fixed(HierarchicalResource& r1, HierarchicalResource& r2)
 {
-    // TODO: Implement lock acquisition that respects hierarchy levels
-    // Hint: Always lock higher level before lower level
+    HierarchicalResource* first = &r1;
+    HierarchicalResource* second = &r2;
     
-    // YOUR CODE HERE
+    if (r1.level() < r2.level())
+    {
+        std::swap(first, second);
+    }
     
-    return false;
+    if (!first->get_mutex().try_lock_for(std::chrono::milliseconds(50)))
+    {
+        return false;
+    }
+    std::lock_guard<std::timed_mutex> lock1(first->get_mutex(), std::adopt_lock);
+    
+    if (!second->get_mutex().try_lock_for(std::chrono::milliseconds(50)))
+    {
+        return false;
+    }
+    std::lock_guard<std::timed_mutex> lock2(second->get_mutex(), std::adopt_lock);
+    
+    r1.use_with(r2);
+    return true;
 }
 
 TEST_F(MutexOrderingDeadlocksTest, Scenario4_LockHierarchyViolation_Fixed)

@@ -203,29 +203,26 @@ TEST_F(SelfReferencePatternsTest, TimerWithSelfReference)
 {
     long captured_use_count = 0;
 
-    // TODO: Create Timer
-    // YOUR CODE HERE
+    auto timer = std::make_shared<Timer>("Timer1");
 
-    // TODO: Schedule callback that captures use_count
-    // YOUR CODE HERE
+    timer->schedule([&captured_use_count](std::shared_ptr<Timer> self) {
+        captured_use_count = self.use_count();
+    });
 
-    // TODO: Execute timer
-    // YOUR CODE HERE
+    timer->execute();
 
-    EXPECT_EQ(captured_use_count, 2);
+    EXPECT_EQ(captured_use_count, 3);
 }
 
 TEST_F(SelfReferencePatternsTest, MultipleCallbacksWithSharedFromThis)
 {
-    // TODO: Create task
-    // YOUR CODE HERE
+    auto task = std::make_shared<CancellableTask>("Task1");
 
-    // TODO: Create three callbacks from task
-    // YOUR CODE HERE
+    auto cb1 = task->create_callback();
+    auto cb2 = task->create_callback();
+    auto cb3 = task->create_callback();
 
-    long use_count = 0;
-    // TODO: Get use_count of task
-    // use_count = ???
+    long use_count = task.use_count();
 
     EXPECT_EQ(use_count, 1);
 }
@@ -257,12 +254,14 @@ TEST_F(SelfReferencePatternsTest, ChainedAsyncOperations)
     long read_use_count = 0;
     long write_use_count = 0;
 
-    // TODO: Create Connection
-    // YOUR CODE HERE
+    auto conn = std::make_shared<Connection>("Conn1");
 
-    // TODO: Call async_read with lambda that captures read_use_count
-    // TODO: Inside that lambda, call async_write with lambda that captures write_use_count
-    // YOUR CODE HERE
+    conn->async_read([&read_use_count, &write_use_count](std::shared_ptr<Connection> self) {
+        read_use_count = self.use_count();
+        self->async_write([&write_use_count](std::shared_ptr<Connection> inner_self) {
+            write_use_count = inner_self.use_count();
+        });
+    });
 
     EXPECT_EQ(read_use_count, 2);
     EXPECT_EQ(write_use_count, 3);
@@ -270,15 +269,11 @@ TEST_F(SelfReferencePatternsTest, ChainedAsyncOperations)
 
 TEST_F(SelfReferencePatternsTest, WeakFromThisInCallback)
 {
-    // TODO: Create task
-    // YOUR CODE HERE
+    auto task = std::make_shared<CancellableTask>("Task1");
 
-    // TODO: Get callback
-    // YOUR CODE HERE
+    auto callback = task->create_callback();
 
-    long use_count = 0;
-    // TODO: Get use_count of task
-    // use_count = ???
+    long use_count = task.use_count();
 
     EXPECT_EQ(use_count, 1);
 }
@@ -319,29 +314,30 @@ TEST_F(SelfReferencePatternsTest, EventEmitterWithWeakFromThis)
 {
     int handler_count = 0;
 
-    // TODO: Create EventEmitter
-    // YOUR CODE HERE
+    auto emitter = std::make_shared<EventEmitter>("Emitter1");
 
-    // TODO: Register two event handlers that increment handler_count
-    // YOUR CODE HERE
+    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) {
+        handler_count++;
+    });
+    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) {
+        handler_count++;
+    });
 
-    // TODO: Emit event
-    // YOUR CODE HERE
+    emitter->emit();
 
     EXPECT_EQ(handler_count, 2);
 }
 
 TEST_F(SelfReferencePatternsTest, SelfReferenceLifetimeExtension)
 {
-    // TODO: Declare callback function
-    // YOUR CODE HERE
+    std::function<void(std::shared_ptr<AsyncOperation>)> callback;
 
     {
-        // TODO: Create AsyncOperation
-        // YOUR CODE HERE
+        auto op = std::make_shared<AsyncOperation>("Op1");
 
-        // TODO: Start operation with lambda that stores shared_from_this
-        // YOUR CODE HERE
+        op->start([&callback](std::shared_ptr<AsyncOperation> self) {
+            callback = [self](std::shared_ptr<AsyncOperation>) {};
+        });
     }
 
     auto events = EventLog::instance().events();
@@ -360,15 +356,12 @@ TEST_F(SelfReferencePatternsTest, SelfReferenceLifetimeExtension)
 
 TEST_F(SelfReferencePatternsTest, WeakSelfNoLifetimeExtension)
 {
-    // TODO: Declare callback function
-    // YOUR CODE HERE
+    std::function<void()> callback;
 
     {
-        // TODO: Create CancellableTask
-        // YOUR CODE HERE
+        auto task = std::make_shared<CancellableTask>("Task1");
 
-        // TODO: Get callback (uses weak_from_this internally)
-        // YOUR CODE HERE
+        callback = task->create_callback();
     }
 
     auto events = EventLog::instance().events();

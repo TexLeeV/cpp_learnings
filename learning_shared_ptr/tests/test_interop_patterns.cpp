@@ -30,16 +30,11 @@ TEST_F(InteropPatternsTest, FileHandleCustomDeleter)
     {
         FILE* file = std::tmpfile();
         
-        // TODO: Create shared_ptr<FILE> with FileCloser deleter
-        // YOUR CODE HERE
+        std::shared_ptr<FILE> file_ptr(file, FileCloser());
         
-        long use_count = 0;
-        // TODO: Get use_count
-        // use_count = ???
+        long use_count = file_ptr.use_count();
         
-        bool not_null = false;
-        // TODO: Check if file_ptr.get() is not nullptr
-        // not_null = ???
+        bool not_null = (file_ptr.get() != nullptr);
         
         EXPECT_EQ(use_count, 1);
         EXPECT_TRUE(not_null);
@@ -55,6 +50,9 @@ TEST_F(InteropPatternsTest, FileHandleCustomDeleter)
             closer_called = true;
         }
     }
+    // Q: What guarantees that `FileCloser::operator()` is called when the scope exits? What would happen if you used `delete` as the deleter instead?
+    // A:
+    // R:
     
     EXPECT_TRUE(closer_called);
 }
@@ -76,16 +74,11 @@ TEST_F(InteropPatternsTest, MallocBufferCustomDeleter)
     {
         char* buffer = static_cast<char*>(std::malloc(1024));
         
-        // TODO: Create shared_ptr<char> with BufferDeleter
-        // YOUR CODE HERE
+        std::shared_ptr<char> buffer_ptr(buffer, BufferDeleter());
         
-        long use_count = 0;
-        // TODO: Get use_count
-        // use_count = ???
+        long use_count = buffer_ptr.use_count();
         
-        bool not_null = false;
-        // TODO: Check if buffer_ptr.get() is not nullptr
-        // not_null = ???
+        bool not_null = (buffer_ptr.get() != nullptr);
         
         EXPECT_EQ(use_count, 1);
         EXPECT_TRUE(not_null);
@@ -101,6 +94,9 @@ TEST_F(InteropPatternsTest, MallocBufferCustomDeleter)
             deleter_called = true;
         }
     }
+    // Q: Why is a custom deleter necessary for malloc-allocated memory? What would happen if shared_ptr used its default deleter?
+    // A:
+    // R:
     
     EXPECT_TRUE(deleter_called);
 }
@@ -115,19 +111,16 @@ void c_api_function(Tracked* raw_ptr)
 
 TEST_F(InteropPatternsTest, SafeGetUsageForCAPI)
 {
-    // TODO: Create shared_ptr
-    // YOUR CODE HERE
+    auto shared = std::make_shared<Tracked>("Shared");
     
-    long before_call = 0;
-    // TODO: Get use_count before call
-    // before_call = ???
+    long before_call = shared.use_count();
     
-    // TODO: Call c_api_function with shared.get()
-    // YOUR CODE HERE
+    c_api_function(shared.get());
     
-    long after_call = 0;
-    // TODO: Get use_count after call
-    // after_call = ???
+    long after_call = shared.use_count();
+    // Q: Why does `use_count` remain at 1 before and after the C API call? What guarantee must hold for this pattern to be safe?
+    // A:
+    // R:
     
     auto events = EventLog::instance().events();
     bool api_called = false;
@@ -172,12 +165,12 @@ struct ResourceHandleDeleter
 TEST_F(InteropPatternsTest, RAIIWrapperForCResource)
 {
     {
-        // TODO: Create shared_ptr<ResourceHandle> with ResourceHandleDeleter
-        // YOUR CODE HERE
+        std::shared_ptr<ResourceHandle> handle(
+            new ResourceHandle(42),
+            ResourceHandleDeleter()
+        );
         
-        long use_count = 0;
-        // TODO: Get use_count
-        // use_count = ???
+        long use_count = handle.use_count();
         
         EXPECT_EQ(use_count, 1);
     }
@@ -202,6 +195,9 @@ TEST_F(InteropPatternsTest, RAIIWrapperForCResource)
             deleter_called = true;
         }
     }
+    // Q: What is the order of EventLog entries? Which appears first: "ResourceHandleDeleter::operator()" or "ResourceHandle destroyed"?
+    // A:
+    // R:
     
     EXPECT_TRUE(handle_created);
     EXPECT_TRUE(handle_destroyed);
@@ -224,12 +220,14 @@ TEST_F(InteropPatternsTest, BridgingCAndCppOwnership)
     {
         Tracked* raw = create_tracked_c_style("Bridged");
         
-        // TODO: Create shared_ptr with lambda deleter that calls destroy_tracked_c_style
-        // YOUR CODE HERE
+        std::shared_ptr<Tracked> cpp_owned(raw, [](Tracked* ptr) {
+            destroy_tracked_c_style(ptr);
+        });
         
-        long use_count = 0;
-        // TODO: Get use_count
-        // use_count = ???
+        long use_count = cpp_owned.use_count();
+        // Q: Why is a lambda deleter necessary here? What would happen if you used the default deleter?
+        // A:
+        // R:
         
         EXPECT_EQ(use_count, 1);
     }
@@ -250,19 +248,16 @@ TEST_F(InteropPatternsTest, BridgingCAndCppOwnership)
 
 TEST_F(InteropPatternsTest, NullptrSafetyInCAPI)
 {
-    // TODO: Create empty shared_ptr
-    // YOUR CODE HERE
+    std::shared_ptr<Tracked> null_shared;
     
-    // TODO: Get raw pointer from null_shared
-    // YOUR CODE HERE
+    Tracked* raw = null_shared.get();
     
-    bool is_null = false;
-    // TODO: Check if raw is nullptr
-    // is_null = ???
+    bool is_null = (raw == nullptr);
     
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
+    long use_count = null_shared.use_count();
+    // Q: Why does a default-constructed shared_ptr return `use_count() == 0` instead of 1? What does this reveal about its internal state?
+    // A:
+    // R:
     
     EXPECT_TRUE(is_null);
     EXPECT_EQ(use_count, 0);
@@ -298,14 +293,10 @@ struct CStyleArrayDeleter
 TEST_F(InteropPatternsTest, CStyleArrayWrapping)
 {
     {
-        // TODO: Create shared_ptr<CStyleArray> with CStyleArrayDeleter
-        // YOUR CODE HERE
+        std::shared_ptr<CStyleArray> arr(new CStyleArray(3), CStyleArrayDeleter());
         
-        long use_count = 0;
-        size_t count = 0;
-        // TODO: Get use_count and arr->count
-        // use_count = ???
-        // count = ???
+        long use_count = arr.use_count();
+        size_t count = arr->count;
         
         EXPECT_EQ(use_count, 1);
         EXPECT_EQ(count, 3);
@@ -326,6 +317,9 @@ TEST_F(InteropPatternsTest, CStyleArrayWrapping)
             array_freed = true;
         }
     }
+    // Q: The custom deleter calls both `delete[] arr->elements` and `delete arr`. Why are two delete operations necessary?
+    // A:
+    // R:
     
     EXPECT_TRUE(array_allocated);
     EXPECT_TRUE(array_freed);
@@ -336,15 +330,15 @@ TEST_F(InteropPatternsTest, GetWithTemporarySharedPtr)
     Tracked* raw = nullptr;
     
     {
-        // TODO: Create temporary shared_ptr
-        // YOUR CODE HERE
+        auto temp = std::make_shared<Tracked>("Temp");
         
-        // TODO: Get raw pointer from temp
-        // raw = ???
+        raw = temp.get();
     }
     
-    // WARNING: raw is now dangling!
     bool would_be_dangling = true;
+    // Q: After the scope exits, what state is `raw` in? What observable signal would confirm the Tracked object was destroyed?
+    // A:
+    // R:
     
     EXPECT_TRUE(would_be_dangling);
 }
@@ -360,15 +354,14 @@ void c_callback(void* user_data)
 
 TEST_F(InteropPatternsTest, PassingRawPointerToCallback)
 {
-    // TODO: Create shared_ptr
-    // YOUR CODE HERE
+    auto shared = std::make_shared<Tracked>("Shared");
     
-    // TODO: Call c_callback with shared.get()
-    // YOUR CODE HERE
+    c_callback(shared.get());
     
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
+    long use_count = shared.use_count();
+    // Q: What assumption must hold about `c_callback`'s behavior for this pattern to be safe? What would break if the callback stored the pointer?
+    // A:
+    // R:
     
     auto events = EventLog::instance().events();
     bool callback_invoked = false;
@@ -387,18 +380,14 @@ TEST_F(InteropPatternsTest, PassingRawPointerToCallback)
 
 TEST_F(InteropPatternsTest, SharedPtrFromGetDangerousPattern)
 {
-    // TODO: Create original shared_ptr
-    // YOUR CODE HERE
+    auto original = std::make_shared<Tracked>("Original");
     
-    // TODO: Get raw pointer
-    // YOUR CODE HERE
+    Tracked* raw = original.get();
+    // Q: If you created `std::shared_ptr<Tracked> another(raw)`, what would `original.use_count()` return and why?
+    // A:
+    // R:
     
-    // WARNING: DO NOT create another shared_ptr from raw!
-    // That would create two independent control blocks
-    
-    long original_count = 0;
-    // TODO: Get use_count
-    // original_count = ???
+    long original_count = original.use_count();
     
     EXPECT_EQ(original_count, 1);
 }

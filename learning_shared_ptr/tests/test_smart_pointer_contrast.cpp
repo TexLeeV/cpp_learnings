@@ -37,17 +37,12 @@ TEST_F(SmartPointerContrastTest, UniquePtrVsSharedPtrOwnership)
 
 TEST_F(SmartPointerContrastTest, UniquePtrMoveSemantics)
 {
-    // TODO: Create u1
-    // YOUR CODE HERE
+    std::unique_ptr<Tracked> u1 = std::make_unique<Tracked>("U1");
 
-    // TODO: Move u1 to u2
-    // YOUR CODE HERE
+    std::unique_ptr<Tracked> u2 = std::move(u1);
 
-    bool u1_is_null = false;
-    bool u2_is_valid = false;
-    // TODO: Check if u1 is null and u2 is valid
-    // u1_is_null = ???
-    // u2_is_valid = ???
+    bool u1_is_null = (u1 == nullptr);
+    bool u2_is_valid = (u2 != nullptr);
 
     EXPECT_TRUE(u1_is_null);
     EXPECT_TRUE(u2_is_valid);
@@ -58,8 +53,8 @@ TEST_F(SmartPointerContrastTest, SharedPtrCopyVsUniquePtrMove)
     EventLog::instance().clear();
 
     {
-        // TODO: Create s1 and copy to s2
-        // YOUR CODE HERE
+        auto s1 = std::make_shared<Tracked>("S1");
+        auto s2 = s1;
     }
 
     size_t shared_events = EventLog::instance().events().size();
@@ -67,8 +62,8 @@ TEST_F(SmartPointerContrastTest, SharedPtrCopyVsUniquePtrMove)
     EventLog::instance().clear();
 
     {
-        // TODO: Create u1 and move to u2
-        // YOUR CODE HERE
+        auto u1 = std::make_unique<Tracked>("U1");
+        auto u2 = std::move(u1);
     }
 
     size_t unique_events = EventLog::instance().events().size();
@@ -83,8 +78,7 @@ TEST_F(SmartPointerContrastTest, RawPointerDangerVsSmartPointer)
     Tracked* raw = new Tracked("Raw");
 
     {
-        // TODO: Create shared_ptr
-        // YOUR CODE HERE
+        auto shared = std::make_shared<Tracked>("Shared");
     }
 
     // shared_ptr automatically cleaned up
@@ -100,9 +94,10 @@ TEST_F(SmartPointerContrastTest, RawPointerDangerVsSmartPointer)
 TEST_F(SmartPointerContrastTest, CustomDeleterComparison)
 {
     {
-        // TODO: Create unique_ptr with LoggingDeleter
-        // Hint: std::unique_ptr<Tracked, LoggingDeleter<Tracked>>
-        // YOUR CODE HERE
+        std::unique_ptr<Tracked, LoggingDeleter<Tracked>> u(
+            new Tracked("UniqueWithDeleter"),
+            LoggingDeleter<Tracked>("UniqueDeleter")
+        );
     }
 
     auto unique_events = EventLog::instance().events();
@@ -110,8 +105,10 @@ TEST_F(SmartPointerContrastTest, CustomDeleterComparison)
     EventLog::instance().clear();
 
     {
-        // TODO: Create shared_ptr with LoggingDeleter
-        // YOUR CODE HERE
+        std::shared_ptr<Tracked> s(
+            new Tracked("SharedWithDeleter"),
+            LoggingDeleter<Tracked>("SharedDeleter")
+        );
     }
 
     auto shared_events = EventLog::instance().events();
@@ -125,14 +122,11 @@ TEST_F(SmartPointerContrastTest, SharedPtrOverheadVsUnique)
 {
     long shared_count = 0;
 
-    // TODO: Create shared_ptr
-    // YOUR CODE HERE
+    auto shared = std::make_shared<Tracked>("Shared");
 
-    // TODO: Get use_count
-    // shared_count = ???
+    shared_count = shared.use_count();
 
-    // TODO: Create unique_ptr
-    // YOUR CODE HERE
+    auto unique = std::make_unique<Tracked>("Unique");
 
     // Question: What's the size difference?
     // shared_ptr: pointer + control block pointer
@@ -151,21 +145,15 @@ TEST_F(SmartPointerContrastTest, AliasingUniqueVsShared)
         }
     };
 
-    // TODO: Create unique_ptr to Container
-    // YOUR CODE HERE
+    auto unique_container = std::make_unique<Container>("UniqueContainer");
 
-    // TODO: Get raw pointer to member
-    // YOUR CODE HERE
+    Tracked* raw_member = &unique_container->member;
 
-    // TODO: Create shared_ptr to Container
-    // YOUR CODE HERE
+    auto shared_container = std::make_shared<Container>("SharedContainer");
 
-    // TODO: Create aliased shared_ptr to member
-    // YOUR CODE HERE
+    std::shared_ptr<Tracked> aliased_member(shared_container, &shared_container->member);
 
-    long alias_count = 0;
-    // TODO: Get use_count of aliased_member
-    // alias_count = ???
+    long alias_count = aliased_member.use_count();
 
     // Question: Can unique_ptr do aliasing? Why or why not?
     EXPECT_EQ(alias_count, 2);

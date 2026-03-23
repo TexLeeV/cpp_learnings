@@ -14,28 +14,17 @@ protected:
 
 TEST_F(RvalueReferencesTest, LvalueVsRvalue)
 {
-    // TODO: Create an lvalue MoveTracked object named obj with "Lvalue"
-    // YOUR CODE HERE
+    MoveTracked obj("Lvalue");
+    std::vector<MoveTracked> vec;
     
-    // TODO: Create a vector and push_back obj
-    // YOUR CODE HERE
+    vec.push_back(obj);
+    vec.push_back(MoveTracked("Rvalue"));
     
-    // Q: When you called push_back(obj), which constructor was invoked—copy or move?
+    // Q: What EventLog entries distinguish the push_back(obj) from push_back(MoveTracked("Rvalue"))?
     // A: 
     // R: 
     
-    // Q: Why was the copy constructor chosen?
-    // A: 
-    // R: 
-    
-    // TODO: Now push_back an rvalue using MoveTracked("Rvalue")
-    // YOUR CODE HERE
-    
-    // Q: When you called push_back(MoveTracked("Rvalue")), which constructor was invoked?
-    // A: 
-    // R: 
-    
-    // Q: What is the difference between obj and MoveTracked("Rvalue") in terms of value category?
+    // Q: What property of obj versus MoveTracked("Rvalue") determines which constructor overload is selected?
     // A: 
     // R: 
     
@@ -49,27 +38,18 @@ TEST_F(RvalueReferencesTest, LvalueVsRvalue)
 
 TEST_F(RvalueReferencesTest, StdMoveBasics)
 {
-    // TODO: Create obj1 with name "Original"
-    // YOUR CODE HERE
+    MoveTracked obj1("Original");
+    MoveTracked obj2(std::move(obj1));
     
-    // TODO: Create obj2 by moving from obj1 using std::move
-    // YOUR CODE HERE
-    
-    // Q: What does std::move(obj1) actually do to obj1?
+    // Q: What does std::move(obj1) do and what state is obj1 in after the move constructor completes?
     // A: 
     // R: 
     
-    // Q: After the move, is obj1 still in a valid state?
+    // Q: What EventLog entry confirms a move occurred rather than a copy?
     // A: 
     // R: 
     
-    // Q: What observable signal in the event log confirms a move occurred?
-    // A: 
-    // R: 
-    
-    // TODO: Check if obj1 is moved-from
-    bool obj1_moved = false;
-    // obj1_moved = ???
+    bool obj1_moved = obj1.name().empty();
     
     auto events = EventLog::instance().events();
     size_t move_ctor_count = EventLog::instance().count_events("move_ctor");
@@ -81,27 +61,19 @@ TEST_F(RvalueReferencesTest, StdMoveBasics)
 TEST_F(RvalueReferencesTest, TemporaryLifetime)
 {
     {
-        // TODO: Create an lvalue reference that binds to a temporary
-        // Hint: This is illegal - const MoveTracked& ref = MoveTracked("Temp"); is legal
-        // YOUR CODE HERE
+        const MoveTracked& ref = MoveTracked("Temp");
+        MoveTracked&& rref = MoveTracked("RTemp");
         
-        // Q: Can you bind a non-const lvalue reference to a temporary?
+        // Q: What EventLog entries show when each temporary was constructed and when will each be destroyed?
         // A: 
         // R: 
         
-        // Q: Why does const lvalue reference extend the temporary's lifetime?
-        // A: 
-        // R: 
-        
-        // TODO: Create an rvalue reference that binds to a temporary
-        // YOUR CODE HERE
-        
-        // Q: Does the rvalue reference extend the temporary's lifetime?
+        // Q: If you removed the const from the lvalue reference, would the code compile?
         // A: 
         // R: 
     }
     
-    // Q: At what point in the code was the temporary destroyed?
+    // Q: At this point, what EventLog entries confirm both temporaries were destroyed?
     // A: 
     // R: 
     
@@ -115,21 +87,18 @@ TEST_F(RvalueReferencesTest, TemporaryLifetime)
 
 TEST_F(RvalueReferencesTest, MoveConstructorElision)
 {
-    EventLog::instance().clear();
-    
-    // TODO: Create a vector and reserve space for 2 elements
-    // YOUR CODE HERE
+    std::vector<MoveTracked> vec;
+    vec.reserve(2);
     
     EventLog::instance().clear();
     
-    // TODO: Push back MoveTracked("First")
-    // YOUR CODE HERE
+    vec.emplace_back("First");
     
-    // Q: How many MoveTracked constructors were called for this push_back?
+    // Q: What EventLog entries appear from this emplace_back? How many MoveTracked objects were constructed?
     // A: 
     // R: 
     
-    // Q: Was there a move constructor call, or was the object constructed in-place?
+    // Q: How does emplace_back differ from push_back in terms of construction location?
     // A: 
     // R: 
     
@@ -153,22 +122,18 @@ TEST_F(RvalueReferencesTest, RvalueReferenceFunctionOverloading)
         EventLog::instance().record("process_rvalue called");
     };
     
-    // TODO: Create an lvalue object
-    // YOUR CODE HERE
+    MoveTracked obj("Overload");
     
     EventLog::instance().clear();
     
-    // TODO: Call process_lvalue with the lvalue
-    // YOUR CODE HERE
+    process_lvalue(obj);
+    process_rvalue(std::move(obj));
     
-    // TODO: Call process_rvalue with std::move(obj)
-    // YOUR CODE HERE
-    
-    // Q: Why does std::move(obj) bind to the rvalue reference overload?
+    // Q: What determines which overload is selected and what EventLog entries confirm the selections?
     // A: 
     // R: 
     
-    // Q: After calling process_rvalue(std::move(obj)), is obj still valid?
+    // Q: After process_rvalue(std::move(obj)), obj is still valid. What operations on obj would be well-defined?
     // A: 
     // R: 
     
@@ -183,24 +148,17 @@ TEST_F(RvalueReferencesTest, RvalueReferenceFunctionOverloading)
 TEST_F(RvalueReferencesTest, MoveIntoContainer)
 {
     std::vector<MoveTracked> vec;
-    
-    // TODO: Create obj with name "ToMove"
-    // YOUR CODE HERE
+    MoveTracked obj("ToMove");
     
     EventLog::instance().clear();
     
-    // TODO: Move obj into vector
-    // YOUR CODE HERE
+    vec.push_back(std::move(obj));
     
-    // Q: How many copy constructors were called?
+    // Q: What EventLog entries confirm zero copies and at least one move?
     // A: 
     // R: 
     
-    // Q: How many move constructors were called?
-    // A: 
-    // R: 
-    
-    // Q: What is the performance benefit of moving instead of copying?
+    // Q: For a type with expensive copy operations, what resource operations does move avoid?
     // A: 
     // R: 
     
@@ -214,22 +172,13 @@ TEST_F(RvalueReferencesTest, MoveIntoContainer)
 
 TEST_F(RvalueReferencesTest, ValueCategoryInExpression)
 {
-    // TODO: Create obj with name "Value"
-    // YOUR CODE HERE
+    MoveTracked obj("Value");
     
-    // Q: What is the value category of obj?
+    // Q: What are the value categories of: obj, std::move(obj), and MoveTracked("Temp")?
     // A: 
     // R: 
     
-    // Q: What is the value category of std::move(obj)?
-    // A: 
-    // R: 
-    
-    // Q: What is the value category of MoveTracked("Temp")?
-    // A: 
-    // R: 
-    
-    // Q: Does calling std::move on obj change obj's type?
+    // Q: Does std::move change obj's type or just cast it? What is the return type of std::move(obj)?
     // A: 
     // R: 
     

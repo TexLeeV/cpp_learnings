@@ -147,17 +147,12 @@ TEST_F(CircularReferenceDeadlocksTest, DISABLED_Scenario1_ParentChildCircularWit
 // FIX VERSION: Break cycle with weak_ptr AND fix lock ordering
 void setup_parent_child_fixed(std::shared_ptr<Parent> parent, std::shared_ptr<Child> child)
 {
-    // TODO: Implement deadlock-free parent-child setup
-    // Hint: Use weak_ptr for back-reference AND proper lock ordering
-    
-    // YOUR CODE HERE
+    parent->set_child(child);
 }
 
 void setup_child_parent_fixed(std::shared_ptr<Child> child, std::shared_ptr<Parent> parent)
 {
-    // TODO: Implement deadlock-free child-parent setup
-    
-    // YOUR CODE HERE
+    child->set_parent(parent);
 }
 
 TEST_F(CircularReferenceDeadlocksTest, Scenario1_ParentChildCircularWithMutex_Fixed)

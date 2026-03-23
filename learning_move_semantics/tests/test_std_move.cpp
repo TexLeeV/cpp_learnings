@@ -14,23 +14,17 @@ protected:
 
 TEST_F(StdMoveTest, StdMoveCast)
 {
-    // TODO: Create obj with name "ToCast"
-    // YOUR CODE HERE
+    MoveTracked obj("ToCast");
     
-    // Q: What does std::move actually do?
+    // Q: What does std::move do to obj and what type does it return?
     // A: 
     // R: 
     
-    // Q: Does std::move perform any operations on the object itself?
+    MoveTracked obj2(std::move(obj));
+    
+    // Q: What EventLog entry confirms the move constructor was invoked?
     // A: 
     // R: 
-    
-    // Q: What type does std::move(obj) return?
-    // A: 
-    // R: 
-    
-    // TODO: Use std::move(obj) to construct obj2
-    // YOUR CODE HERE
     
     auto events = EventLog::instance().events();
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
@@ -66,18 +60,13 @@ void forward_rvalue(T&& param)
 
 TEST_F(StdMoveTest, StdMoveVsStdForward)
 {
-    // TODO: Create obj with name "Test"
-    // YOUR CODE HERE
+    MoveTracked obj("Test");
     
-    // Q: What is the key difference between std::move and std::forward?
+    // Q: What is the key difference between std::move and std::forward in terms of what they preserve?
     // A: 
     // R: 
     
-    // Q: When should you use std::move vs std::forward?
-    // A: 
-    // R: 
-    
-    // Q: Can std::forward preserve lvalue-ness?
+    // Q: In what context would using std::move instead of std::forward cause incorrect behavior?
     // A: 
     // R: 
     
@@ -96,15 +85,17 @@ void consume_by_rvalue(MoveTracked&& obj)
 
 TEST_F(StdMoveTest, StdMoveInFunctionCall)
 {
-    // TODO: Create obj with name "ToConsume"
-    // YOUR CODE HERE
+    MoveTracked obj("ToConsume");
     
     EventLog::instance().clear();
     
-    // TODO: Call consume_by_value(std::move(obj))
-    // YOUR CODE HERE
+    consume_by_value(std::move(obj));
     
-    // Q: How many moves occurred when passing std::move(obj) by value?
+    // Q: What EventLog entries show the move operation? How many moves occurred?
+    // A: 
+    // R: 
+    
+    // Q: If you called consume_by_rvalue(std::move(obj)) instead, would there be a move constructor call?
     // A: 
     // R: 
     
@@ -119,24 +110,18 @@ TEST_F(StdMoveTest, StdMoveInReturn)
     auto create_object = []() -> MoveTracked
     {
         MoveTracked local("Local");
-        
-        // Q: Should you use std::move when returning local?
-        // A: 
-        // R: 
-        
-        // Q: What is Return Value Optimization (RVO)?
-        // A: 
-        // R: 
-        
         return local;
     };
     
     EventLog::instance().clear();
     
-    // TODO: Call create_object and capture result
-    // YOUR CODE HERE
+    MoveTracked result = create_object();
     
-    // Q: How many copy/move operations occurred?
+    // Q: What EventLog entries show how many copy/move operations occurred? What optimization eliminated them?
+    // A: 
+    // R: 
+    
+    // Q: If you changed the return to `return std::move(local);`, what would happen to RVO?
     // A: 
     // R: 
     
@@ -150,19 +135,17 @@ TEST_F(StdMoveTest, StdMoveInReturn)
 TEST_F(StdMoveTest, StdMoveOnConst)
 {
     const MoveTracked obj("Const");
-    
     std::vector<MoveTracked> vec;
     
     EventLog::instance().clear();
     
-    // TODO: Try to move the const object into vector
-    // YOUR CODE HERE
+    vec.push_back(std::move(obj));
     
-    // Q: Can you move from a const object?
+    // Q: What EventLog entries show which constructor was called? Why wasn't the move constructor invoked?
     // A: 
     // R: 
     
-    // Q: What happens when you call std::move on a const object?
+    // Q: What type does std::move(obj) return when obj is const?
     // A: 
     // R: 
     
@@ -176,17 +159,14 @@ TEST_F(StdMoveTest, StdMoveOnConst)
 
 TEST_F(StdMoveTest, RepeatedStdMove)
 {
-    // TODO: Create obj with name "Multi"
-    // YOUR CODE HERE
+    MoveTracked obj("Multi");
+    auto&& ref = std::move(std::move(std::move(obj)));
     
-    // TODO: Call std::move multiple times: auto ref = std::move(std::move(std::move(obj)))
-    // YOUR CODE HERE
-    
-    // Q: Does calling std::move multiple times have any additional effect?
+    // Q: Does calling std::move multiple times have any additional effect beyond the first call?
     // A: 
     // R: 
     
-    // Q: After multiple std::move calls, what type is ref?
+    // Q: What is the type of ref after the nested std::move calls?
     // A: 
     // R: 
     
@@ -226,19 +206,17 @@ void wrapper_move(T&& param)
 
 TEST_F(StdMoveTest, ForwardingAndValueCategory)
 {
-    // TODO: Create obj with name "Forward"
-    // YOUR CODE HERE
+    MoveTracked obj("Forward");
     
     EventLog::instance().clear();
     
-    // TODO: Call wrapper_move with obj (lvalue)
-    // YOUR CODE HERE
+    wrapper_move(obj);
     
-    // Q: If wrapper_move uses std::move, what happens to lvalues?
+    // Q: If wrapper_move uses std::move(param), what EventLog entries would show for an lvalue argument?
     // A: 
     // R: 
     
-    // Q: If wrapper_move uses std::forward, what happens to lvalues?
+    // Q: If wrapper_move uses std::forward<T>(param), what EventLog entries would show for an lvalue argument?
     // A: 
     // R: 
     
@@ -250,20 +228,22 @@ TEST_F(StdMoveTest, ForwardingAndValueCategory)
 TEST_F(StdMoveTest, MoveSemanticOptimization)
 {
     std::vector<MoveTracked> vec1;
-    
-    // TODO: Create 3 objects and push_back with std::move
-    // YOUR CODE HERE
+    MoveTracked a("A"), b("B"), c("C");
+    vec1.push_back(std::move(a));
+    vec1.push_back(std::move(b));
+    vec1.push_back(std::move(c));
     
     std::vector<MoveTracked> vec2;
+    MoveTracked x("X"), y("Y"), z("Z");
+    vec2.push_back(x);
+    vec2.push_back(y);
+    vec2.push_back(z);
     
-    // TODO: Create 3 objects and push_back without std::move
-    // YOUR CODE HERE
-    
-    // Q: What is the difference in copy constructor calls?
+    // Q: What EventLog entries distinguish the operations on vec1 versus vec2?
     // A: 
     // R: 
     
-    // Q: For large objects, what is the performance impact?
+    // Q: For a type managing heap-allocated memory, what resource operations does move avoid compared to copy?
     // A: 
     // R: 
     

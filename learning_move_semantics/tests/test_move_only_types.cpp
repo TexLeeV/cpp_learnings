@@ -15,21 +15,14 @@ protected:
 
 TEST_F(MoveOnlyTypesTest, UniquePtrBasics)
 {
-    // TODO: Create unique_ptr to MoveTracked with name "Unique"
-    // YOUR CODE HERE
+    auto ptr1 = std::make_unique<MoveTracked>("Unique");
+    auto ptr2 = std::move(ptr1);
     
-    // Q: Can you copy a unique_ptr?
+    // Q: Why is unique_ptr move-only and what would break if it were copyable?
     // A: 
     // R: 
     
-    // Q: Why is unique_ptr a move-only type?
-    // A: 
-    // R: 
-    
-    // TODO: Move the unique_ptr to ptr2
-    // YOUR CODE HERE
-    
-    // Q: After moving, what does ptr1 contain?
+    // Q: After the move, what does ptr1 contain and what EventLog entries confirm the MoveTracked object was not destroyed?
     // A: 
     // R: 
     
@@ -41,21 +34,14 @@ TEST_F(MoveOnlyTypesTest, UniquePtrBasics)
 
 TEST_F(MoveOnlyTypesTest, MoveOnlyResourceClass)
 {
-    // TODO: Create Resource object with name "MoveOnly"
-    // YOUR CODE HERE
+    Resource res1("MoveOnly");
+    Resource res2(std::move(res1));
     
-    // Q: How do you make a class move-only?
+    // Q: What special member functions must be deleted or defaulted to make a class move-only?
     // A: 
     // R: 
     
-    // TODO: Try to create res2 by moving from res1
-    // YOUR CODE HERE
-    
-    // Q: After moving, is res1 still valid?
-    // A: 
-    // R: 
-    
-    // Q: Can you call res1.is_valid()?
+    // Q: After the move, what operations on res1 are well-defined and what would be undefined behavior?
     // A: 
     // R: 
     
@@ -68,18 +54,15 @@ TEST_F(MoveOnlyTypesTest, MoveOnlyResourceClass)
 TEST_F(MoveOnlyTypesTest, MoveOnlyInContainer)
 {
     std::vector<Resource> vec;
+    Resource resource("InVector");
     
-    // TODO: Create resource with name "InVector"
-    // YOUR CODE HERE
+    vec.push_back(std::move(resource));
     
-    // TODO: Move resource into vector
-    // YOUR CODE HERE
-    
-    // Q: Can you push_back a move-only type without std::move?
+    // Q: What prevents push_back(resource) without std::move from compiling?
     // A: 
     // R: 
     
-    // Q: What happens if the vector needs to resize?
+    // Q: When the vector resizes, what operation does it use to relocate move-only elements?
     // A: 
     // R: 
     
@@ -108,14 +91,13 @@ TEST_F(MoveOnlyTypesTest, ReturnValueOptimization)
 {
     EventLog::instance().clear();
     
-    // TODO: Call create_resource and capture result
-    // YOUR CODE HERE
+    Resource result = create_resource();
     
-    // Q: Was there a move constructor call?
+    // Q: What EventLog entries show how many constructor calls occurred? What optimization eliminated move operations?
     // A: 
     // R: 
     
-    // Q: What is copy elision / RVO?
+    // Q: What conditions must be met for RVO to apply?
     // A: 
     // R: 
     
@@ -153,14 +135,13 @@ TEST_F(MoveOnlyTypesTest, ConditionalReturn)
 {
     EventLog::instance().clear();
     
-    // TODO: Call create_conditional(true)
-    // YOUR CODE HERE
+    Resource result = create_conditional(true);
     
-    // Q: How many Resource constructors were called?
+    // Q: What EventLog entries show how many constructors and moves occurred? Can RVO apply with multiple return paths?
     // A: 
     // R: 
     
-    // Q: How many moves occurred?
+    // Q: What happens to the Resource object in the non-taken branch?
     // A: 
     // R: 
     
@@ -189,14 +170,13 @@ TEST_F(MoveOnlyTypesTest, ReturnMoveAntiPattern)
 {
     EventLog::instance().clear();
     
-    // TODO: Call wrong_return_move and capture result
-    // YOUR CODE HERE
+    Resource result = wrong_return_move();
     
-    // Q: Was RVO applied when using std::move in return?
+    // Q: What EventLog entries show whether RVO was applied? How many move operations occurred?
     // A: 
     // R: 
     
-    // Q: Why is return std::move(local) an anti-pattern?
+    // Q: Why does `return std::move(local);` prevent RVO and what performance cost does this introduce?
     // A: 
     // R: 
     
@@ -224,17 +204,14 @@ struct MoveOnlyWrapper
 
 TEST_F(MoveOnlyTypesTest, DefaultedMoveOperations)
 {
-    // TODO: Create wrapper1 with "Wrapper1"
-    // YOUR CODE HERE
+    MoveOnlyWrapper wrapper1("Wrapper1");
+    MoveOnlyWrapper wrapper2(std::move(wrapper1));
     
-    // TODO: Move wrapper1 to wrapper2
-    // YOUR CODE HERE
-    
-    // Q: What does = default do for move constructor?
+    // Q: What does = default generate for the move constructor and what EventLog entries confirm the member-wise move?
     // A: 
     // R: 
     
-    // Q: What happens to wrapper1.resource_ after the move?
+    // Q: After the move, what state is wrapper1.resource_ in?
     // A: 
     // R: 
     
@@ -247,49 +224,37 @@ TEST_F(MoveOnlyTypesTest, DefaultedMoveOperations)
 TEST_F(MoveOnlyTypesTest, UniquePtrOwnershipTransfer)
 {
     auto ptr1 = std::make_unique<MoveTracked>("UniqueOwner");
+    auto ptr2 = std::move(ptr1);
     
-    // TODO: Transfer ownership to ptr2
-    // YOUR CODE HERE
-    
-    // Q: Can you access ptr1 after the transfer?
+    // Q: What is the value of ptr1 after the transfer and what happens if you dereference it?
     // A: 
     // R: 
     
-    // Q: What happens if you dereference ptr1 after transfer?
+    // Q: What EventLog entries confirm the MoveTracked object was not destroyed during the transfer?
     // A: 
     // R: 
     
-    bool ptr1_is_null = false;
-    // TODO: Check if ptr1 is nullptr
-    // ptr1_is_null = ???
+    bool ptr1_is_null = (ptr1 == nullptr);
     
     EXPECT_TRUE(ptr1_is_null);
 }
 
 std::unique_ptr<MoveTracked> factory_pattern(const std::string& name)
 {
-    // TODO: Return a unique_ptr created with make_unique
-    // YOUR CODE HERE
-    
-    // Q: Why is factory pattern common with unique_ptr?
-    // A: 
-    // R: 
-    
-    return nullptr;
+    return std::make_unique<MoveTracked>(name);
 }
 
 TEST_F(MoveOnlyTypesTest, FactoryWithUniquePtr)
 {
     EventLog::instance().clear();
     
-    // TODO: Call factory_pattern and capture result
-    // YOUR CODE HERE
+    auto ptr = factory_pattern("Factory");
     
-    // Q: How many moves occurred in the return?
+    // Q: What EventLog entries show how many moves occurred? Why is returning unique_ptr efficient?
     // A: 
     // R: 
     
-    // Q: Does returning unique_ptr guarantee no copies?
+    // Q: Why is the factory pattern common with unique_ptr and what ownership semantics does it establish?
     // A: 
     // R: 
     
@@ -303,17 +268,14 @@ TEST_F(MoveOnlyTypesTest, MoveOnlyInVector)
 {
     std::vector<std::unique_ptr<MoveTracked>> vec;
     
-    // TODO: Create unique_ptr and move into vector
-    // YOUR CODE HERE
+    vec.push_back(std::make_unique<MoveTracked>("First"));
+    vec.push_back(std::make_unique<MoveTracked>("Second"));
     
-    // TODO: Move another unique_ptr into vector
-    // YOUR CODE HERE
-    
-    // Q: Can vector<unique_ptr> be copied?
+    // Q: What prevents vector<unique_ptr<T>> from being copyable?
     // A: 
     // R: 
     
-    // Q: Can vector<unique_ptr> be moved?
+    // Q: When you move a vector<unique_ptr<T>>, what happens to the unique_ptrs and their managed objects?
     // A: 
     // R: 
     
@@ -325,14 +287,13 @@ TEST_F(MoveOnlyTypesTest, TemporaryMoveOnly)
 {
     std::vector<Resource> vec;
     
-    // TODO: Push back a temporary Resource
-    // YOUR CODE HERE
+    vec.push_back(Resource("Temporary"));
     
-    // Q: Is std::move needed for temporaries?
+    // Q: Why is std::move not needed when pushing back a temporary?
     // A: 
     // R: 
     
-    // Q: How does the compiler treat temporary move-only objects?
+    // Q: What value category is Resource("Temporary") and how does this enable move operations?
     // A: 
     // R: 
     
@@ -376,15 +337,14 @@ private:
 TEST_F(MoveOnlyTypesTest, TrackingMoveOperations)
 {
     MoveCounter counter;
+    MoveCounter c2(std::move(counter));
+    MoveCounter c3(std::move(c2));
     
-    // TODO: Move counter multiple times
-    // YOUR CODE HERE
-    
-    // Q: How many times was the object moved?
+    // Q: What is c3.move_count() and how does the MoveCounter implementation track the number of moves?
     // A: 
     // R: 
     
-    // Q: What's the relationship between move count and object identity?
+    // Q: After multiple moves, which object holds the final state and what happened to the previous objects?
     // A: 
     // R: 
     

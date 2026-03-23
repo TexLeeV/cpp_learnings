@@ -271,6 +271,7 @@ TEST_F(SingletonRegistryTest, GlobalRegistryBasic)
 TEST_F(SingletonRegistryTest, GlobalRegistryWeakPtrExpiration)
 {
     GlobalRegistry& registry = GlobalRegistry::instance();
+    registry.cleanup();
 
     {
         std::shared_ptr<Tracked> resource = std::make_shared<Tracked>("Temp");

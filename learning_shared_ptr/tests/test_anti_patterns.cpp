@@ -13,17 +13,13 @@ protected:
 
 TEST_F(AntiPatternsTest, SharedPtrAsGlobal)
 {
-    // ANTI-PATTERN: Using shared_ptr as a global
-    // Problem: Unclear ownership, initialization order issues
+    auto global_ptr = std::make_shared<Tracked>("Global");
     
-    // TODO: Create a shared_ptr (simulating global)
-    // YOUR CODE HERE
+    long use_count = global_ptr.use_count();
+    // Q: If this were a global shared_ptr, what observable problem would arise when multiple translation units access it during static initialization?
+    // A:
+    // R:
     
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
-    
-    // Question: Who owns this? When is it destroyed?
     EXPECT_EQ(use_count, 1);
 }
 
@@ -31,40 +27,37 @@ TEST_F(AntiPatternsTest, PassingByValueUnnecessarily)
 {
     auto process = [](std::shared_ptr<Tracked> item)
     {
-        // ANTI-PATTERN: Passing by value when not needed
-        // Problem: Unnecessary reference count increment/decrement
+        auto copy = *item;
     };
     
-    // TODO: Create shared_ptr
-    // YOUR CODE HERE
+    auto ptr = std::make_shared<Tracked>("Item");
     
     EventLog::instance().clear();
     
-    // TODO: Call process (passes by value)
-    // YOUR CODE HERE
+    process(ptr);
     
     auto events = EventLog::instance().events();
+    // Q: What observable overhead does passing `shared_ptr` by value introduce compared to passing by `const shared_ptr&`?
+    // A:
+    // R:
     
-    // Question: How many ref count operations occurred?
     EXPECT_GT(events.size(), 0);
 }
 
 TEST_F(AntiPatternsTest, CreatingTwoSharedPtrsFromSameRaw)
 {
-    // ANTI-PATTERN: Creating multiple shared_ptrs from same raw pointer
-    // Problem: Multiple control blocks, double deletion
-    
     Tracked* raw = new Tracked("Dangerous");
     
-    // TODO: Create p1 from raw
-    // YOUR CODE HERE
+    std::shared_ptr<Tracked> p1(raw);
     
-    // WARNING: DO NOT DO THIS - creates second control block
-    // std::shared_ptr<Tracked> p2(raw);  // DOUBLE DELETE!
+    long use_count = p1.use_count();
+    // Q: If you uncommented `std::shared_ptr<Tracked> p2(raw);`, what would `p1.use_count()` return and why?
+    // A:
+    // R:
     
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
+    // Q: What runtime failure would occur when both `p1` and the hypothetical `p2` go out of scope?
+    // A:
+    // R:
     
     EXPECT_EQ(use_count, 1);
 }
@@ -93,15 +86,14 @@ TEST_F(AntiPatternsTest, HoldingSharedPtrToThis)
     };
     
     {
-        // TODO: Create obj
-        // YOUR CODE HERE
+        auto obj = std::make_shared<BadSelfReference>("SelfRef");
         
-        // TODO: Set self reference (BAD!)
-        // YOUR CODE HERE
+        obj->set_self(obj);
         
-        long use_count = 0;
-        // TODO: Get use_count
-        // use_count = ???
+        long use_count = obj.use_count();
+        // Q: Why does `use_count` equal 2 after `set_self(obj)`?
+        // A:
+        // R:
         
         EXPECT_EQ(use_count, 2);
     }
@@ -116,83 +108,71 @@ TEST_F(AntiPatternsTest, HoldingSharedPtrToThis)
             ++dtor_count;
         }
     }
+    // Q: After the scope exits, why does `dtor_count` equal 0? What prevents the destructor from being called?
+    // A:
+    // R:
     
-    EXPECT_EQ(dtor_count, 0);  // Memory leak!
+    EXPECT_EQ(dtor_count, 0);
 }
 
 TEST_F(AntiPatternsTest, UsingSharedPtrForUniqueOwnership)
 {
-    // ANTI-PATTERN: Using shared_ptr when unique_ptr would suffice
-    // Problem: Unnecessary overhead, unclear ownership semantics
+    auto ptr = std::make_shared<Tracked>("Unique");
     
-    // TODO: Create shared_ptr (but ownership is actually unique)
-    // YOUR CODE HERE
+    long use_count = ptr.use_count();
+    // Q: If `use_count` is always 1 throughout the object's lifetime, what runtime overhead does shared_ptr impose compared to unique_ptr?
+    // A:
+    // R:
     
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
-    
-    // Question: If use_count is always 1, why use shared_ptr?
     EXPECT_EQ(use_count, 1);
 }
 
 TEST_F(AntiPatternsTest, NotUsingMakeShared)
 {
-    // ANTI-PATTERN: Using new instead of make_shared
-    // Problem: Two allocations instead of one, exception safety issues
+    std::shared_ptr<Tracked> p1(new Tracked("WithNew"));
     
-    // TODO: Create p1 using new (ANTI-PATTERN)
-    // YOUR CODE HERE
+    auto p2 = std::make_shared<Tracked>("WithMakeShared");
+    // Q: How many heap allocations does `p1` require compared to `p2`? What gets allocated separately?
+    // A:
+    // R:
     
-    // TODO: Create p2 using make_shared (BETTER)
-    // YOUR CODE HERE
-    
-    // Both work, but make_shared is more efficient
-    EXPECT_NE(nullptr, nullptr);
+    EXPECT_NE(p1, nullptr);
+    EXPECT_NE(p2, nullptr);
 }
 
 TEST_F(AntiPatternsTest, StoringWeakPtrWhenSharedPtrNeeded)
 {
-    // ANTI-PATTERN: Using weak_ptr when shared ownership is actually needed
-    // Problem: Object can be destroyed unexpectedly
-    
-    // TODO: Create weak_ptr
-    // YOUR CODE HERE
+    std::weak_ptr<Tracked> weak;
     
     {
-        // TODO: Create shared_ptr and assign to weak
-        // YOUR CODE HERE
+        auto shared = std::make_shared<Tracked>("Temporary");
+        weak = shared;
     }
     
-    bool expired = false;
-    // TODO: Check if expired
-    // expired = ???
+    bool expired = weak.expired();
+    // Q: What design decision would lead you to store a weak_ptr instead of a shared_ptr? What ownership semantics does this express?
+    // A:
+    // R:
     
-    // Question: Did you want the object to be destroyed?
     EXPECT_TRUE(expired);
 }
 
 TEST_F(AntiPatternsTest, IgnoringWeakPtrLockResult)
 {
-    // ANTI-PATTERN: Not checking if weak_ptr::lock() succeeded
-    // Problem: Dereferencing nullptr
-    
-    // TODO: Create weak_ptr
-    // YOUR CODE HERE
+    std::weak_ptr<Tracked> weak;
     
     {
-        // TODO: Create shared_ptr and assign to weak
-        // YOUR CODE HERE
+        auto shared = std::make_shared<Tracked>("Temporary");
+        weak = shared;
     }
     
-    // TODO: Try to lock
-    // YOUR CODE HERE
+    auto locked = weak.lock();
     
-    bool is_null = false;
-    // TODO: Check if locked is nullptr
-    // is_null = ???
+    bool is_null = (locked == nullptr);
+    // Q: What runtime failure would occur if you dereferenced `locked` without checking `is_null` first?
+    // A:
+    // R:
     
-    // Always check lock result before using!
     EXPECT_TRUE(is_null);
 }
 
@@ -220,8 +200,13 @@ TEST_F(AntiPatternsTest, CyclicReferencesWithoutWeakPtr)
     };
     
     {
-        // TODO: Create two nodes and create cycle
-        // YOUR CODE HERE
+        auto node1 = std::make_shared<Node>("Node1");
+        auto node2 = std::make_shared<Node>("Node2");
+        node1->set_next(node2);
+        node2->set_next(node1);
+        // Q: After creating the cycle, what are the use counts of `node1` and `node2`?
+        // A:
+        // R:
     }
     
     auto events = EventLog::instance().events();
@@ -234,48 +219,37 @@ TEST_F(AntiPatternsTest, CyclicReferencesWithoutWeakPtr)
             ++dtor_count;
         }
     }
+    // Q: After the scope exits, why does `dtor_count` equal 0? What prevents the reference count from reaching zero?
+    // A:
+    // R:
     
-    EXPECT_EQ(dtor_count, 0);  // Memory leak!
+    EXPECT_EQ(dtor_count, 0);
 }
 
 TEST_F(AntiPatternsTest, UsingGetToCreateNewSharedPtr)
 {
-    // ANTI-PATTERN: Creating new shared_ptr from get()
-    // Problem: Multiple control blocks, double deletion
+    auto original = std::make_shared<Tracked>("Original");
     
-    // TODO: Create original
-    // YOUR CODE HERE
+    Tracked* raw = original.get();
+    // Q: What is the safe use case for calling `get()` on a shared_ptr? Under what condition does it become dangerous?
+    // A:
+    // R:
     
-    Tracked* raw = nullptr;
-    // TODO: Get raw pointer
-    // raw = ???
-    
-    // WARNING: DO NOT DO THIS
-    // std::shared_ptr<Tracked> another(raw);  // DOUBLE DELETE!
-    
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
+    long use_count = original.use_count();
     
     EXPECT_EQ(use_count, 1);
 }
 
 TEST_F(AntiPatternsTest, HoldingSharedPtrInUnstableContainer)
 {
-    // ANTI-PATTERN: Storing shared_ptr when weak_ptr would be safer
-    // Problem: Prevents cleanup, unclear ownership
-    
     std::vector<std::shared_ptr<Tracked>> cache;
     
     {
-        // TODO: Create resource
-        // YOUR CODE HERE
+        auto resource = std::make_shared<Tracked>("Cached");
         
-        // TODO: Store in cache
-        // YOUR CODE HERE
+        cache.push_back(resource);
     }
     
-    // Resource is still alive because cache holds shared_ptr
     auto events = EventLog::instance().events();
     size_t dtor_count = 0;
     
@@ -286,6 +260,13 @@ TEST_F(AntiPatternsTest, HoldingSharedPtrInUnstableContainer)
             ++dtor_count;
         }
     }
+    // Q: After the scope exits, why does `dtor_count` equal 0? What ownership decision does storing `shared_ptr` in the cache express?
+    // A:
+    // R:
+    
+    // Q: If the cache stored `weak_ptr<Tracked>` instead, what would `dtor_count` be after the scope exits?
+    // A:
+    // R:
     
     EXPECT_EQ(dtor_count, 0);
 }

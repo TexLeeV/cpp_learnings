@@ -21,30 +21,25 @@ void sink(T&& param)
 template<typename T>
 void forward_to_sink(T&& param)
 {
-    // TODO: Forward param to sink using std::forward
-    // YOUR CODE HERE
+    sink(std::forward<T>(param));
     
-    // Q: What happens if you don't use std::forward here?
+    // Q: What happens if you use sink(param) instead of sink(std::forward<T>(param))?
     // A: 
     // R: 
 }
 
 TEST_F(PerfectForwardingTest, BasicForwarding)
 {
-    // TODO: Create obj with name "Forwarded"
-    // YOUR CODE HERE
+    MoveTracked obj("Forwarded");
     
-    // TODO: Call forward_to_sink with obj (lvalue)
-    // YOUR CODE HERE
+    forward_to_sink(obj);
+    forward_to_sink(std::move(obj));
     
-    // TODO: Call forward_to_sink with std::move(obj)
-    // YOUR CODE HERE
-    
-    // Q: What is "perfect forwarding"?
+    // Q: What does "perfect forwarding" preserve and how does T&& enable this?
     // A: 
     // R: 
     
-    // Q: Why do we need both std::forward and T&& to achieve perfect forwarding?
+    // Q: What would break if forward_to_sink used T& instead of T&&?
     // A: 
     // R: 
     
@@ -66,17 +61,15 @@ void imperfect_forward(T&& param)
 
 TEST_F(PerfectForwardingTest, ImperfectForwardingProblem)
 {
-    // TODO: Create obj with name "Imperfect"
-    // YOUR CODE HERE
+    MoveTracked obj("Imperfect");
     
-    // TODO: Call imperfect_forward with obj (lvalue)
-    // YOUR CODE HERE
+    imperfect_forward(obj);
     
-    // Q: What happened to the lvalue when using std::move in forwarding?
+    // Q: What happens to the lvalue obj when imperfect_forward uses std::move(param)?
     // A: 
     // R: 
     
-    // Q: Why is this dangerous?
+    // Q: What observable failure would occur if you used obj after this call?
     // A: 
     // R: 
     
@@ -86,26 +79,18 @@ TEST_F(PerfectForwardingTest, ImperfectForwardingProblem)
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique_impl(Args&&... args)
 {
-    // TODO: Create unique_ptr by forwarding args to T's constructor
-    // return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    
-    // Q: Why do we use Args&&... (variadic universal reference)?
-    // A: 
-    // R: 
-    
-    // Q: What happens to each argument in args when forwarded?
-    // A: 
-    // R: 
-    
-    return nullptr;
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
 TEST_F(PerfectForwardingTest, VariadicForwarding)
 {
-    // TODO: Call make_unique_impl with multiple arguments
-    // YOUR CODE HERE
+    auto ptr = make_unique_impl<MoveTracked>("Variadic");
     
-    // Q: How does std::forward preserve the value category of multiple arguments?
+    // Q: How does Args&&... with std::forward<Args>(args)... preserve the value category of each argument independently?
+    // A: 
+    // R: 
+    
+    // Q: If you passed both lvalues and rvalues to make_unique_impl, what would happen to each?
     // A: 
     // R: 
     
@@ -130,23 +115,20 @@ void universal_ref(T&& param)
 
 TEST_F(PerfectForwardingTest, UniversalReferenceVsRvalueReference)
 {
-    // TODO: Create obj with name "Universal"
-    // YOUR CODE HERE
+    MoveTracked obj("Universal");
     
-    // Explicit type parameter - T&& is rvalue reference
     auto rvalue_only = [](MoveTracked&& param)
     {
         EventLog::instance().record("rvalue_only called");
     };
     
-    // Q: Can you call rvalue_only with obj (lvalue)?
+    // Q: Why does MoveTracked&& in rvalue_only reject lvalues while T&& in templates accepts them?
     // A: 
     // R: 
     
-    // TODO: Try calling rvalue_only with std::move(obj)
-    // YOUR CODE HERE
+    rvalue_only(std::move(obj));
     
-    // Q: Why can't rvalue_only accept lvalues?
+    // Q: What is the difference between a deduced T&& and an explicit MoveTracked&&?
     // A: 
     // R: 
     
@@ -172,16 +154,16 @@ void type_deduction_forward(T&& param)
 
 TEST_F(PerfectForwardingTest, TypeDeductionRules)
 {
-    // TODO: Create obj with name "Deduction"
-    // YOUR CODE HERE
+    MoveTracked obj("Deduction");
     
-    // TODO: Call type_deduction_forward with obj (lvalue)
-    // YOUR CODE HERE
+    type_deduction_forward(obj);
+    type_deduction_forward(std::move(obj));
     
-    // TODO: Call type_deduction_forward with std::move(obj)
-    // YOUR CODE HERE
+    // Q: When type_deduction_forward(obj) is called, what is T deduced as and what is T&& after reference collapsing?
+    // A: 
+    // R: 
     
-    // Q: What are the type deduction rules for T&&?
+    // Q: When type_deduction_forward(std::move(obj)) is called, what is T deduced as and what is T&& after reference collapsing?
     // A: 
     // R: 
     
@@ -296,21 +278,16 @@ struct EmplaceWrapper
 TEST_F(PerfectForwardingTest, EmplaceBackPattern)
 {
     EmplaceWrapper wrapper;
+    MoveTracked obj("Emplace");
     
-    // TODO: Create obj with name "Emplace"
-    // YOUR CODE HERE
+    wrapper.emplace_back(obj);
+    wrapper.emplace_back("Direct");
     
-    // TODO: Call emplace_back with obj (lvalue)
-    // YOUR CODE HERE
-    
-    // TODO: Call emplace_back with "Direct" (construct in-place)
-    // YOUR CODE HERE
-    
-    // Q: What is the advantage of emplace_back over push_back?
+    // Q: What EventLog entries show the construction operations? How does emplace_back differ from push_back?
     // A: 
     // R: 
     
-    // Q: How does perfect forwarding enable in-place construction?
+    // Q: When emplace_back("Direct") is called, how many MoveTracked objects are constructed?
     // A: 
     // R: 
     
