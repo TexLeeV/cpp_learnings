@@ -1,3 +1,8 @@
+# clang
+.clangd
+.clang-format
+.clang-tidy
+
 # Prerequisites
 *.d
 
