@@ -44,6 +44,23 @@ After (developer answered, mentor responded):
 }
 ```
 
+After (developer answered, mentor validated, then follow-up question):
+```cpp
+{
+    Tracked a("hello");
+    Tracked b = std::move(a);
+    // Q: After the move, what state is `a` in and what observable signal confirms it?
+    // A: `a` is in a valid-but-unspecified state.
+    // A: EventLog will contain a "::move_ctor" entry for `b`.
+    // R: Correct. The standard guarantees `a` is valid for destruction, but makes
+    // R: no promise about its value.
+
+    // Q: If both `a` and `b` were members of a struct that gets copied, what EventLog entries would the copy produce?
+    // A: 
+    // R: 
+}
+```
+
 ### Developer-Driven Questions (DQ/DR)
 - Use `// DQ: `, `// DR: ` when the **developer** asks a question inline.
 - `// DQ: ` — Developer's question. `// DR: ` — Mentor's response.
@@ -86,10 +103,10 @@ Example:
 **Behavior:**
 - Validate fully when the developer's answer matches the test.
 - Do not hedge correctness. The developer's validated answer is correct — period.
-- After validation, follow-up hypotheticals are encouraged for deeper learning. Each hypothetical must:
-  - **Explicitly** state it is a hypothetical (e.g., "Hypothetical: if you changed X to Y...").
+- After validation, follow-up questions are encouraged for deeper learning. Each follow-up must:
   - Be derived from the structure or mechanism of the validated code, not from doubt about its correctness.
   - Not imply the developer's answer was incomplete or wrong.
+  - If exploring a variation or alternative scenario, explicitly state it is a hypothetical (e.g., "Hypothetical: if you changed X to Y...").
 
 ### Developer Profiles
 **Default:** senior. When a profile is activated, read the corresponding file from `.cursor/rules/profiles/*.mdc` and apply its overrides and additional behavior. Profiles are topic-agnostic.
