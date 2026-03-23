@@ -8,7 +8,24 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#if defined(__has_include)
+#if __has_include(<execution>)
 #include <execution>
+#define HAS_STD_EXECUTION_POLICIES 1
+#else
+#define HAS_STD_EXECUTION_POLICIES 0
+#endif
+#else
+#include <execution>
+#define HAS_STD_EXECUTION_POLICIES 1
+#endif
+
+#if HAS_STD_EXECUTION_POLICIES
+#if !defined(__cpp_lib_execution) || (__cpp_lib_execution < 201603L)
+#undef HAS_STD_EXECUTION_POLICIES
+#define HAS_STD_EXECUTION_POLICIES 0
+#endif
+#endif
 
 class AlgorithmsTest : public ::testing::Test
 {
@@ -108,6 +125,7 @@ TEST_F(AlgorithmsTest, ParallelAlgorithms_ExecutionPolicies)
     std::vector<int> vec(1000);
     std::iota(vec.begin(), vec.end(), 0);
     
+#if HAS_STD_EXECUTION_POLICIES
     // Sequential execution
     auto result1 = std::find(std::execution::seq, vec.begin(), vec.end(), 500);
     EXPECT_NE(result1, vec.end());
@@ -115,6 +133,13 @@ TEST_F(AlgorithmsTest, ParallelAlgorithms_ExecutionPolicies)
     // Parallel execution (may use multiple threads)
     auto result2 = std::find(std::execution::par, vec.begin(), vec.end(), 500);
     EXPECT_NE(result2, vec.end());
+#else
+    // Fallback for standard libraries without execution policy support
+    auto result1 = std::find(vec.begin(), vec.end(), 500);
+    auto result2 = std::find(vec.begin(), vec.end(), 500);
+    EXPECT_NE(result1, vec.end());
+    EXPECT_NE(result2, vec.end());
+#endif
     
     // Q: What is the difference between std::execution::seq and std::execution::par?
     // A:
@@ -131,8 +156,13 @@ TEST_F(AlgorithmsTest, ParallelSort_ThreadSafety)
     
     std::vector<int> vec = {5, 2, 8, 1, 9, 3, 7, 4, 6};
     
+#if HAS_STD_EXECUTION_POLICIES
     // TODO: Sort with parallel execution policy
     std::sort(std::execution::par, vec.begin(), vec.end());
+#else
+    // Fallback for standard libraries without execution policy support
+    std::sort(vec.begin(), vec.end());
+#endif
     
     EXPECT_TRUE(std::is_sorted(vec.begin(), vec.end()));
     
