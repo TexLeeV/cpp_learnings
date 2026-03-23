@@ -54,7 +54,7 @@ jobs:
         run: cmake --build --preset "${{ matrix.preset }}"
 
       - name: Test
-        run: ctest --preset "${{ matrix.preset }}" --output-on-failure --verbose
+        run: ctest --preset "${{ matrix.preset }}" --output-on-failure
 
   # format-check:
   #   runs-on: ubuntu-latest
