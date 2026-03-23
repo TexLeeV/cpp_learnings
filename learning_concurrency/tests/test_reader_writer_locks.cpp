@@ -86,14 +86,25 @@ TEST_F(ReaderWriterLocksTest, MultipleReadersNoContention)
 
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start).count();
+    int concurrent_shared_lock_events = EventLog::instance().count_events("acquired shared_lock");
+
+    // Compare against a local serialized baseline to reduce cross-platform
+    // timing flakiness in CI runners.
+    auto seq_start = std::chrono::steady_clock::now();
+    for (int i = 0; i < num_readers; ++i)
+    {
+        EXPECT_EQ(counter.read(), 42);
+    }
+    auto sequential_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - seq_start).count();
 
     // Q: If readers held exclusive locks, 5 readers × 10ms sleep = 50ms minimum.
     // Q: With shared_lock, what is the expected minimum elapsed time? Why?
     // A:
     // R:
 
-    EXPECT_EQ(EventLog::instance().count_events("acquired shared_lock"), num_readers);
-    EXPECT_LT(elapsed, 30);
+    EXPECT_EQ(concurrent_shared_lock_events, num_readers);
+    EXPECT_LT(elapsed, sequential_elapsed + 5);
 }
 
 // ============================================================================

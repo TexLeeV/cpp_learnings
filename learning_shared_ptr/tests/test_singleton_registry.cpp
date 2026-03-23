@@ -19,8 +19,10 @@ class MeyersSingleton
 public:
     static MeyersSingleton& instance()
     {
-        static MeyersSingleton instance;
-        return instance;
+        // Keep singleton alive for process lifetime to avoid static destruction
+        // ordering issues in test teardown on some standard libraries.
+        static MeyersSingleton* instance = new MeyersSingleton();
+        return *instance;
     }
 
     std::shared_ptr<Tracked> get_resource()
@@ -137,10 +139,10 @@ class ThreadSafeSingleton
 public:
     static std::shared_ptr<ThreadSafeSingleton> instance()
     {
-        std::call_once(init_flag_,
-                       []() { instance_ = std::shared_ptr<ThreadSafeSingleton>(new ThreadSafeSingleton()); });
+        std::call_once(init_flag(),
+                       []() { instance_storage() = std::shared_ptr<ThreadSafeSingleton>(new ThreadSafeSingleton()); });
 
-        return instance_;
+        return instance_storage();
     }
 
     std::string name() const
@@ -157,12 +159,21 @@ private:
     }
 
     Tracked tracked_;
-    static std::shared_ptr<ThreadSafeSingleton> instance_;
-    static std::once_flag init_flag_;
+    static std::shared_ptr<ThreadSafeSingleton>& instance_storage()
+    {
+        // Keep storage alive for process lifetime to avoid static destruction
+        // ordering issues in test teardown on some standard libraries.
+        static auto* storage = new std::shared_ptr<ThreadSafeSingleton>();
+        return *storage;
+    }
+    static std::once_flag& init_flag()
+    {
+        // Keep once_flag alive for process lifetime to avoid static destruction
+        // ordering issues in test teardown on some standard libraries.
+        static auto* flag = new std::once_flag();
+        return *flag;
+    }
 };
-
-std::shared_ptr<ThreadSafeSingleton> ThreadSafeSingleton::instance_;
-std::once_flag ThreadSafeSingleton::init_flag_;
 
 TEST_F(SingletonRegistryTest, ThreadSafeSingletonBasic)
 {
@@ -194,8 +205,10 @@ class GlobalRegistry
 public:
     static GlobalRegistry& instance()
     {
-        static GlobalRegistry instance;
-        return instance;
+        // Keep singleton alive for process lifetime to avoid static destruction
+        // ordering issues in test teardown on some standard libraries.
+        static GlobalRegistry* instance = new GlobalRegistry();
+        return *instance;
     }
 
     void register_resource(const std::string& key, std::shared_ptr<Tracked> resource)

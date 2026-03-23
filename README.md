@@ -1,5 +1,6 @@
 # C++ Learning Path -- Test-Driven Socratic Learning System
 
+[![CI](https://github.com/TexLeeV/socratic-cpp/actions/workflows/ci.yml/badge.svg)](https://github.com/TexLeeV/socratic-cpp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
