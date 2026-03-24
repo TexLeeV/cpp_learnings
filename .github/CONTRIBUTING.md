@@ -196,10 +196,10 @@ cmake --build --preset gcc
 ctest --preset gcc --verbose
 
 # Run specific test suite
-./build/gcc/learning_shared_ptr/test_reference_counting
+./build/learning_shared_ptr/test_reference_counting
 
 # Run with filter
-./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 ```
 
 ### Verify Code Style

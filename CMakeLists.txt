@@ -6,7 +6,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
-find_package(GTest REQUIRED)
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        v1.14.0   # pick a tag you want
+)
+
+# For new CMake + GTest:
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)  # MSVC-friendly; harmless elsewhere
+FetchContent_MakeAvailable(googletest)
+
 find_package(Threads REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")

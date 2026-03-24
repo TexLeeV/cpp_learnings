@@ -157,7 +157,7 @@ TEST_F(AlgorithmsTest, ParallelSort_ThreadSafety)
     std::vector<int> vec = {5, 2, 8, 1, 9, 3, 7, 4, 6};
     
 #if HAS_STD_EXECUTION_POLICIES
-    // TODO: Sort with parallel execution policy
+    // SOLUTION: Sort with parallel execution policy
     std::sort(std::execution::par, vec.begin(), vec.end());
 #else
     // Fallback for standard libraries without execution policy support

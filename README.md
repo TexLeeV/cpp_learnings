@@ -82,11 +82,16 @@ Beyond profiles, you can configure pacing, hints, questioning style, feedback mo
 
 You fill in TODOs and answer inline questions, run tests, and observe what happens (via `EventLog` and assertions). The adaptive framework adjusts to your profile. For Q/A/R details, instrumentation, and exercise types, see [Teaching Method](docs/TEACHING_METHOD.md).
 
+### Exercise Markers
+
+- `// TODO:` means learner work is intentionally incomplete.
+- `// SOLUTION:` means a reference implementation is intentionally shown for study.
+
 ## Quickstart
 
 1. **Prerequisites** — CMake **3.23+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; C++20 is set in the root file and presets.
 2. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
-3. **Try it** — `./build/gcc/examples/test_try_it_out`
+3. **Try it** — `./build/examples/test_try_it_out`
 4. **Next** — Start with `learning_shared_ptr` or follow [Full Curriculum](docs/LEARNING_PATH.md).
 
 ## Modules (high level)
@@ -107,7 +112,7 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 | `learning_templates` | 6 | Templates, SFINAE, variadics, traits |
 | `learning_performance` | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks |
 | `learning_debugging` | 3 | GoogleMock, debugging, benchmark exercise |
-| `learning_deadlocks` | **0** | Four scenario files exist; **CMake targets commented out** until you enable them |
+| `learning_deadlocks` | 4 | Deadlock scenario suites are registered by default; some scenario cases are intentionally disabled while remaining fixes are in progress |
 | `examples` | 1 | Onboarding test |
 | `profile_showcase` | 1 | Move instrumentation demo |
 

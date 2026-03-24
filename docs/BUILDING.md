@@ -33,10 +33,10 @@ Use `cmake --preset clang` / `cmake --build --preset clang` if you prefer Clang.
 
 ```bash
 # Run one executable (path matches your preset output directory)
-./build/gcc/learning_shared_ptr/test_reference_counting
+./build/learning_shared_ptr/test_reference_counting
 
 # GoogleTest filter
-./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
 # Build one target
 cmake --build --preset gcc --target test_reference_counting
@@ -45,13 +45,13 @@ cmake --build --preset gcc --target test_reference_counting
 **Filter by name with ctest:**
 
 ```bash
-cd build/gcc
+cd build
 ctest -R test_reference_counting --output-on-failure
 ```
 
 ### `learning_deadlocks`
 
-Targets are **not** registered by default (`add_learning_test` lines are commented in `learning_deadlocks/CMakeLists.txt`). After you uncomment them and reconfigure, binaries would appear under `build/gcc/learning_deadlocks/`. See [learning_deadlocks/SUMMARY.txt](../learning_deadlocks/SUMMARY.txt) for scenario layout.
+Targets are registered by default. Binaries appear under `build/learning_deadlocks/` (or your active preset directory). Some scenario tests are intentionally disabled while remaining fixes are in progress. See [learning_deadlocks/SUMMARY.txt](../learning_deadlocks/SUMMARY.txt) for scenario layout.
 
 ---
 

@@ -33,7 +33,7 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 | [learning_templates](../learning_templates/) | 6 | Specialization, SFINAE, variadics, traits, etc. |
 | [learning_performance](../learning_performance/) | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks. |
 | [learning_debugging](../learning_debugging/) | 3 | GoogleMock, debugging techniques, benchmark exercise. |
-| [learning_deadlocks](../learning_deadlocks/) | **0** | Four test sources exist (16 scenarios); **`add_learning_test` lines are commented out** in `CMakeLists.txt` — not part of default `ctest` until enabled. |
+| [learning_deadlocks](../learning_deadlocks/) | 4 | Four deadlock suites are part of default `ctest`; several scenario cases are intentionally disabled while remaining fixes are in progress. |
 | [examples](../examples/) | 1 | `test_try_it_out` — good first run after build. |
 | [profile_showcase](../profile_showcase/) | 1 | Demonstrates move instrumentation. |
 
@@ -45,13 +45,13 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 
 Dependencies are soft; adjust for your goals.
 
-1. **Orientation** — Build the project, run `./build/gcc/examples/test_try_it_out` (or your preset output directory).
+1. **Orientation** — Build the project, run `./build/examples/test_try_it_out` (or your preset output directory).
 2. **Ownership baseline** — `learning_shared_ptr` (then `learning_raii` / `learning_memory` as needed).
 3. **Move semantics** — `learning_move_semantics` (pairs well after shared_ptr).
 4. **Modern syntax and STL** — `learning_modern_cpp`, `learning_stl`.
 5. **Error handling and templates** — `learning_error_handling`, `learning_templates` (order flexible).
 6. **Concurrency** — `learning_concurrency` after you are comfortable with mutex/RAII basics.
-7. **Deadlocks (optional lab)** — Uncomment targets in `learning_deadlocks/CMakeLists.txt` when you are ready; complete scenarios one file at a time.
+7. **Deadlocks (advanced lab)** — Work through `learning_deadlocks` scenarios one file at a time; some cases are intentionally disabled until remaining fixes are completed.
 8. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
 
 ---
