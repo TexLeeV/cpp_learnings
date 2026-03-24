@@ -30,7 +30,8 @@ jobs:
       - name: Cache CMake build directory
         uses: actions/cache@v4
         with:
-          path: build/${{ matrix.preset }}
+          # Matches CMakePresets.json binaryDir: ${sourceDir}/build (same path for gcc and clang presets)
+          path: build
           key: cmake-${{ matrix.os }}-${{ matrix.preset }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt', 'CMakePresets.json') }}
           restore-keys: |
             cmake-${{ matrix.os }}-${{ matrix.preset }}-

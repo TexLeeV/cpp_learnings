@@ -30,33 +30,27 @@ Thank you for your interest in contributing! This repository helps developers le
 
 ### Required Dependencies
 
-- **CMake 3.23+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.14+ for manual configures
-- **C++20 compatible compiler**:
-  - GCC 14 (reference compiler)
-  - Clang 17+
-- **GoogleTest** (for testing)
+- **CMake 3.14+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.14+ for manual configures
+- **C++20-compatible compiler** (GCC or Clang with full C++20 support)
+- **GoogleTest and GoogleMock** (for testing; see installation)
 - **Ninja** (recommended build system)
-
-### Optional Dependencies
-
-- **Asio** (standalone, for multi-threaded shared_ptr tests only)
 
 ### Installation
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt update
-sudo apt install libgtest-dev cmake build-essential ninja-build
+sudo apt install cmake build-essential ninja-build
 ```
 
 **Fedora/RHEL:**
 ```bash
-sudo dnf install gtest-devel cmake gcc-c++ ninja-build
+sudo dnf install cmake gcc-c++ ninja-build
 ```
 
 **macOS:**
 ```bash
-brew install googletest cmake ninja
+brew install cmake ninja
 ```
 
 ### Building
@@ -74,66 +68,6 @@ ctest --preset gcc --verbose
 # Build specific target
 cmake --build --preset gcc --target test_reference_counting
 ```
-
-## Understanding the Socratic Q/A/R Pattern
-
-This repository uses inline comments for guided learning:
-
-- `// Q:` - Question posed about the code's behavior
-- `// A:` - Space for learner's answer (fill this in)
-- `// R:` - Response/feedback on the answer (provided after learner answers)
-
-### Example
-
-```cpp
-// Q: What is the use_count after this line?
-auto sp2 = sp1;
-// A: 2
-// R: Correct! Copy construction increments the reference count.
-```
-
-When contributing Q/A/R content:
-- Questions should be specific and answerable by running the code
-- Focus on observable behavior (use_count, destructor calls, EventLog output)
-- Responses should validate or correct the answer with technical precision
-- Use instrumentation (`EventLog::instance().dump()`) to make behavior visible
-
-## Code Style Guidelines
-
-We follow specific C++ coding standards defined in `.cursor/rules/`:
-
-### Syntax Rules
-
-- **C++20 standard** is required (root `CMakeLists.txt` and presets)
-- **Add newlines before opening braces** for readability
-- **No trailing whitespace** on any line
-- **File must end with exactly one newline**
-
-### Constructor Initializer Lists
-
-Use leading comma format:
-
-```cpp
-SignalHandler::SignalHandler(asio::io_context& io_context)
-: io_context_(io_context)
-, signals_(io_context, SIGUSR1)
-{
-}
-```
-
-- Constructor signature on its own line
-- Colon on the next line after signature
-- First initializer on same line as colon (or next line)
-- Each additional initializer on its own line with **leading comma**
-- Opening brace `{` on its own line
-
-### Documentation
-
-- **DO NOT** create additional README.md files in subdirectories
-- **DO NOT** add large summary sections at the end of code files
-- **DO** add concise inline comments for specific code sections
-- **DO** use Q/A/R pattern for learning content
-- **DO** update the main README.md module table and `docs/LEARNING_PATH.md` when adding or changing modules
 
 ### Comments
 
@@ -202,34 +136,6 @@ ctest --preset gcc --verbose
 ./build/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 ```
 
-### Verify Code Style
-
-```bash
-# Check for trailing whitespace
-git diff --check
-
-# Verify file ends with newline
-tail -c 1 your_file.cpp | od -An -tx1
-# Should output: 0a (newline)
-```
-
-### Test Instrumentation Output
-
-For tests using `EventLog`:
-
-```cpp
-TEST(YourTest, YourCase)
-{
-    EventLog::instance().clear();
-    
-    // Your test code
-    
-    EventLog::instance().dump();  // Verify output is correct
-    auto events = EventLog::instance().events();
-    EXPECT_EQ(events.size(), expected_count);
-}
-```
-
 ## Submitting a Pull Request
 
 ### Before Submitting
@@ -238,7 +144,7 @@ TEST(YourTest, YourCase)
 - [ ] Code follows style guidelines (no trailing whitespace, correct formatting)
 - [ ] Q/A/R patterns are preserved and correct (if applicable)
 - [ ] Main README.md updated (if adding new module)
-- [ ] No syntax violations or compiler warnings
+- [ ] No syntax violations or compiler warnings (Clang duplicated linker warnings are fine)
 - [ ] Commit messages are clear and descriptive
 
 ### PR Description

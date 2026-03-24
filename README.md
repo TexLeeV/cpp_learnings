@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
-[![CMake](https://img.shields.io/badge/CMake-3.23+%20(presets)-064F8C.svg)](https://cmake.org)
+[![CMake](https://img.shields.io/badge/CMake-3.14+%20(presets)-064F8C.svg)](https://cmake.org)
 
 ## Why This Exists
 
@@ -30,6 +30,22 @@ The repository features an adaptive AI framework that guides learning through ev
 - **Evidence-Based Validation** — Your mental model is tested against observable runtime behavior. The AI requires falsifiable reasoning backed by logs, counters, and test output.
 - **Observable Instrumentation** — EventLog and instrumented types (`Tracked`, `MoveTracked`, `Resource`) capture constructor, destructor, copy, move, and deleter activity so you can verify predictions.
 - **Adaptive Questioning** — The system adjusts questioning style, hint policy, verification rigor, and response depth based on your selected skill level.
+
+### Developer-driven questions (DQ/DR)
+
+When **you** ask a question in code, use `// DQ: ` for your question and `// DR: ` for the mentor’s response (see [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc)). Questions asked only in chat are answered in chat; use DQ/DR when you write `// DQ:` in the source.
+
+Example:
+
+```cpp
+{
+    Tracked a("hello");
+    Tracked b = std::move(a);
+    // DQ: Would `a` still be safe to assign to after the move?
+    // DR: Yes — moved-from objects are in a valid-but-unspecified state, so assignment is safe.
+    // DR: What you cannot do is rely on `a`'s value.
+}
+```
 
 ### Skill Profiles
 
@@ -89,7 +105,7 @@ You fill in TODOs and answer inline questions, run tests, and observe what happe
 
 ## Quickstart
 
-1. **Prerequisites** — CMake **3.23+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; C++20 is set in the root file and presets.
+1. **Prerequisites** — CMake **3.14+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; **C++20 is required** (set in the root file and presets).
 2. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
 3. **Try it** — `./build/examples/test_try_it_out`
 4. **Next** — Start with `learning_shared_ptr` or follow [Full Curriculum](docs/LEARNING_PATH.md).
@@ -100,9 +116,9 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 
 | Module | Registered tests | Topic (short) |
 |--------|------------------|----------------|
-| `learning_shared_ptr` | 16 | `shared_ptr` / `weak_ptr`, ownership, aliasing (18 `.cpp` on disk; see Learning Path) |
+| `learning_shared_ptr` | 16 | `shared_ptr` / `weak_ptr`, ownership, aliasing (16 `.cpp` under `tests/`) |
 | `learning_memory` | 4 | Placement new, allocators, pools, alignment |
-| `learning_modern_cpp` | 8 | C++11/14/17 features (build is C++20) |
+| `learning_modern_cpp` | 8 | Modern C++ evolution (by lesson); **C++20** required |
 | `learning_raii` | 4 | Scope guards, handles, smart pointers from scratch |
 | `learning_move_semantics` | 5 | Moves, forwarding, move-only types |
 | `learning_error_handling` | 5 | Exceptions, optional/result, noexcept |
@@ -139,7 +155,7 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 
 ## Building and running
 
-Quick path: `cmake --preset gcc`, `cmake --build --preset gcc`, `ctest --preset gcc --verbose`. Dependencies (GoogleTest, optional Asio), targeted tests, and CMake notes: [docs/BUILDING.md](docs/BUILDING.md).
+Quick path: `cmake --preset gcc`, `cmake --build --preset gcc`, `ctest --preset gcc --verbose`. Dependencies (GoogleTest/GoogleMock), targeted tests, and CMake notes: [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Contributing
 

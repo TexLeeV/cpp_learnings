@@ -6,9 +6,9 @@ Build setup, dependencies, and how to run tests. For project overview, see the [
 
 ## Requirements
 
-- **CMake** — **3.23 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.14)` for manual configures; presets are the documented workflow.
-- **Compiler** — **C++20** (GCC 14 or recent Clang recommended).
-- **GoogleTest & GoogleMock** — Required (`find_package(GTest REQUIRED)`).
+- **CMake** — **3.14 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.14)` for manual configures; presets are the documented workflow.
+- **Compiler** — **C++20** required (use a C++20-capable GCC or Clang).
+- **GoogleTest & GoogleMock** — Install development packages for your OS (below). The build also uses **FetchContent** to obtain GoogleTest when you configure with CMake.
 - **Threads** — For concurrency tests (and deadlock tests when enabled).
 
 ---
@@ -51,7 +51,7 @@ ctest -R test_reference_counting --output-on-failure
 
 ### `learning_deadlocks`
 
-Targets are registered by default. Binaries appear under `build/learning_deadlocks/` (or your active preset directory). Some scenario tests are intentionally disabled while remaining fixes are in progress. See [learning_deadlocks/SUMMARY.txt](../learning_deadlocks/SUMMARY.txt) for scenario layout.
+Targets are registered by default. Binaries appear under `build/learning_deadlocks/` (or your active preset directory). Some scenario tests are intentionally disabled while remaining fixes are in progress. Scenarios live in `learning_deadlocks/tests/` (`test_mutex_ordering_deadlocks.cpp`, `test_circular_reference_deadlocks.cpp`, `test_condition_variable_deadlocks.cpp`, `test_ownership_transfer_deadlocks.cpp`).
 
 ---
 
@@ -82,8 +82,8 @@ brew install googletest cmake ninja
 
 ## Tools and environment
 
-- **Compiler:** GCC 14 / recent Clang with **C++20**
-- **Build:** CMake **3.23+** for presets; Ninja recommended (generator in presets)
+- **Compiler:** C++20-capable **GCC** or **Clang**
+- **Build:** CMake **3.14+** for presets; Ninja recommended (generator in presets)
 - **Tests:** GoogleTest & GoogleMock
 - **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`)
 
