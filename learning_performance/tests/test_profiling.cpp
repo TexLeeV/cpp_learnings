@@ -2,15 +2,15 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <chrono>
-#include <vector>
+
 #include <algorithm>
-#include <numeric>
+#include <chrono>
+#include <gtest/gtest.h>
 #include <map>
+#include <numeric>
 #include <unordered_map>
+#include <vector>
 
 class ProfilingTest : public ::testing::Test
 {
@@ -62,13 +62,15 @@ TEST_F(ProfilingTest, BasicProfilingWithEventLog)
 
 int compute_fibonacci(int n)
 {
-    if (n <= 1) return n;
+    if (n <= 1)
+        return n;
     return compute_fibonacci(n - 1) + compute_fibonacci(n - 2);
 }
 
 int compute_fibonacci_optimized(int n)
 {
-    if (n <= 1) return n;
+    if (n <= 1)
+        return n;
     int prev = 0, curr = 1;
     for (int i = 2; i <= n; ++i)
     {
@@ -130,8 +132,14 @@ public:
         allocation_count_ = 0;
     }
 
-    static size_t total_bytes() { return total_bytes_; }
-    static size_t allocation_count() { return allocation_count_; }
+    static size_t total_bytes()
+    {
+        return total_bytes_;
+    }
+    static size_t allocation_count()
+    {
+        return allocation_count_;
+    }
 
 private:
     static size_t total_bytes_;
@@ -320,8 +328,7 @@ TEST_F(ProfilingTest, ProfilingAllocationPatterns)
         }
     }
     auto end_vector = std::chrono::high_resolution_clock::now();
-    auto vector_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_vector - start_vector).count();
+    auto vector_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_vector - start_vector).count();
 
     auto start_reserved = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iterations; ++i)
@@ -334,8 +341,8 @@ TEST_F(ProfilingTest, ProfilingAllocationPatterns)
         }
     }
     auto end_reserved = std::chrono::high_resolution_clock::now();
-    auto reserved_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_reserved - start_reserved).count();
+    auto reserved_duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end_reserved - start_reserved).count();
 
     EventLog::instance().record("Without reserve: " + std::to_string(vector_duration) + " us");
     EventLog::instance().record("With reserve: " + std::to_string(reserved_duration) + " us");

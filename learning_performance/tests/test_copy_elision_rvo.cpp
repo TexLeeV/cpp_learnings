@@ -2,11 +2,11 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate
 
+#include "instrumentation.h"
 
 #include <gtest/gtest.h>
-#include "instrumentation.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 class CopyElisionTest : public ::testing::Test
 {
@@ -149,25 +149,25 @@ public:
         EventLog::instance().record("Container::ctor");
     }
 
-    explicit Container(std::vector<int> data)
-    : data_(std::move(data))
+    explicit Container(std::vector<int> data) : data_(std::move(data))
     {
         EventLog::instance().record("Container::ctor(vector)");
     }
 
-    Container(const Container& other)
-    : data_(other.data_)
+    Container(const Container& other) : data_(other.data_)
     {
         EventLog::instance().record("Container::copy_ctor");
     }
 
-    Container(Container&& other) noexcept
-    : data_(std::move(other.data_))
+    Container(Container&& other) noexcept : data_(std::move(other.data_))
     {
         EventLog::instance().record("Container::move_ctor");
     }
 
-    size_t size() const { return data_.size(); }
+    size_t size() const
+    {
+        return data_.size();
+    }
 
 private:
     std::vector<int> data_;

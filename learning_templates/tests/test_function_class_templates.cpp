@@ -2,12 +2,12 @@
 // Estimated Time: 3 hours
 // Difficulty: Easy to Moderate
 
+#include "instrumentation.h"
 
 #include <gtest/gtest.h>
-#include "instrumentation.h"
-#include <vector>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 class FunctionClassTemplatesTest : public ::testing::Test
 {
@@ -22,8 +22,7 @@ protected:
 // TEST 1: Basic Function Templates - Easy
 // ============================================================================
 
-template<typename T>
-T max_value(T a, T b)
+template <typename T> T max_value(T a, T b)
 {
     EventLog::instance().record("max_value called");
     return (a > b) ? a : b;
@@ -54,8 +53,7 @@ TEST_F(FunctionClassTemplatesTest, BasicFunctionTemplates)
 // TEST 2: Template Type Deduction - Moderate
 // ============================================================================
 
-template<typename T>
-void process_value(T value)
+template <typename T> void process_value(T value)
 {
     if constexpr (std::is_pointer_v<T>)
     {
@@ -101,17 +99,18 @@ TEST_F(FunctionClassTemplatesTest, TemplateTypeDeduction)
 // TEST 3: Basic Class Templates - Easy
 // ============================================================================
 
-template<typename T>
-class Box
+template <typename T> class Box
 {
 public:
-    explicit Box(T value)
-    : value_(value)
+    explicit Box(T value) : value_(value)
     {
         EventLog::instance().record("Box::ctor");
     }
 
-    T get() const { return value_; }
+    T get() const
+    {
+        return value_;
+    }
 
     void set(T value)
     {
@@ -150,18 +149,22 @@ TEST_F(FunctionClassTemplatesTest, BasicClassTemplates)
 // TEST 4: Template with Multiple Type Parameters - Moderate
 // ============================================================================
 
-template<typename K, typename V>
-class Pair
+template <typename K, typename V> class Pair
 {
 public:
-    Pair(K key, V value)
-    : key_(key), value_(value)
+    Pair(K key, V value) : key_(key), value_(value)
     {
         EventLog::instance().record("Pair::ctor");
     }
 
-    K key() const { return key_; }
-    V value() const { return value_; }
+    K key() const
+    {
+        return key_;
+    }
+    V value() const
+    {
+        return value_;
+    }
 
 private:
     K key_;
@@ -194,8 +197,7 @@ TEST_F(FunctionClassTemplatesTest, MultipleTypeParameters)
 // TEST 5: Non-Type Template Parameters - Moderate
 // ============================================================================
 
-template<typename T, size_t N>
-class FixedArray
+template <typename T, size_t N> class FixedArray
 {
 public:
     FixedArray()
@@ -203,10 +205,19 @@ public:
         EventLog::instance().record("FixedArray::ctor size=" + std::to_string(N));
     }
 
-    T& operator[](size_t index) { return data_[index]; }
-    const T& operator[](size_t index) const { return data_[index]; }
+    T& operator[](size_t index)
+    {
+        return data_[index];
+    }
+    const T& operator[](size_t index) const
+    {
+        return data_[index];
+    }
 
-    constexpr size_t size() const { return N; }
+    constexpr size_t size() const
+    {
+        return N;
+    }
 
 private:
     T data_[N];
@@ -263,17 +274,18 @@ TEST_F(FunctionClassTemplatesTest, DISABLED_TemplateDefaultParameters)
 // TEST 7: Template Argument Deduction (CTAD C++17) - Moderate
 // ============================================================================
 
-template<typename T>
-class Wrapper
+template <typename T> class Wrapper
 {
 public:
-    explicit Wrapper(T value)
-    : value_(value)
+    explicit Wrapper(T value) : value_(value)
     {
         EventLog::instance().record("Wrapper::ctor");
     }
 
-    T get() const { return value_; }
+    T get() const
+    {
+        return value_;
+    }
 
 private:
     T value_;
@@ -311,14 +323,12 @@ public:
         EventLog::instance().record("Container::ctor");
     }
 
-    template<typename T>
-    void add(T value)
+    template <typename T> void add(T value)
     {
         EventLog::instance().record("Container::add<" + std::string(typeid(T).name()) + ">");
     }
 
-    template<typename T>
-    T get() const
+    template <typename T> T get() const
     {
         EventLog::instance().record("Container::get<" + std::string(typeid(T).name()) + ">");
         return T{};

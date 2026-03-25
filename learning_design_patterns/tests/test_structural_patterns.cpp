@@ -2,16 +2,16 @@
 // Estimated Time: 6 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <memory>
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <thread>
+
 #include <chrono>
+#include <gtest/gtest.h>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
 
 class StructuralPatternsTest : public ::testing::Test
 {
@@ -29,11 +29,7 @@ protected:
 class LegacyRectangle
 {
 public:
-    LegacyRectangle(int x, int y, int w, int h)
-    : x_(x)
-    , y_(y)
-    , w_(w)
-    , h_(h)
+    LegacyRectangle(int x, int y, int w, int h) : x_(x), y_(y), w_(w), h_(h)
     {
         EventLog::instance().record("LegacyRectangle::ctor");
     }
@@ -43,10 +39,22 @@ public:
         EventLog::instance().record("LegacyRectangle::legacy_draw()");
     }
 
-    int get_x() const { return x_; }
-    int get_y() const { return y_; }
-    int get_w() const { return w_; }
-    int get_h() const { return h_; }
+    int get_x() const
+    {
+        return x_;
+    }
+    int get_y() const
+    {
+        return y_;
+    }
+    int get_w() const
+    {
+        return w_;
+    }
+    int get_h() const
+    {
+        return h_;
+    }
 
 private:
     int x_, y_, w_, h_;
@@ -63,8 +71,7 @@ public:
 class RectangleAdapter : public Shape
 {
 public:
-    explicit RectangleAdapter(std::unique_ptr<LegacyRectangle> rect)
-    : rect_(std::move(rect))
+    explicit RectangleAdapter(std::unique_ptr<LegacyRectangle> rect) : rect_(std::move(rect))
     {
         EventLog::instance().record("RectangleAdapter::ctor");
     }
@@ -143,8 +150,7 @@ public:
 class Decorator : public Component
 {
 public:
-    explicit Decorator(std::unique_ptr<Component> component)
-    : component_(std::move(component))
+    explicit Decorator(std::unique_ptr<Component> component) : component_(std::move(component))
     {
     }
 
@@ -160,8 +166,7 @@ protected:
 class ConcreteDecoratorA : public Decorator
 {
 public:
-    explicit ConcreteDecoratorA(std::unique_ptr<Component> component)
-    : Decorator(std::move(component))
+    explicit ConcreteDecoratorA(std::unique_ptr<Component> component) : Decorator(std::move(component))
     {
         EventLog::instance().record("ConcreteDecoratorA::ctor");
     }
@@ -175,8 +180,7 @@ public:
 class ConcreteDecoratorB : public Decorator
 {
 public:
-    explicit ConcreteDecoratorB(std::unique_ptr<Component> component)
-    : Decorator(std::move(component))
+    explicit ConcreteDecoratorB(std::unique_ptr<Component> component) : Decorator(std::move(component))
     {
         EventLog::instance().record("ConcreteDecoratorB::ctor");
     }
@@ -248,8 +252,7 @@ public:
 class LazyProxy : public Subject
 {
 public:
-    LazyProxy()
-    : real_subject_(nullptr)
+    LazyProxy() : real_subject_(nullptr)
     {
         EventLog::instance().record("LazyProxy::ctor (cheap)");
     }
@@ -306,16 +309,14 @@ TEST_F(StructuralPatternsTest, ProxyPatternLazyInit)
 class Flyweight
 {
 public:
-    explicit Flyweight(const std::string& shared_state)
-    : shared_state_(shared_state)
+    explicit Flyweight(const std::string& shared_state) : shared_state_(shared_state)
     {
         EventLog::instance().record("Flyweight::ctor shared_state=" + shared_state);
     }
 
     void operation(const std::string& unique_state) const
     {
-        EventLog::instance().record("Flyweight::operation() shared=" + shared_state_ +
-                                   " unique=" + unique_state);
+        EventLog::instance().record("Flyweight::operation() shared=" + shared_state_ + " unique=" + unique_state);
     }
 
     ~Flyweight()
@@ -409,9 +410,7 @@ public:
 class File : public FileSystemComponent
 {
 public:
-    explicit File(const std::string& name, int size)
-    : name_(name)
-    , size_(size)
+    explicit File(const std::string& name, int size) : name_(name), size_(size)
     {
         // TODO: Add EventLog recording
     }
@@ -430,8 +429,7 @@ private:
 class Directory : public FileSystemComponent
 {
 public:
-    explicit Directory(const std::string& name)
-    : name_(name)
+    explicit Directory(const std::string& name) : name_(name)
     {
         // TODO: Add EventLog recording
     }

@@ -2,17 +2,17 @@
 // Estimated Time: 4 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <thread>
-#include <queue>
-#include <condition_variable>
-#include <mutex>
-#include <vector>
+
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
+#include <gtest/gtest.h>
+#include <mutex>
 #include <optional>
+#include <queue>
+#include <thread>
+#include <vector>
 
 class ProducerConsumerTest : public ::testing::Test
 {
@@ -27,8 +27,7 @@ protected:
 // TEST 1: Basic Producer-Consumer with Unbounded Queue - Easy
 // ============================================================================
 
-template<typename T>
-class UnboundedQueue
+template <typename T> class UnboundedQueue
 {
 public:
     void push(T value)
@@ -63,8 +62,7 @@ TEST_F(ProducerConsumerTest, BasicProducerConsumer)
     constexpr int num_items = 10;
     std::atomic<int> consumed{0};
 
-    std::thread producer([&queue, num_items]()
-    {
+    std::thread producer([&queue, num_items]() {
         for (int i = 0; i < num_items; ++i)
         {
             queue.push(i);
@@ -72,8 +70,7 @@ TEST_F(ProducerConsumerTest, BasicProducerConsumer)
         }
     });
 
-    std::thread consumer([&queue, &consumed, num_items]()
-    {
+    std::thread consumer([&queue, &consumed, num_items]() {
         for (int i = 0; i < num_items; ++i)
         {
             int val = queue.pop();
@@ -109,8 +106,7 @@ TEST_F(ProducerConsumerTest, MultipleProducersConsumers)
     std::vector<std::thread> producers;
     for (int p = 0; p < num_producers; ++p)
     {
-        producers.emplace_back([&queue, p, items_per_producer]()
-        {
+        producers.emplace_back([&queue, p, items_per_producer]() {
             for (int i = 0; i < items_per_producer; ++i)
             {
                 queue.push(p * 100 + i);
@@ -121,8 +117,7 @@ TEST_F(ProducerConsumerTest, MultipleProducersConsumers)
     std::vector<std::thread> consumers;
     for (int c = 0; c < num_consumers; ++c)
     {
-        consumers.emplace_back([&queue, &total_consumed, items_per_producer, num_producers]()
-        {
+        consumers.emplace_back([&queue, &total_consumed, items_per_producer, num_producers]() {
             int items_to_consume = (items_per_producer * num_producers) / num_consumers;
             for (int i = 0; i < items_to_consume; ++i)
             {
@@ -154,12 +149,10 @@ TEST_F(ProducerConsumerTest, MultipleProducersConsumers)
 // TEST 3: Bounded Queue with Blocking - Moderate
 // ============================================================================
 
-template<typename T>
-class BoundedQueue
+template <typename T> class BoundedQueue
 {
 public:
-    explicit BoundedQueue(size_t capacity)
-    : capacity_(capacity)
+    explicit BoundedQueue(size_t capacity) : capacity_(capacity)
     {
     }
 
@@ -203,8 +196,7 @@ TEST_F(ProducerConsumerTest, BoundedQueueBlocking)
     std::atomic<bool> producer_blocked{false};
     std::atomic<int> items_produced{0};
 
-    std::thread fast_producer([&queue, &producer_blocked, &items_produced]()
-    {
+    std::thread fast_producer([&queue, &producer_blocked, &items_produced]() {
         for (int i = 0; i < 10; ++i)
         {
             if (i == 5)
@@ -221,8 +213,7 @@ TEST_F(ProducerConsumerTest, BoundedQueueBlocking)
     EXPECT_TRUE(producer_blocked.load());
     EXPECT_LE(items_produced.load(), 6);
 
-    std::thread consumer([&queue]()
-    {
+    std::thread consumer([&queue]() {
         for (int i = 0; i < 10; ++i)
         {
             queue.pop();
@@ -256,8 +247,7 @@ TEST_F(ProducerConsumerTest, BoundedQueueBlocking)
 // TODO: 3. Consumers block when queue is empty
 // TODO: Use std::priority_queue and condition_variable
 
-template<typename T>
-class PriorityQueue
+template <typename T> class PriorityQueue
 {
 public:
     void push(T value, int priority)
@@ -279,8 +269,7 @@ TEST_F(ProducerConsumerTest, DISABLED_PriorityQueueOrdering)
 {
     PriorityQueue<int> queue;
 
-    std::thread producer([&queue]()
-    {
+    std::thread producer([&queue]() {
         queue.push(1, 1);
         queue.push(3, 3);
         queue.push(2, 2);
@@ -289,8 +278,7 @@ TEST_F(ProducerConsumerTest, DISABLED_PriorityQueueOrdering)
     producer.join();
 
     std::vector<int> consumed;
-    std::thread consumer([&queue, &consumed]()
-    {
+    std::thread consumer([&queue, &consumed]() {
         for (int i = 0; i < 3; ++i)
         {
             consumed.push_back(queue.pop());
@@ -313,8 +301,7 @@ TEST_F(ProducerConsumerTest, DISABLED_PriorityQueueOrdering)
 // TEST 5: Spurious Wakeups and Predicate Importance - Hard
 // ============================================================================
 
-template<typename T>
-class WakeupDemoQueue
+template <typename T> class WakeupDemoQueue
 {
 public:
     void push(T value)
@@ -360,8 +347,7 @@ TEST_F(ProducerConsumerTest, SpuriousWakeupsWithPredicate)
 {
     WakeupDemoQueue<int> queue;
 
-    std::thread consumer([&queue]()
-    {
+    std::thread consumer([&queue]() {
         int val = queue.pop_with_predicate();
         EXPECT_EQ(val, 42);
     });
@@ -434,10 +420,7 @@ TEST_F(ProducerConsumerTest, NotifyOneVsNotifyAll)
     std::vector<std::thread> waiters;
     for (int i = 0; i < num_waiters; ++i)
     {
-        waiters.emplace_back([&demo, i]()
-        {
-            demo.wait_for_signal(i);
-        });
+        waiters.emplace_back([&demo, i]() { demo.wait_for_signal(i); });
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));

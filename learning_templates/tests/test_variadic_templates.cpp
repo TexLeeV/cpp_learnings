@@ -2,11 +2,11 @@
 // Estimated Time: 4 hours
 // Difficulty: Hard
 
+#include "instrumentation.h"
 
 #include <gtest/gtest.h>
-#include "instrumentation.h"
-#include <string>
 #include <sstream>
+#include <string>
 #include <tuple>
 #include <type_traits>
 
@@ -23,8 +23,7 @@ protected:
 // TEST 1: Basic Variadic Templates - Moderate
 // ============================================================================
 
-template<typename... Args>
-void log_args(Args... args)
+template <typename... Args> void log_args(Args... args)
 {
     EventLog::instance().record("log_args: " + std::to_string(sizeof...(Args)) + " arguments");
 }
@@ -61,8 +60,7 @@ void print_impl()
     EventLog::instance().record("print_impl: base case");
 }
 
-template<typename T, typename... Args>
-void print_impl(T first, Args... rest)
+template <typename T, typename... Args> void print_impl(T first, Args... rest)
 {
     EventLog::instance().record("print_impl: recursive");
     print_impl(rest...);
@@ -93,24 +91,20 @@ TEST_F(VariadicTemplatesTest, RecursiveVariadicExpansion)
 // TEST 3: Fold Expressions (C++17) - Moderate
 // ============================================================================
 
-template<typename... Args>
-auto sum_fold(Args... args)
+template <typename... Args> auto sum_fold(Args... args)
 {
     EventLog::instance().record("sum_fold");
     return (args + ...);
 }
 
-template<typename... Args>
-auto sum_recursive(Args... args);
+template <typename... Args> auto sum_recursive(Args... args);
 
-template<>
-auto sum_recursive()
+template <> auto sum_recursive()
 {
     return 0;
 }
 
-template<typename T, typename... Args>
-auto sum_recursive(T first, Args... rest)
+template <typename T, typename... Args> auto sum_recursive(T first, Args... rest)
 {
     return first + sum_recursive(rest...);
 }
@@ -140,8 +134,7 @@ TEST_F(VariadicTemplatesTest, FoldExpressions)
 // TEST 4: Variadic Class Templates - Moderate
 // ============================================================================
 
-template<typename... Types>
-class Tuple
+template <typename... Types> class Tuple
 {
 public:
     Tuple()
@@ -149,7 +142,10 @@ public:
         EventLog::instance().record("Tuple::ctor " + std::to_string(sizeof...(Types)) + " types");
     }
 
-    static constexpr size_t size() { return sizeof...(Types); }
+    static constexpr size_t size()
+    {
+        return sizeof...(Types);
+    }
 };
 
 TEST_F(VariadicTemplatesTest, VariadicClassTemplates)
@@ -178,8 +174,7 @@ TEST_F(VariadicTemplatesTest, VariadicClassTemplates)
 // TEST 5: Parameter Pack Expansion Patterns - Hard
 // ============================================================================
 
-template<typename... Args>
-void process_all(Args... args)
+template <typename... Args> void process_all(Args... args)
 {
     EventLog::instance().record("process_all: start");
     (EventLog::instance().record("arg: " + std::to_string(args)), ...);
@@ -228,8 +223,7 @@ TEST_F(VariadicTemplatesTest, DISABLED_VariadicMakeUnique)
 // TEST 7: Variadic Template with Type Constraints - Hard
 // ============================================================================
 
-template<typename... Args>
-auto sum_if_numeric(Args... args)
+template <typename... Args> auto sum_if_numeric(Args... args)
 {
     static_assert((std::is_arithmetic_v<Args> && ...), "All arguments must be numeric");
     return (args + ...);
@@ -260,14 +254,12 @@ TEST_F(VariadicTemplatesTest, VariadicTemplateWithTypeConstraints)
 // TEST 8: Index Sequence and Parameter Pack Indexing - Hard
 // ============================================================================
 
-template<typename Tuple, size_t... Is>
-void print_tuple_impl(const Tuple& t, std::index_sequence<Is...>)
+template <typename Tuple, size_t... Is> void print_tuple_impl(const Tuple& t, std::index_sequence<Is...>)
 {
     ((EventLog::instance().record("tuple[" + std::to_string(Is) + "]")), ...);
 }
 
-template<typename... Args>
-void print_tuple(const std::tuple<Args...>& t)
+template <typename... Args> void print_tuple(const std::tuple<Args...>& t)
 {
     print_tuple_impl(t, std::index_sequence_for<Args...>{});
 }

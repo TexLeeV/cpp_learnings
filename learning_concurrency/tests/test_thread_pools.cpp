@@ -2,18 +2,18 @@
 // Estimated Time: 5 hours
 // Difficulty: Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <future>
+#include <gtest/gtest.h>
+#include <mutex>
+#include <queue>
 #include <thread>
 #include <vector>
-#include <queue>
-#include <functional>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
-#include <future>
-#include <chrono>
 
 class ThreadPoolsTest : public ::testing::Test
 {
@@ -31,13 +31,11 @@ protected:
 class ThreadPool
 {
 public:
-    explicit ThreadPool(size_t num_threads)
-    : stop_(false)
+    explicit ThreadPool(size_t num_threads) : stop_(false)
     {
         for (size_t i = 0; i < num_threads; ++i)
         {
-            workers_.emplace_back([this, i]()
-            {
+            workers_.emplace_back([this, i]() {
                 EventLog::instance().record("Worker " + std::to_string(i) + " started");
                 while (true)
                 {
@@ -62,16 +60,14 @@ public:
                     }
                     catch (const std::exception& e)
                     {
-                        EventLog::instance().record("Worker " + std::to_string(i) +
-                                                   " caught exception: " + e.what());
+                        EventLog::instance().record("Worker " + std::to_string(i) + " caught exception: " + e.what());
                     }
                 }
             });
         }
     }
 
-    template<typename F>
-    void enqueue(F&& task)
+    template <typename F> void enqueue(F&& task)
     {
         {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -85,14 +81,13 @@ public:
         cv_.notify_one();
     }
 
-    template<typename F, typename... Args>
+    template <typename F, typename... Args>
     auto enqueue_future(F&& f, Args&&... args) -> std::future<typename std::invoke_result<F, Args...>::type>
     {
         using return_type = typename std::invoke_result<F, Args...>::type;
 
         auto task = std::make_shared<std::packaged_task<return_type()>>(
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-        );
+            std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
         std::future<return_type> result = task->get_future();
 
@@ -159,8 +154,7 @@ TEST_F(ThreadPoolsTest, BasicThreadPoolExecution)
 
     for (int i = 0; i < num_tasks; ++i)
     {
-        pool.enqueue([&completed, i]()
-        {
+        pool.enqueue([&completed, i]() {
             EventLog::instance().record("Task " + std::to_string(i) + " executing");
             completed.fetch_add(1);
         });
@@ -220,8 +214,7 @@ TEST_F(ThreadPoolsTest, ThreadPoolShutdown)
 
     for (int i = 0; i < 5; ++i)
     {
-        pool.enqueue([&completed, i]()
-        {
+        pool.enqueue([&completed, i]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
             completed.fetch_add(1);
             EventLog::instance().record("Task " + std::to_string(i) + " completed");
@@ -231,10 +224,7 @@ TEST_F(ThreadPoolsTest, ThreadPoolShutdown)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     pool.shutdown();
 
-    pool.enqueue([&completed]()
-    {
-        completed.fetch_add(1);
-    });
+    pool.enqueue([&completed]() { completed.fetch_add(1); });
 
     pool.wait();
 
@@ -262,21 +252,14 @@ TEST_F(ThreadPoolsTest, ThreadPoolExceptionHandling)
     ThreadPool pool(2);
     std::atomic<int> completed{0};
 
-    pool.enqueue([&completed]()
-    {
+    pool.enqueue([&completed]() {
         completed.fetch_add(1);
         throw std::runtime_error("Task 1 failed");
     });
 
-    pool.enqueue([&completed]()
-    {
-        completed.fetch_add(1);
-    });
+    pool.enqueue([&completed]() { completed.fetch_add(1); });
 
-    pool.enqueue([&completed]()
-    {
-        completed.fetch_add(1);
-    });
+    pool.enqueue([&completed]() { completed.fetch_add(1); });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
@@ -303,22 +286,19 @@ TEST_F(ThreadPoolsTest, ThreadPoolTaskDependencies)
     ThreadPool pool(2);
     std::atomic<int> execution_order{0};
 
-    auto task1 = pool.enqueue_future([&execution_order]()
-    {
+    auto task1 = pool.enqueue_future([&execution_order]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
         execution_order.fetch_add(1);
         EventLog::instance().record("Task 1 completed");
     });
 
-    auto task2 = pool.enqueue_future([&execution_order, &task1]()
-    {
+    auto task2 = pool.enqueue_future([&execution_order, &task1]() {
         task1.wait();
         execution_order.fetch_add(1);
         EventLog::instance().record("Task 2 completed (after Task 1)");
     });
 
-    auto task3 = pool.enqueue_future([&execution_order, &task1]()
-    {
+    auto task3 = pool.enqueue_future([&execution_order, &task1]() {
         task1.wait();
         execution_order.fetch_add(1);
         EventLog::instance().record("Task 3 completed (after Task 1)");
@@ -359,8 +339,7 @@ public:
         // TODO: Initialize per-worker queues and threads
     }
 
-    template<typename F>
-    void enqueue(F&& task)
+    template <typename F> void enqueue(F&& task)
     {
         // TODO: Add task to a worker's queue (round-robin or random)
     }
@@ -381,8 +360,7 @@ TEST_F(ThreadPoolsTest, DISABLED_WorkStealingThreadPool)
 
     for (int i = 0; i < 100; ++i)
     {
-        pool.enqueue([&completed, i]()
-        {
+        pool.enqueue([&completed, i]() {
             if (i % 10 == 0)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));

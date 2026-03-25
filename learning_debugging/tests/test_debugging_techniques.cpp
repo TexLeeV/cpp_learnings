@@ -2,14 +2,14 @@
 // Estimated Time: 4 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <cassert>
+#include <gtest/gtest.h>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <cassert>
-#include <stdexcept>
 
 class DebuggingTechniquesTest : public ::testing::Test
 {
@@ -36,22 +36,26 @@ public:
     {
         ++value_;
         ++operation_count_;
-        EventLog::instance().record("DebugCounter::increment() value=" +
-                                   std::to_string(value_) +
-                                   " ops=" + std::to_string(operation_count_));
+        EventLog::instance().record("DebugCounter::increment() value=" + std::to_string(value_) +
+                                    " ops=" + std::to_string(operation_count_));
     }
 
     void decrement()
     {
         --value_;
         ++operation_count_;
-        EventLog::instance().record("DebugCounter::decrement() value=" +
-                                   std::to_string(value_) +
-                                   " ops=" + std::to_string(operation_count_));
+        EventLog::instance().record("DebugCounter::decrement() value=" + std::to_string(value_) +
+                                    " ops=" + std::to_string(operation_count_));
     }
 
-    int value() const { return value_; }
-    int operation_count() const { return operation_count_; }
+    int value() const
+    {
+        return value_;
+    }
+    int operation_count() const
+    {
+        return operation_count_;
+    }
 
 private:
     int value_;
@@ -90,11 +94,9 @@ TEST_F(DebuggingTechniquesTest, ObservableStateDebugging)
 class BoundedBuffer
 {
 public:
-    explicit BoundedBuffer(size_t capacity)
-    : capacity_(capacity)
+    explicit BoundedBuffer(size_t capacity) : capacity_(capacity)
     {
-        EventLog::instance().record("BoundedBuffer::ctor capacity=" +
-                                   std::to_string(capacity));
+        EventLog::instance().record("BoundedBuffer::ctor capacity=" + std::to_string(capacity));
     }
 
     void push(int value)
@@ -118,7 +120,10 @@ public:
         return value;
     }
 
-    size_t size() const { return buffer_.size(); }
+    size_t size() const
+    {
+        return buffer_.size();
+    }
 
 private:
     std::vector<int> buffer_;
@@ -155,9 +160,7 @@ TEST_F(DebuggingTechniquesTest, AssertionVsException)
 class DebugResource
 {
 public:
-    explicit DebugResource(int id)
-    : id_(id)
-    , valid_(true)
+    explicit DebugResource(int id) : id_(id), valid_(true)
     {
         EventLog::instance().record("DebugResource::ctor id=" + std::to_string(id));
     }
@@ -165,13 +168,10 @@ public:
     DebugResource(const DebugResource&) = delete;
     DebugResource& operator=(const DebugResource&) = delete;
 
-    DebugResource(DebugResource&& other) noexcept
-    : id_(other.id_)
-    , valid_(other.valid_)
+    DebugResource(DebugResource&& other) noexcept : id_(other.id_), valid_(other.valid_)
     {
         other.valid_ = false;
-        EventLog::instance().record("DebugResource::move_ctor id=" + std::to_string(id_) +
-                                   " (source now invalid)");
+        EventLog::instance().record("DebugResource::move_ctor id=" + std::to_string(id_) + " (source now invalid)");
     }
 
     DebugResource& operator=(DebugResource&& other) noexcept
@@ -180,32 +180,34 @@ public:
         {
             if (valid_)
             {
-                EventLog::instance().record("DebugResource::move_assign releasing id=" +
-                                           std::to_string(id_));
+                EventLog::instance().record("DebugResource::move_assign releasing id=" + std::to_string(id_));
             }
             id_ = other.id_;
             valid_ = other.valid_;
             other.valid_ = false;
-            EventLog::instance().record("DebugResource::move_assign acquired id=" +
-                                       std::to_string(id_));
+            EventLog::instance().record("DebugResource::move_assign acquired id=" + std::to_string(id_));
         }
         return *this;
     }
 
-    int id() const { return id_; }
-    bool is_valid() const { return valid_; }
+    int id() const
+    {
+        return id_;
+    }
+    bool is_valid() const
+    {
+        return valid_;
+    }
 
     ~DebugResource()
     {
         if (valid_)
         {
-            EventLog::instance().record("DebugResource::dtor releasing id=" +
-                                       std::to_string(id_));
+            EventLog::instance().record("DebugResource::dtor releasing id=" + std::to_string(id_));
         }
         else
         {
-            EventLog::instance().record("DebugResource::dtor moved-from id=" +
-                                       std::to_string(id_));
+            EventLog::instance().record("DebugResource::dtor moved-from id=" + std::to_string(id_));
         }
     }
 
@@ -248,8 +250,7 @@ TEST_F(DebuggingTechniquesTest, DebuggingMoveSemantics)
 class Owner
 {
 public:
-    explicit Owner(const std::string& name)
-    : name_(name)
+    explicit Owner(const std::string& name) : name_(name)
     {
         EventLog::instance().record("Owner::ctor name=" + name);
     }
@@ -260,7 +261,10 @@ public:
         EventLog::instance().record("Owner(" + name_ + ")::set_child()");
     }
 
-    const std::string& name() const { return name_; }
+    const std::string& name() const
+    {
+        return name_;
+    }
 
     ~Owner()
     {
@@ -314,9 +318,9 @@ TEST_F(DebuggingTechniquesTest, DebuggingLifetimeIssues)
 // TODO: 3. Can be disabled at compile time for performance
 
 #ifdef NDEBUG
-    #define DEBUG_LOG(msg) ((void)0)
+#define DEBUG_LOG(msg) ((void)0)
 #else
-    #define DEBUG_LOG(msg) EventLog::instance().record("DEBUG: " + std::string(msg))
+#define DEBUG_LOG(msg) EventLog::instance().record("DEBUG: " + std::string(msg))
 #endif
 
 class DebugLogger
@@ -338,7 +342,10 @@ public:
         result_ = value * 2;
     }
 
-    int result() const { return result_; }
+    int result() const
+    {
+        return result_;
+    }
 
 private:
     int result_ = 0;
@@ -367,8 +374,7 @@ TEST_F(DebuggingTechniquesTest, DISABLED_ConditionalDebugLogging)
 class Container
 {
 public:
-    explicit Container(const std::string& name)
-    : name_(name)
+    explicit Container(const std::string& name) : name_(name)
     {
         EventLog::instance().record("Container::ctor name=" + name);
     }

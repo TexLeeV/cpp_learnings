@@ -2,15 +2,15 @@
 // Estimated Time: 5 hours
 // Difficulty: Moderate
 
-
 // LEAVE THIS FILE ALONE.  It makes sense that it is 500+ lines due to the 5 patterns being tested
 
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <functional>
+#include <gtest/gtest.h>
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
-#include <functional>
 
 class CreationalPatternsTest : public ::testing::Test
 {
@@ -162,8 +162,7 @@ private:
 class PizzaBuilder
 {
 public:
-    PizzaBuilder()
-    : pizza_(std::make_unique<Pizza>())
+    PizzaBuilder() : pizza_(std::make_unique<Pizza>())
     {
     }
 
@@ -197,10 +196,7 @@ private:
 TEST_F(CreationalPatternsTest, BuilderPatternFluentInterface)
 {
     PizzaBuilder builder;
-    auto pizza = builder.dough("thin")
-                       .sauce("tomato")
-                       .topping("pepperoni")
-                       .build();
+    auto pizza = builder.dough("thin").sauce("tomato").topping("pepperoni").build();
 
     EXPECT_EQ(pizza->describe(), "Pizza with thin, tomato, pepperoni");
 
@@ -226,9 +222,7 @@ TEST_F(CreationalPatternsTest, BuilderPatternFluentInterface)
 class PooledObject
 {
 public:
-    explicit PooledObject(int id)
-    : id_(id)
-    , in_use_(false)
+    explicit PooledObject(int id) : id_(id), in_use_(false)
     {
         EventLog::instance().record("PooledObject::ctor id=" + std::to_string(id));
     }
@@ -245,8 +239,14 @@ public:
         EventLog::instance().record("PooledObject::reset() id=" + std::to_string(id_));
     }
 
-    bool in_use() const { return in_use_; }
-    int id() const { return id_; }
+    bool in_use() const
+    {
+        return in_use_;
+    }
+    int id() const
+    {
+        return id_;
+    }
 
     ~PooledObject()
     {
@@ -276,10 +276,7 @@ public:
             if (!obj->in_use())
             {
                 obj->use();
-                return std::shared_ptr<PooledObject>(obj.get(), [](PooledObject* p)
-                {
-                    p->reset();
-                });
+                return std::shared_ptr<PooledObject>(obj.get(), [](PooledObject* p) { p->reset(); });
             }
         }
         return nullptr;
@@ -348,8 +345,7 @@ public:
 class ConcretePrototype : public Prototype
 {
 public:
-    explicit ConcretePrototype(const std::string& data)
-    : data_(data)
+    explicit ConcretePrototype(const std::string& data) : data_(data)
     {
         // TODO: Add EventLog recording
     }

@@ -2,16 +2,16 @@
 // Estimated Time: 5 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
 #include "move_instrumentation.h"
-#include <memory>
-#include <string>
-#include <vector>
+
 #include <functional>
+#include <gtest/gtest.h>
+#include <memory>
 #include <optional>
+#include <string>
 #include <variant>
+#include <vector>
 
 class ModernCppPatternsTest : public ::testing::Test
 {
@@ -29,9 +29,7 @@ protected:
 class ScopeGuard
 {
 public:
-    explicit ScopeGuard(std::function<void()> cleanup)
-    : cleanup_(std::move(cleanup))
-    , active_(true)
+    explicit ScopeGuard(std::function<void()> cleanup) : cleanup_(std::move(cleanup)), active_(true)
     {
         EventLog::instance().record("ScopeGuard::ctor");
     }
@@ -64,8 +62,7 @@ TEST_F(ModernCppPatternsTest, ScopeGuardPattern)
     int resource_state = 0;
 
     {
-        ScopeGuard guard([&resource_state]()
-        {
+        ScopeGuard guard([&resource_state]() {
             resource_state = 0;
             EventLog::instance().record("Cleanup executed");
         });
@@ -75,10 +72,7 @@ TEST_F(ModernCppPatternsTest, ScopeGuardPattern)
     EXPECT_EQ(resource_state, 0);
 
     {
-        ScopeGuard guard([&resource_state]()
-        {
-            resource_state = 0;
-        });
+        ScopeGuard guard([&resource_state]() { resource_state = 0; });
         resource_state = 2;
         guard.dismiss();
     }
@@ -97,41 +91,55 @@ TEST_F(ModernCppPatternsTest, ScopeGuardPattern)
 // TEST 2: Type-Safe Visitor with std::variant - Moderate
 // ============================================================================
 
-struct Add { int value; };
-struct Multiply { int factor; };
-struct Reset {};
+struct Add
+{
+    int value;
+};
+struct Multiply
+{
+    int factor;
+};
+struct Reset
+{
+};
 
 using Operation = std::variant<Add, Multiply, Reset>;
 
 class Calculator
 {
 public:
-    Calculator() : value_(0) {}
+    Calculator() : value_(0)
+    {
+    }
 
     void execute(const Operation& op)
     {
-        std::visit([this](auto&& arg)
-        {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::is_same_v<T, Add>)
-            {
-                value_ += arg.value;
-                EventLog::instance().record("Calculator: Add " + std::to_string(arg.value));
-            }
-            else if constexpr (std::is_same_v<T, Multiply>)
-            {
-                value_ *= arg.factor;
-                EventLog::instance().record("Calculator: Multiply by " + std::to_string(arg.factor));
-            }
-            else if constexpr (std::is_same_v<T, Reset>)
-            {
-                value_ = 0;
-                EventLog::instance().record("Calculator: Reset");
-            }
-        }, op);
+        std::visit(
+            [this](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<T, Add>)
+                {
+                    value_ += arg.value;
+                    EventLog::instance().record("Calculator: Add " + std::to_string(arg.value));
+                }
+                else if constexpr (std::is_same_v<T, Multiply>)
+                {
+                    value_ *= arg.factor;
+                    EventLog::instance().record("Calculator: Multiply by " + std::to_string(arg.factor));
+                }
+                else if constexpr (std::is_same_v<T, Reset>)
+                {
+                    value_ = 0;
+                    EventLog::instance().record("Calculator: Reset");
+                }
+            },
+            op);
     }
 
-    int value() const { return value_; }
+    int value() const
+    {
+        return value_;
+    }
 
 private:
     int value_;
@@ -166,13 +174,21 @@ TEST_F(ModernCppPatternsTest, VariantVisitorPattern)
 // TEST 3: Policy-Based Design with Templates - Hard
 // ============================================================================
 
-template<typename StoragePolicy>
-class Container
+template <typename StoragePolicy> class Container
 {
 public:
-    void add(int value) { storage_.add(value); }
-    int get(size_t index) const { return storage_.get(index); }
-    size_t size() const { return storage_.size(); }
+    void add(int value)
+    {
+        storage_.add(value);
+    }
+    int get(size_t index) const
+    {
+        return storage_.get(index);
+    }
+    size_t size() const
+    {
+        return storage_.size();
+    }
 
 private:
     StoragePolicy storage_;
@@ -186,8 +202,14 @@ public:
         data_.push_back(value);
         EventLog::instance().record("VectorStorage::add()");
     }
-    int get(size_t index) const { return data_[index]; }
-    size_t size() const { return data_.size(); }
+    int get(size_t index) const
+    {
+        return data_[index];
+    }
+    size_t size() const
+    {
+        return data_.size();
+    }
 
 private:
     std::vector<int> data_;
@@ -196,7 +218,9 @@ private:
 class ArrayStorage
 {
 public:
-    ArrayStorage() : size_(0) {}
+    ArrayStorage() : size_(0)
+    {
+    }
 
     void add(int value)
     {
@@ -206,8 +230,14 @@ public:
             EventLog::instance().record("ArrayStorage::add()");
         }
     }
-    int get(size_t index) const { return data_[index]; }
-    size_t size() const { return size_; }
+    int get(size_t index) const
+    {
+        return data_[index];
+    }
+    size_t size() const
+    {
+        return size_;
+    }
 
 private:
     int data_[10];
@@ -248,8 +278,7 @@ class Logger
 public:
     using LogFunction = std::function<void(const std::string&)>;
 
-    explicit Logger(LogFunction log_func)
-    : log_func_(std::move(log_func))
+    explicit Logger(LogFunction log_func) : log_func_(std::move(log_func))
     {
         EventLog::instance().record("Logger::ctor");
     }
@@ -269,8 +298,7 @@ private:
 class Service
 {
 public:
-    explicit Service(std::unique_ptr<Logger> logger)
-    : logger_(std::move(logger))
+    explicit Service(std::unique_ptr<Logger> logger) : logger_(std::move(logger))
     {
     }
 
@@ -287,8 +315,7 @@ TEST_F(ModernCppPatternsTest, DependencyInjection)
 {
     std::vector<std::string> log_output;
 
-    auto logger = std::make_unique<Logger>([&log_output](const std::string& msg)
-    {
+    auto logger = std::make_unique<Logger>([&log_output](const std::string& msg) {
         log_output.push_back(msg);
         EventLog::instance().record("Lambda logger: " + msg);
     });
@@ -325,8 +352,7 @@ public:
 class DerivedA : public Base
 {
 public:
-    explicit DerivedA(int value)
-    : value_(value)
+    explicit DerivedA(int value) : value_(value)
     {
         EventLog::instance().record("DerivedA::ctor value=" + std::to_string(value));
     }
@@ -343,9 +369,7 @@ private:
 class DerivedB : public Base
 {
 public:
-    DerivedB(std::string name, int count)
-    : name_(std::move(name))
-    , count_(count)
+    DerivedB(std::string name, int count) : name_(std::move(name)), count_(count)
     {
         EventLog::instance().record("DerivedB::ctor name=" + name_);
     }
@@ -360,8 +384,7 @@ private:
     int count_;
 };
 
-template<typename T, typename... Args>
-std::unique_ptr<Base> make_derived(Args&&... args)
+template <typename T, typename... Args> std::unique_ptr<Base> make_derived(Args&&... args)
 {
     EventLog::instance().record("make_derived<T>() called");
     return std::make_unique<T>(std::forward<Args>(args)...);

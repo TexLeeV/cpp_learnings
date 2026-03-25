@@ -2,8 +2,9 @@
 #define MOVE_INSTRUMENTATION_H
 
 #include "instrumentation.h"
-#include <utility>
+
 #include <type_traits>
+#include <utility>
 
 class MoveTracked
 {
@@ -47,11 +48,10 @@ private:
     static int next_id_;
 };
 
-template<typename T>
-MoveTracked make_value(T&& arg)
+template <typename T> MoveTracked make_value(T&& arg)
 {
     EventLog::instance().record("make_value() called with " +
-        std::string(std::is_lvalue_reference<T>::value ? "lvalue" : "rvalue"));
+                                std::string(std::is_lvalue_reference<T>::value ? "lvalue" : "rvalue"));
     return MoveTracked(std::forward<T>(arg));
 }
 

@@ -1,4 +1,5 @@
 #include "instrumentation.h"
+
 #include <sstream>
 
 EventLog& EventLog::instance()
@@ -52,27 +53,21 @@ size_t EventLog::count_events(const std::string& substring) const
 
 int Tracked::next_id_ = 1;
 
-Tracked::Tracked(const std::string& name)
-: name_(name)
-, id_(next_id_++)
+Tracked::Tracked(const std::string& name) : name_(name), id_(next_id_++)
 {
     std::ostringstream oss;
     oss << "Tracked(" << name_ << ")::ctor [id=" << id_ << "]";
     EventLog::instance().record(oss.str());
 }
 
-Tracked::Tracked(const Tracked& other)
-: name_(other.name_)
-, id_(next_id_++)
+Tracked::Tracked(const Tracked& other) : name_(other.name_), id_(next_id_++)
 {
     std::ostringstream oss;
     oss << "Tracked(" << name_ << ")::copy_ctor from [id=" << other.id_ << "] to [id=" << id_ << "]";
     EventLog::instance().record(oss.str());
 }
 
-Tracked::Tracked(Tracked&& other) noexcept
-: name_(std::move(other.name_))
-, id_(other.id_)
+Tracked::Tracked(Tracked&& other) noexcept : name_(std::move(other.name_)), id_(other.id_)
 {
     std::ostringstream oss;
     oss << "Tracked(" << name_ << ")::move_ctor [id=" << id_ << "]";
