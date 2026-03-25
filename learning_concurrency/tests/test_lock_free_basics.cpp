@@ -2,13 +2,13 @@
 // Estimated Time: 6 hours
 // Difficulty: Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
 #include <atomic>
+#include <chrono>
+#include <gtest/gtest.h>
 #include <thread>
 #include <vector>
-#include <chrono>
 
 class LockFreeBasicsTest : public ::testing::Test
 {
@@ -32,8 +32,7 @@ TEST_F(LockFreeBasicsTest, AtomicOperationsBasics)
     std::vector<std::thread> threads;
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&counter, increments_per_thread]()
-        {
+        threads.emplace_back([&counter, increments_per_thread]() {
             for (int j = 0; j < increments_per_thread; ++j)
             {
                 counter.fetch_add(1, std::memory_order_relaxed);
@@ -82,15 +81,16 @@ struct Node
 class SimpleLockFreeStack
 {
 public:
-    SimpleLockFreeStack() : head_(nullptr) {}
+    SimpleLockFreeStack() : head_(nullptr)
+    {
+    }
 
     void push(int value)
     {
         Node* new_node = new Node(value);
         new_node->next = head_.load(std::memory_order_relaxed);
 
-        while (!head_.compare_exchange_weak(new_node->next, new_node,
-                                            std::memory_order_release,
+        while (!head_.compare_exchange_weak(new_node->next, new_node, std::memory_order_release,
                                             std::memory_order_relaxed))
         {
             EventLog::instance().record("push: CAS retry for value=" + std::to_string(value));
@@ -105,8 +105,7 @@ public:
 
         while (old_head != nullptr)
         {
-            if (head_.compare_exchange_weak(old_head, old_head->next,
-                                            std::memory_order_release,
+            if (head_.compare_exchange_weak(old_head, old_head->next, std::memory_order_release,
                                             std::memory_order_acquire))
             {
                 value = old_head->value;
@@ -123,7 +122,9 @@ public:
     ~SimpleLockFreeStack()
     {
         int value;
-        while (pop(value)) {}
+        while (pop(value))
+        {
+        }
     }
 
 private:
@@ -140,8 +141,7 @@ TEST_F(LockFreeBasicsTest, CompareExchangeBasics)
     std::vector<std::thread> threads;
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&stack, i, items_per_thread]()
-        {
+        threads.emplace_back([&stack, i, items_per_thread]() {
             for (int j = 0; j < items_per_thread; ++j)
             {
                 stack.push(i * 100 + j);
@@ -191,7 +191,9 @@ void producer_thread()
 
 void consumer_thread()
 {
-    while (!ready.load(std::memory_order_acquire)) {}
+    while (!ready.load(std::memory_order_acquire))
+    {
+    }
     int value = data.load(std::memory_order_relaxed);
     EventLog::instance().record("Consumer: read data=" + std::to_string(value));
     EXPECT_EQ(value, 42);
@@ -235,7 +237,9 @@ TEST_F(LockFreeBasicsTest, AcquireReleaseSemantics)
 class SafeLockFreeStack
 {
 public:
-    SafeLockFreeStack() : head_(nullptr) {}
+    SafeLockFreeStack() : head_(nullptr)
+    {
+    }
 
     void push(int value)
     {
@@ -267,8 +271,7 @@ TEST_F(LockFreeBasicsTest, DISABLED_SafeLockFreeStackMemoryReclamation)
     std::vector<std::thread> pushers;
     for (int i = 0; i < num_threads; ++i)
     {
-        pushers.emplace_back([&stack, i, items_per_thread]()
-        {
+        pushers.emplace_back([&stack, i, items_per_thread]() {
             for (int j = 0; j < items_per_thread; ++j)
             {
                 stack.push(i * 1000 + j);
@@ -279,12 +282,13 @@ TEST_F(LockFreeBasicsTest, DISABLED_SafeLockFreeStackMemoryReclamation)
     std::vector<std::thread> poppers;
     for (int i = 0; i < num_threads; ++i)
     {
-        poppers.emplace_back([&stack, items_per_thread]()
-        {
+        poppers.emplace_back([&stack, items_per_thread]() {
             int value;
             for (int j = 0; j < items_per_thread; ++j)
             {
-                while (!stack.pop(value)) {}
+                while (!stack.pop(value))
+                {
+                }
             }
         });
     }
@@ -340,8 +344,7 @@ TEST_F(LockFreeBasicsTest, SpinlockBasics)
     std::vector<std::thread> threads;
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&spinlock, &shared_value, increments_per_thread]()
-        {
+        threads.emplace_back([&spinlock, &shared_value, increments_per_thread]() {
             for (int j = 0; j < increments_per_thread; ++j)
             {
                 spinlock.lock();
@@ -391,14 +394,12 @@ TEST_F(LockFreeBasicsTest, SequentialConsistencyVsRelaxed)
         r1.store(0, std::memory_order_relaxed);
         r2.store(0, std::memory_order_relaxed);
 
-        std::thread t1([&]()
-        {
+        std::thread t1([&]() {
             x.store(1, std::memory_order_relaxed);
             r1.store(y.load(std::memory_order_relaxed), std::memory_order_relaxed);
         });
 
-        std::thread t2([&]()
-        {
+        std::thread t2([&]() {
             y.store(1, std::memory_order_relaxed);
             r2.store(x.load(std::memory_order_relaxed), std::memory_order_relaxed);
         });

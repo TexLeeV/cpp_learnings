@@ -2,13 +2,13 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <cstring>
+#include <gtest/gtest.h>
+#include <string>
 #include <type_traits>
 #include <vector>
-#include <string>
-#include <cstring>
 
 class TypeTraitsTest : public ::testing::Test
 {
@@ -80,15 +80,16 @@ TEST_F(TypeTraitsTest, TypeTransformations)
 // TEST 3: Custom Type Traits - Moderate
 // ============================================================================
 
-template<typename T, typename = void>
-struct is_container : std::false_type {};
+template <typename T, typename = void> struct is_container : std::false_type
+{
+};
 
-template<typename T>
-struct is_container<T, std::void_t<
-    decltype(std::declval<T>().begin()),
-    decltype(std::declval<T>().end()),
-    typename T::value_type
->> : std::true_type {};
+template <typename T>
+struct is_container<
+    T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end()), typename T::value_type>>
+    : std::true_type
+{
+};
 
 TEST_F(TypeTraitsTest, CustomTypeTraits)
 {
@@ -115,17 +116,15 @@ TEST_F(TypeTraitsTest, CustomTypeTraits)
 // TEST 4: Type Traits for Function Selection - Moderate
 // ============================================================================
 
-template<typename T>
-std::enable_if_t<std::is_trivially_copyable_v<T>, void>
-copy_data(T* dest, const T* src, size_t count)
+template <typename T>
+std::enable_if_t<std::is_trivially_copyable_v<T>, void> copy_data(T* dest, const T* src, size_t count)
 {
     EventLog::instance().record("copy_data: memcpy");
     std::memcpy(dest, src, count * sizeof(T));
 }
 
-template<typename T>
-std::enable_if_t<!std::is_trivially_copyable_v<T>, void>
-copy_data(T* dest, const T* src, size_t count)
+template <typename T>
+std::enable_if_t<!std::is_trivially_copyable_v<T>, void> copy_data(T* dest, const T* src, size_t count)
 {
     EventLog::instance().record("copy_data: element-wise");
     for (size_t i = 0; i < count; ++i)
@@ -183,14 +182,12 @@ TEST_F(TypeTraitsTest, DISABLED_IsCallableTrait)
 // TEST 6: Compile-Time Type Selection - Moderate
 // ============================================================================
 
-template<bool Condition, typename T, typename F>
-struct conditional_type
+template <bool Condition, typename T, typename F> struct conditional_type
 {
     using type = T;
 };
 
-template<typename T, typename F>
-struct conditional_type<false, T, F>
+template <typename T, typename F> struct conditional_type<false, T, F>
 {
     using type = F;
 };
@@ -218,14 +215,15 @@ TEST_F(TypeTraitsTest, CompileTimeTypeSelection)
 // TEST 7: Type Traits Composition - Hard
 // ============================================================================
 
-template<typename T>
-struct is_const_pointer : std::false_type {};
+template <typename T> struct is_const_pointer : std::false_type
+{
+};
 
-template<typename T>
-struct is_const_pointer<const T*> : std::true_type {};
+template <typename T> struct is_const_pointer<const T*> : std::true_type
+{
+};
 
-template<typename T>
-constexpr bool is_const_pointer_v = is_const_pointer<T>::value;
+template <typename T> constexpr bool is_const_pointer_v = is_const_pointer<T>::value;
 
 TEST_F(TypeTraitsTest, TypeTraitsComposition)
 {

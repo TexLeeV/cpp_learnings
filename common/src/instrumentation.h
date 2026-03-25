@@ -1,11 +1,11 @@
 #ifndef INSTRUMENTATION_H
 #define INSTRUMENTATION_H
 
-#include <string>
-#include <vector>
-#include <sstream>
 #include <memory>
 #include <mutex>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class EventLog
 {
@@ -43,12 +43,10 @@ private:
     static int next_id_;
 };
 
-template<typename T>
-class LoggingDeleter
+template <typename T> class LoggingDeleter
 {
 public:
-    explicit LoggingDeleter(const std::string& deleter_name = "LoggingDeleter")
-    : deleter_name_(deleter_name)
+    explicit LoggingDeleter(const std::string& deleter_name = "LoggingDeleter") : deleter_name_(deleter_name)
     {
     }
 
@@ -64,12 +62,10 @@ private:
     std::string deleter_name_;
 };
 
-template<typename T>
-class LoggingArrayDeleter
+template <typename T> class LoggingArrayDeleter
 {
 public:
-    explicit LoggingArrayDeleter(const std::string& deleter_name = "LoggingArrayDeleter")
-    : deleter_name_(deleter_name)
+    explicit LoggingArrayDeleter(const std::string& deleter_name = "LoggingArrayDeleter") : deleter_name_(deleter_name)
     {
     }
 

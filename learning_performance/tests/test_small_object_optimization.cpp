@@ -2,13 +2,13 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <cstring>
+#include <functional>
+#include <gtest/gtest.h>
 #include <string>
 #include <vector>
-#include <functional>
-#include <cstring>
 
 class SmallObjectOptimizationTest : public ::testing::Test
 {
@@ -34,10 +34,8 @@ TEST_F(SmallObjectOptimizationTest, StringSSO)
     const void* small_obj_addr = &small;
     const void* large_obj_addr = &large;
 
-    ptrdiff_t small_offset = reinterpret_cast<const char*>(small_ptr) -
-                              reinterpret_cast<const char*>(small_obj_addr);
-    ptrdiff_t large_offset = reinterpret_cast<const char*>(large_ptr) -
-                              reinterpret_cast<const char*>(large_obj_addr);
+    ptrdiff_t small_offset = reinterpret_cast<const char*>(small_ptr) - reinterpret_cast<const char*>(small_obj_addr);
+    ptrdiff_t large_offset = reinterpret_cast<const char*>(large_ptr) - reinterpret_cast<const char*>(large_obj_addr);
 
     EventLog::instance().record("Small string offset: " + std::to_string(small_offset));
     EventLog::instance().record("Large string offset: " + std::to_string(large_offset));
@@ -75,8 +73,7 @@ TEST_F(SmallObjectOptimizationTest, SSOPerformanceImpact)
         (void)c;
     }
     auto end_small = std::chrono::high_resolution_clock::now();
-    auto small_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_small - start_small).count();
+    auto small_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_small - start_small).count();
 
     auto start_large = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iterations; ++i)
@@ -86,8 +83,7 @@ TEST_F(SmallObjectOptimizationTest, SSOPerformanceImpact)
         (void)c;
     }
     auto end_large = std::chrono::high_resolution_clock::now();
-    auto large_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_large - start_large).count();
+    auto large_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_large - start_large).count();
 
     EventLog::instance().record("Small string creation: " + std::to_string(small_duration) + " us");
     EventLog::instance().record("Large string creation: " + std::to_string(large_duration) + " us");
@@ -133,12 +129,10 @@ TEST_F(SmallObjectOptimizationTest, FunctionSSO)
 // TEST 4: Implementing Custom SSO Container - Hard
 // ============================================================================
 
-template<typename T, size_t BufferSize = 16>
-class SmallVector
+template <typename T, size_t BufferSize = 16> class SmallVector
 {
 public:
-    SmallVector()
-    : size_(0), capacity_(BufferSize), heap_data_(nullptr)
+    SmallVector() : size_(0), capacity_(BufferSize), heap_data_(nullptr)
     {
         EventLog::instance().record("SmallVector::ctor");
     }
@@ -173,8 +167,14 @@ public:
         }
     }
 
-    size_t size() const { return size_; }
-    bool uses_heap() const { return heap_data_ != nullptr; }
+    size_t size() const
+    {
+        return size_;
+    }
+    bool uses_heap() const
+    {
+        return heap_data_ != nullptr;
+    }
 
 private:
     void grow()

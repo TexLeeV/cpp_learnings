@@ -2,14 +2,14 @@
 // Estimated Time: 4 hours
 // Difficulty: Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <type_traits>
-#include <tuple>
-#include <string>
-#include <vector>
+
 #include <functional>
+#include <gtest/gtest.h>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <vector>
 
 class PracticalMetaprogrammingTest : public ::testing::Test
 {
@@ -24,20 +24,17 @@ protected:
 // TEST 1: Compile-Time Fibonacci - Moderate
 // ============================================================================
 
-template<int N>
-struct Fibonacci
+template <int N> struct Fibonacci
 {
     static constexpr int value = Fibonacci<N - 1>::value + Fibonacci<N - 2>::value;
 };
 
-template<>
-struct Fibonacci<0>
+template <> struct Fibonacci<0>
 {
     static constexpr int value = 0;
 };
 
-template<>
-struct Fibonacci<1>
+template <> struct Fibonacci<1>
 {
     static constexpr int value = 1;
 };
@@ -68,26 +65,21 @@ TEST_F(PracticalMetaprogrammingTest, CompileTimeFibonacci)
 // TEST 2: Type List Manipulation - Hard
 // ============================================================================
 
-template<typename... Types>
-struct TypeList
+template <typename... Types> struct TypeList
 {
     static constexpr size_t size = sizeof...(Types);
 };
 
-template<typename List>
-struct TypeListSize;
+template <typename List> struct TypeListSize;
 
-template<typename... Types>
-struct TypeListSize<TypeList<Types...>>
+template <typename... Types> struct TypeListSize<TypeList<Types...>>
 {
     static constexpr size_t value = sizeof...(Types);
 };
 
-template<typename T, typename List>
-struct PushFront;
+template <typename T, typename List> struct PushFront;
 
-template<typename T, typename... Types>
-struct PushFront<T, TypeList<Types...>>
+template <typename T, typename... Types> struct PushFront<T, TypeList<Types...>>
 {
     using type = TypeList<T, Types...>;
 };
@@ -115,7 +107,7 @@ TEST_F(PracticalMetaprogrammingTest, TypeListManipulation)
 // TEST 3: Tuple Utilities with Metaprogramming - Hard
 // ============================================================================
 
-template<typename Tuple, size_t... Is>
+template <typename Tuple, size_t... Is>
 auto tuple_to_string_impl(const Tuple& t, std::index_sequence<Is...>) -> std::string
 {
     std::string result;
@@ -123,8 +115,7 @@ auto tuple_to_string_impl(const Tuple& t, std::index_sequence<Is...>) -> std::st
     return result;
 }
 
-template<typename... Args>
-auto tuple_to_string(const std::tuple<Args...>& t) -> std::string
+template <typename... Args> auto tuple_to_string(const std::tuple<Args...>& t) -> std::string
 {
     return tuple_to_string_impl(t, std::index_sequence_for<Args...>{});
 }
@@ -154,36 +145,35 @@ TEST_F(PracticalMetaprogrammingTest, TupleUtilitiesWithMetaprogramming)
 // TEST 4: Tag Dispatching - Moderate
 // ============================================================================
 
-template<typename T>
-void advance_impl(T& iter, int n, std::random_access_iterator_tag)
+template <typename T> void advance_impl(T& iter, int n, std::random_access_iterator_tag)
 {
     EventLog::instance().record("advance: random_access");
     iter += n;
 }
 
-template<typename T>
-void advance_impl(T& iter, int n, std::bidirectional_iterator_tag)
+template <typename T> void advance_impl(T& iter, int n, std::bidirectional_iterator_tag)
 {
     EventLog::instance().record("advance: bidirectional");
     if (n >= 0)
     {
-        for (int i = 0; i < n; ++i) ++iter;
+        for (int i = 0; i < n; ++i)
+            ++iter;
     }
     else
     {
-        for (int i = 0; i > n; --i) --iter;
+        for (int i = 0; i > n; --i)
+            --iter;
     }
 }
 
-template<typename T>
-void advance_impl(T& iter, int n, std::forward_iterator_tag)
+template <typename T> void advance_impl(T& iter, int n, std::forward_iterator_tag)
 {
     EventLog::instance().record("advance: forward");
-    for (int i = 0; i < n; ++i) ++iter;
+    for (int i = 0; i < n; ++i)
+        ++iter;
 }
 
-template<typename T>
-void advance_custom(T& iter, int n)
+template <typename T> void advance_custom(T& iter, int n)
 {
     advance_impl(iter, n, typename std::iterator_traits<T>::iterator_category{});
 }
@@ -233,8 +223,7 @@ TEST_F(PracticalMetaprogrammingTest, DISABLED_CompileTimeStringHashing)
 // TEST 6: Perfect Forwarding with Variadic Templates - Hard
 // ============================================================================
 
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique_custom(Args&&... args)
+template <typename T, typename... Args> std::unique_ptr<T> make_unique_custom(Args&&... args)
 {
     EventLog::instance().record("make_unique_custom: " + std::to_string(sizeof...(Args)) + " args");
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
@@ -283,8 +272,7 @@ TEST_F(PracticalMetaprogrammingTest, PerfectForwardingWithVariadicTemplates)
 // TEST 7: Compile-Time Conditional Execution - Moderate
 // ============================================================================
 
-template<typename T>
-void process_type()
+template <typename T> void process_type()
 {
     if constexpr (std::is_integral_v<T>)
     {
@@ -330,8 +318,7 @@ TEST_F(PracticalMetaprogrammingTest, CompileTimeConditionalExecution)
 // TEST 8: Type-Based Function Dispatch - Hard
 // ============================================================================
 
-template<typename T>
-void serialize(const T& value, std::string& output)
+template <typename T> void serialize(const T& value, std::string& output)
 {
     if constexpr (std::is_arithmetic_v<T>)
     {
@@ -349,7 +336,8 @@ void serialize(const T& value, std::string& output)
         output += "[";
         for (size_t i = 0; i < value.size(); ++i)
         {
-            if (i > 0) output += ",";
+            if (i > 0)
+                output += ",";
             output += std::to_string(value[i]);
         }
         output += "]";

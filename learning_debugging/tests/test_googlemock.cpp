@@ -2,18 +2,18 @@
 // Estimated Time: 4 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include "instrumentation.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <vector>
 
-using ::testing::Return;
 using ::testing::_;
 using ::testing::AtLeast;
 using ::testing::Invoke;
+using ::testing::Return;
 using ::testing::SaveArg;
 
 class GoogleMockTest : public ::testing::Test
@@ -49,8 +49,7 @@ public:
 class UserService
 {
 public:
-    explicit UserService(std::shared_ptr<Database> db)
-    : db_(std::move(db))
+    explicit UserService(std::shared_ptr<Database> db) : db_(std::move(db))
     {
         EventLog::instance().record("UserService::ctor");
     }
@@ -74,11 +73,9 @@ TEST_F(GoogleMockTest, BasicMockExpectations)
 {
     auto mock_db = std::make_shared<MockDatabase>();
 
-    EXPECT_CALL(*mock_db, connect(_))
-        .WillOnce(Return(true));
+    EXPECT_CALL(*mock_db, connect(_)).WillOnce(Return(true));
 
-    EXPECT_CALL(*mock_db, query(_))
-        .WillOnce(Return(42));
+    EXPECT_CALL(*mock_db, query(_)).WillOnce(Return(42));
 
     UserService service(mock_db);
 
@@ -121,8 +118,7 @@ public:
 class NotificationManager
 {
 public:
-    explicit NotificationManager(std::shared_ptr<EmailService> email)
-    : email_(std::move(email))
+    explicit NotificationManager(std::shared_ptr<EmailService> email) : email_(std::move(email))
     {
     }
 
@@ -140,9 +136,8 @@ TEST_F(GoogleMockTest, ArgumentMatchers)
 {
     auto mock_email = std::make_shared<MockEmailService>();
 
-    EXPECT_CALL(*mock_email, send(::testing::StartsWith("user@"),
-                                   ::testing::Eq("Notification"),
-                                   ::testing::HasSubstr("alert")))
+    EXPECT_CALL(*mock_email,
+                send(::testing::StartsWith("user@"), ::testing::Eq("Notification"), ::testing::HasSubstr("alert")))
         .WillOnce(Return(true));
 
     NotificationManager manager(mock_email);
@@ -185,8 +180,7 @@ public:
 class FileReader
 {
 public:
-    explicit FileReader(std::shared_ptr<FileSystem> fs)
-    : fs_(std::move(fs))
+    explicit FileReader(std::shared_ptr<FileSystem> fs) : fs_(std::move(fs))
     {
     }
 
@@ -216,18 +210,14 @@ TEST_F(GoogleMockTest, MockCallSequences)
     {
         ::testing::InSequence seq;
 
-        EXPECT_CALL(*mock_fs, open("test.txt"))
-            .WillOnce(Return(true));
+        EXPECT_CALL(*mock_fs, open("test.txt")).WillOnce(Return(true));
 
         EXPECT_CALL(*mock_fs, read(_, 100))
-            .WillOnce(::testing::DoAll(
-                ::testing::Invoke([](char* buf, int size)
-                {
-                    std::string data = "hello";
-                    std::copy(data.begin(), data.end(), buf);
-                }),
-                Return(5)
-            ));
+            .WillOnce(::testing::DoAll(::testing::Invoke([](char* buf, int size) {
+                                           std::string data = "hello";
+                                           std::copy(data.begin(), data.end(), buf);
+                                       }),
+                                       Return(5)));
 
         EXPECT_CALL(*mock_fs, close());
     }
@@ -274,8 +264,7 @@ TEST_F(GoogleMockTest, MockSideEffects)
     auto mock_queue = std::make_shared<MockMessageQueue>();
     std::string captured_message;
 
-    EXPECT_CALL(*mock_queue, publish("events", _))
-        .WillOnce(::testing::SaveArg<1>(&captured_message));
+    EXPECT_CALL(*mock_queue, publish("events", _)).WillOnce(::testing::SaveArg<1>(&captured_message));
 
     mock_queue->publish("events", "test message");
 
@@ -366,8 +355,7 @@ public:
 class Application
 {
 public:
-    explicit Application(std::shared_ptr<Logger> logger)
-    : logger_(std::move(logger))
+    explicit Application(std::shared_ptr<Logger> logger) : logger_(std::move(logger))
     {
     }
 
@@ -384,8 +372,7 @@ TEST_F(GoogleMockTest, MockOwnershipLifetime)
 {
     auto mock_logger = std::make_shared<MockLogger>();
 
-    EXPECT_CALL(*mock_logger, log(_))
-        .Times(AtLeast(1));
+    EXPECT_CALL(*mock_logger, log(_)).Times(AtLeast(1));
 
     {
         Application app(mock_logger);

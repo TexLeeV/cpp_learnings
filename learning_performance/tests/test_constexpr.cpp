@@ -2,11 +2,11 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
 #include <array>
 #include <cmath>
+#include <gtest/gtest.h>
 
 class ConstexprTest : public ::testing::Test
 {
@@ -97,13 +97,18 @@ TEST_F(ConstexprTest, ConstexprVsConst)
 class Point
 {
 public:
-    constexpr Point(int x, int y)
-    : x_(x), y_(y)
+    constexpr Point(int x, int y) : x_(x), y_(y)
     {
     }
 
-    constexpr int x() const { return x_; }
-    constexpr int y() const { return y_; }
+    constexpr int x() const
+    {
+        return x_;
+    }
+    constexpr int y() const
+    {
+        return y_;
+    }
 
     constexpr int distance_squared() const
     {
@@ -142,8 +147,7 @@ TEST_F(ConstexprTest, ConstexprConstructorsAndObjects)
 // TEST 4: constexpr if in C++17 - Moderate
 // ============================================================================
 
-template<typename T>
-constexpr T absolute_value(T value)
+template <typename T> constexpr T absolute_value(T value)
 {
     if constexpr (std::is_unsigned_v<T>)
     {

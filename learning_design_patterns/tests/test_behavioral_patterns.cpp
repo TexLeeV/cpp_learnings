@@ -2,14 +2,14 @@
 // Estimated Time: 7 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
+
+#include <algorithm>
+#include <functional>
+#include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <functional>
 
 class BehavioralPatternsTest : public ::testing::Test
 {
@@ -58,11 +58,9 @@ public:
 
     void notify(const std::string& message)
     {
-        observers_.erase(
-            std::remove_if(observers_.begin(), observers_.end(),
-                [](const std::weak_ptr<Observer>& wp) { return wp.expired(); }),
-            observers_.end()
-        );
+        observers_.erase(std::remove_if(observers_.begin(), observers_.end(),
+                                        [](const std::weak_ptr<Observer>& wp) { return wp.expired(); }),
+                         observers_.end());
 
         for (auto& weak_obs : observers_)
         {
@@ -138,8 +136,7 @@ TEST_F(BehavioralPatternsTest, StrategyPattern)
     Context context;
     std::vector<int> data = {3, 1, 4, 1, 5};
 
-    context.set_strategy([](std::vector<int>& d)
-    {
+    context.set_strategy([](std::vector<int>& d) {
         std::sort(d.begin(), d.end());
         EventLog::instance().record("Strategy: sort ascending");
     });
@@ -171,7 +168,9 @@ public:
 class Receiver
 {
 public:
-    Receiver() : value_(0) {}
+    Receiver() : value_(0)
+    {
+    }
 
     void add(int amount)
     {
@@ -185,7 +184,10 @@ public:
         EventLog::instance().record("Receiver::subtract(" + std::to_string(amount) + ")");
     }
 
-    int value() const { return value_; }
+    int value() const
+    {
+        return value_;
+    }
 
 private:
     int value_;
@@ -194,14 +196,18 @@ private:
 class AddCommand : public Command
 {
 public:
-    AddCommand(Receiver& receiver, int amount)
-    : receiver_(receiver)
-    , amount_(amount)
+    AddCommand(Receiver& receiver, int amount) : receiver_(receiver), amount_(amount)
     {
     }
 
-    void execute() override { receiver_.add(amount_); }
-    void undo() override { receiver_.subtract(amount_); }
+    void execute() override
+    {
+        receiver_.add(amount_);
+    }
+    void undo() override
+    {
+        receiver_.subtract(amount_);
+    }
 
 private:
     Receiver& receiver_;
@@ -407,7 +413,9 @@ public:
 class Connection
 {
 public:
-    Connection() : state_(std::make_unique<ClosedState>()) {}
+    Connection() : state_(std::make_unique<ClosedState>())
+    {
+    }
 
     void connect()
     {

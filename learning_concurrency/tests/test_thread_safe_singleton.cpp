@@ -2,14 +2,14 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <thread>
-#include <mutex>
-#include <vector>
+
 #include <atomic>
 #include <chrono>
+#include <gtest/gtest.h>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 class ThreadSafeSingletonTest : public ::testing::Test
 {
@@ -61,10 +61,11 @@ TEST_F(ThreadSafeSingletonTest, MeyersSingletonThreadSafe)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&ready_count]()
-        {
+        threads.emplace_back([&ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_threads) {}
+            while (ready_count.load() < num_threads)
+            {
+            }
             MeyersSingleton::instance().do_work();
         });
     }
@@ -148,10 +149,7 @@ TEST_F(ThreadSafeSingletonTest, BrokenDoubleCheckedLocking)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([]()
-        {
-            BrokenDoubleCheckedSingleton::instance()->do_work();
-        });
+        threads.emplace_back([]() { BrokenDoubleCheckedSingleton::instance()->do_work(); });
     }
 
     for (auto& t : threads)
@@ -220,10 +218,11 @@ TEST_F(ThreadSafeSingletonTest, CorrectDoubleCheckedLocking)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&ready_count]()
-        {
+        threads.emplace_back([&ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_threads) {}
+            while (ready_count.load() < num_threads)
+            {
+            }
             CorrectDoubleCheckedSingleton::instance()->do_work();
         });
     }
@@ -256,10 +255,7 @@ public:
     static CallOnceSingleton& instance()
     {
         static CallOnceSingleton inst;
-        std::call_once(init_flag_, []()
-        {
-            EventLog::instance().record("CallOnceSingleton::init via call_once");
-        });
+        std::call_once(init_flag_, []() { EventLog::instance().record("CallOnceSingleton::init via call_once"); });
         return inst;
     }
 
@@ -302,10 +298,11 @@ TEST_F(ThreadSafeSingletonTest, CallOnceSingleton)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&ready_count]()
-        {
+        threads.emplace_back([&ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_threads) {}
+            while (ready_count.load() < num_threads)
+            {
+            }
             CallOnceSingleton::instance().do_work();
         });
     }
@@ -374,10 +371,11 @@ TEST_F(ThreadSafeSingletonTest, LazyInitializationRace)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&ready_count]()
-        {
+        threads.emplace_back([&ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_threads) {}
+            while (ready_count.load() < num_threads)
+            {
+            }
             LazyInitRace::instance()->do_work();
         });
     }
@@ -450,10 +448,11 @@ TEST_F(ThreadSafeSingletonTest, DISABLED_AtomicSingletonCorrectness)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&ready_count]()
-        {
+        threads.emplace_back([&ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_threads) {}
+            while (ready_count.load() < num_threads)
+            {
+            }
             AtomicSingleton::instance()->do_work();
         });
     }

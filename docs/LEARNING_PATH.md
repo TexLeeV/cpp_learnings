@@ -11,7 +11,7 @@ These exercises assume you can **read and write C++ at a working-engineer level*
 - **New to advanced topics but solid on basics:** Use Cursor with `"profile: junior"` for gentler explanations and proactive hints; you still work the same tests.
 - **Absolute beginners:** Use an introductory C++ resource first, then return here for ownership, concurrency, and related depth.
 
-The project **compiles as C++20**; individual lessons may still name the standard that introduced a feature (C++11, C++14, C++17).
+The project **requires C++20**. Lesson comments may still name the ISO C++ revision that introduced a feature, without changing the build standard.
 
 ---
 
@@ -21,9 +21,9 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 
 | Module | Registered tests | Notes |
 |--------|-------------------|--------|
-| [learning_shared_ptr](../learning_shared_ptr/) | 16 | 18 `.cpp` files under `tests/`; `test_multi_threaded_patterns.cpp` and `test_asio_basics.cpp` are not registered yet (optional Asio). |
+| [learning_shared_ptr](../learning_shared_ptr/) | 16 | 16 `.cpp` files under `tests/` (all registered). |
 | [learning_memory](../learning_memory/) | 4 | Placement new, allocators, pools, alignment. |
-| [learning_modern_cpp](../learning_modern_cpp/) | 8 | C++11/14/17 *language features*; build is still C++20. |
+| [learning_modern_cpp](../learning_modern_cpp/) | 8 | Modern C++ evolution (by lesson); **C++20** required. |
 | [learning_raii](../learning_raii/) | 4 | Scope guards, handles, custom managers, pointers from scratch. |
 | [learning_move_semantics](../learning_move_semantics/) | 5 | Value categories, move, forward, move-only types. |
 | [learning_error_handling](../learning_error_handling/) | 5 | Exceptions, optional/result, noexcept, etc. |
@@ -33,7 +33,7 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 | [learning_templates](../learning_templates/) | 6 | Specialization, SFINAE, variadics, traits, etc. |
 | [learning_performance](../learning_performance/) | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks. |
 | [learning_debugging](../learning_debugging/) | 3 | GoogleMock, debugging techniques, benchmark exercise. |
-| [learning_deadlocks](../learning_deadlocks/) | **0** | Four test sources exist (16 scenarios); **`add_learning_test` lines are commented out** in `CMakeLists.txt` — not part of default `ctest` until enabled. |
+| [learning_deadlocks](../learning_deadlocks/) | 4 | Four deadlock suites are part of default `ctest`; several scenario cases are intentionally disabled while remaining fixes are in progress. |
 | [examples](../examples/) | 1 | `test_try_it_out` — good first run after build. |
 | [profile_showcase](../profile_showcase/) | 1 | Demonstrates move instrumentation. |
 
@@ -45,13 +45,13 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 
 Dependencies are soft; adjust for your goals.
 
-1. **Orientation** — Build the project, run `./build/gcc/examples/test_try_it_out` (or your preset output directory).
+1. **Orientation** — Build the project, run `./build/<preset>/examples/test_try_it_out` (for example `./build/gcc/examples/test_try_it_out` after `cmake --preset gcc`).
 2. **Ownership baseline** — `learning_shared_ptr` (then `learning_raii` / `learning_memory` as needed).
 3. **Move semantics** — `learning_move_semantics` (pairs well after shared_ptr).
 4. **Modern syntax and STL** — `learning_modern_cpp`, `learning_stl`.
 5. **Error handling and templates** — `learning_error_handling`, `learning_templates` (order flexible).
 6. **Concurrency** — `learning_concurrency` after you are comfortable with mutex/RAII basics.
-7. **Deadlocks (optional lab)** — Uncomment targets in `learning_deadlocks/CMakeLists.txt` when you are ready; complete scenarios one file at a time.
+7. **Deadlocks (advanced lab)** — Work through `learning_deadlocks` scenarios one file at a time; some cases are intentionally disabled until remaining fixes are completed.
 8. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
 
 ---

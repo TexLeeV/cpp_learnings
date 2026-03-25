@@ -94,10 +94,8 @@ TEST_F(SmartPointerContrastTest, RawPointerDangerVsSmartPointer)
 TEST_F(SmartPointerContrastTest, CustomDeleterComparison)
 {
     {
-        std::unique_ptr<Tracked, LoggingDeleter<Tracked>> u(
-            new Tracked("UniqueWithDeleter"),
-            LoggingDeleter<Tracked>("UniqueDeleter")
-        );
+        std::unique_ptr<Tracked, LoggingDeleter<Tracked>> u(new Tracked("UniqueWithDeleter"),
+                                                            LoggingDeleter<Tracked>("UniqueDeleter"));
     }
 
     auto unique_events = EventLog::instance().events();
@@ -105,10 +103,7 @@ TEST_F(SmartPointerContrastTest, CustomDeleterComparison)
     EventLog::instance().clear();
 
     {
-        std::shared_ptr<Tracked> s(
-            new Tracked("SharedWithDeleter"),
-            LoggingDeleter<Tracked>("SharedDeleter")
-        );
+        std::shared_ptr<Tracked> s(new Tracked("SharedWithDeleter"), LoggingDeleter<Tracked>("SharedDeleter"));
     }
 
     auto shared_events = EventLog::instance().events();

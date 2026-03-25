@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 
 1. Navigate to module: `learning_*/`
 2. Build target: `cmake --build --preset gcc --target <target_name>`
-3. Run test: `./build/gcc/<module>/<test_name>`
+3. Run test: `./build/<preset>/<module>/<test_name>` (e.g. `./build/gcc/learning_shared_ptr/test_reference_counting`)
 4. Observe the error at step...
 
 ## Expected Behavior

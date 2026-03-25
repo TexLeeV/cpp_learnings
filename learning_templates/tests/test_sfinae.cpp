@@ -2,12 +2,12 @@
 // Estimated Time: 4 hours
 // Difficulty: Hard
 
+#include "instrumentation.h"
 
 #include <gtest/gtest.h>
-#include "instrumentation.h"
+#include <string>
 #include <type_traits>
 #include <vector>
-#include <string>
 
 class SFINAETest : public ::testing::Test
 {
@@ -22,17 +22,13 @@ protected:
 // TEST 1: Basic SFINAE with enable_if - Moderate
 // ============================================================================
 
-template<typename T>
-typename std::enable_if<std::is_integral<T>::value, T>::type
-process(T value)
+template <typename T> typename std::enable_if<std::is_integral<T>::value, T>::type process(T value)
 {
     EventLog::instance().record("process: integral");
     return value * 2;
 }
 
-template<typename T>
-typename std::enable_if<std::is_floating_point<T>::value, T>::type
-process(T value)
+template <typename T> typename std::enable_if<std::is_floating_point<T>::value, T>::type process(T value)
 {
     EventLog::instance().record("process: floating_point");
     return value * 3.0;
@@ -64,14 +60,12 @@ TEST_F(SFINAETest, BasicSFINAEWithEnableIf)
 // TEST 2: SFINAE with enable_if_t (C++14) - Moderate
 // ============================================================================
 
-template<typename T, std::enable_if_t<std::is_pointer<T>::value, int> = 0>
-void handle(T value)
+template <typename T, std::enable_if_t<std::is_pointer<T>::value, int> = 0> void handle(T value)
 {
     EventLog::instance().record("handle: pointer");
 }
 
-template<typename T, std::enable_if_t<!std::is_pointer<T>::value, int> = 0>
-void handle(T value)
+template <typename T, std::enable_if_t<!std::is_pointer<T>::value, int> = 0> void handle(T value)
 {
     EventLog::instance().record("handle: non-pointer");
 }
@@ -102,16 +96,21 @@ TEST_F(SFINAETest, SFINAEWithEnableIfT)
 // TEST 3: SFINAE for Member Detection - Hard
 // ============================================================================
 
-template<typename T, typename = void>
-struct has_size : std::false_type {};
+template <typename T, typename = void> struct has_size : std::false_type
+{
+};
 
-template<typename T>
-struct has_size<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {};
+template <typename T> struct has_size<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type
+{
+};
 
 class WithSize
 {
 public:
-    size_t size() const { return 42; }
+    size_t size() const
+    {
+        return 42;
+    }
 };
 
 class WithoutSize
@@ -146,15 +145,13 @@ TEST_F(SFINAETest, SFINAEForMemberDetection)
 // TEST 4: SFINAE with Return Type Deduction - Hard
 // ============================================================================
 
-template<typename T>
-auto get_size(T& container) -> decltype(container.size())
+template <typename T> auto get_size(T& container) -> decltype(container.size())
 {
     EventLog::instance().record("get_size: has_size");
     return container.size();
 }
 
-template<typename T, size_t N>
-auto get_size(T (&arr)[N]) -> size_t
+template <typename T, size_t N> auto get_size(T (&arr)[N]) -> size_t
 {
     EventLog::instance().record("get_size: array");
     return N;
@@ -208,22 +205,21 @@ TEST_F(SFINAETest, DISABLED_SFINAEForIteratorDetection)
 // TEST 6: SFINAE vs if constexpr - Moderate
 // ============================================================================
 
-template<typename T>
+template <typename T>
 void print_size_sfinae(const T& container,
                        typename std::enable_if<std::is_same<T, std::vector<int>>::value>::type* = nullptr)
 {
     EventLog::instance().record("print_size: SFINAE vector");
 }
 
-template<typename T>
+template <typename T>
 void print_size_sfinae(const T& container,
                        typename std::enable_if<std::is_same<T, std::string>::value>::type* = nullptr)
 {
     EventLog::instance().record("print_size: SFINAE string");
 }
 
-template<typename T>
-void print_size_if_constexpr(const T& container)
+template <typename T> void print_size_if_constexpr(const T& container)
 {
     if constexpr (std::is_same_v<T, std::vector<int>>)
     {
@@ -266,8 +262,7 @@ TEST_F(SFINAETest, SFINAEVsIfConstexpr)
 // TEST 7: SFINAE with Expression SFINAE - Hard
 // ============================================================================
 
-template<typename T>
-auto add_if_possible(T a, T b) -> decltype(a + b)
+template <typename T> auto add_if_possible(T a, T b) -> decltype(a + b)
 {
     EventLog::instance().record("add_if_possible: success");
     return a + b;

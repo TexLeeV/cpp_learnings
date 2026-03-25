@@ -1,7 +1,8 @@
 #include "instrumentation.h"
+
+#include <cstdio>
 #include <gtest/gtest.h>
 #include <memory>
-#include <cstdio>
 class AllocationPatternsTest : public ::testing::Test
 {
 protected:
@@ -15,41 +16,43 @@ TEST_F(AllocationPatternsTest, MakeSharedVsNew)
     long new_count = 0;
     long make_shared_count = 0;
     // Q: When you create a shared_ptr using `new`, how many heap allocations occur?
-// A:
-// R:
+    // A:
+    // R:
     std::shared_ptr<Tracked> p1(new Tracked("New"));
     new_count = p1.use_count();
     // Q: When you create a shared_ptr using `make_shared`, how many heap allocations occur?
-// A:
-// R:
+    // A:
+    // R:
     std::shared_ptr<Tracked> p2 = std::make_shared<Tracked>("MakeShared");
     make_shared_count = p2.use_count();
-    // Q: Both use_count values are 1. What does this tell you about the relationship between allocation strategy and reference counting?
-// A:
-// A:
-// R:
-// R:
-// R:
+    // Q: Both use_count values are 1. What does this tell you about the relationship between allocation strategy and
+    // reference counting?
+    // A:
+    // A:
+    // R:
+    // R:
+    // R:
     EXPECT_EQ(new_count, 1);
     EXPECT_EQ(make_shared_count, 1);
-    // Q: Given that `new` requires 2 allocations (object + control block) and `make_shared` requires 1 (combined), what are the performance implications?
-// A:
-// R:
+    // Q: Given that `new` requires 2 allocations (object + control block) and `make_shared` requires 1 (combined), what
+    // are the performance implications?
+    // A:
+    // R:
     // Q: What happens to cache locality when the object and control block are allocated separately vs together?
-// A:
-// R:
+    // A:
+    // R:
 }
 class ThrowingResource
 {
 public:
-    explicit ThrowingResource(bool should_throw)
-    : tracked_("Throwing")
+    explicit ThrowingResource(bool should_throw) : tracked_("Throwing")
     {
         if (should_throw)
         {
             throw std::runtime_error("Construction failed");
         }
     }
+
 private:
     Tracked tracked_;
 };
@@ -79,12 +82,12 @@ TEST_F(AllocationPatternsTest, ExceptionSafetyMakeShared)
 {
     EventLog::instance().clear();
     // Q: When p2's construction throws, what happens to p1? Walk through the stack unwinding.
-// A:
-// R:
+    // A:
+    // R:
     // Q: At what point in the statement `std::shared_ptr<T> p1(new T(true))` could an exception leave a memory leak?
-// A:
-// R:
-// R:
+    // A:
+    // R:
+    // R:
     process_with_make_shared(false, true);
     auto events = EventLog::instance().events();
     size_t ctor_count = 0;
@@ -101,8 +104,8 @@ TEST_F(AllocationPatternsTest, ExceptionSafetyMakeShared)
         }
     }
     // Q: The test expects ctor_count == dtor_count. What does this verify about exception safety?
-// A:
-// R:
+    // A:
+    // R:
     EXPECT_EQ(ctor_count, dtor_count);
 }
 struct FileDeleter
@@ -121,13 +124,13 @@ TEST_F(AllocationPatternsTest, CustomDeleterFileHandle)
     {
         FILE* file = std::tmpfile();
         // Q: Why can't you use make_shared with a custom deleter?
-// A:
-// R:
-// R:
+        // A:
+        // R:
+        // R:
         // Q: Where is the FileDeleter stored—in the control block or with the shared_ptr object itself?
-// A:
-// R:
-// R:
+        // A:
+        // R:
+        // R:
         std::shared_ptr<FILE> file_ptr(file, FileDeleter());
         long use_count = file_ptr.use_count();
         EXPECT_EQ(use_count, 1);
@@ -142,18 +145,18 @@ TEST_F(AllocationPatternsTest, CustomDeleterFileHandle)
         }
     }
     // Q: When exactly is the custom deleter invoked relative to the control block's destruction?
-// A:
-// R:
-// R:
+    // A:
+    // R:
+    // R:
     EXPECT_TRUE(deleter_called);
 }
 class Resource
 {
 public:
-    explicit Resource(const std::string& name)
-    : tracked_(name)
+    explicit Resource(const std::string& name) : tracked_(name)
     {
     }
+
 private:
     Tracked tracked_;
 };
@@ -169,8 +172,8 @@ TEST_F(AllocationPatternsTest, CustomDeleterWithTrackedObject)
 {
     {
         // Q: What is the sequence of operations when the shared_ptr is destroyed? (deleter call vs object destructor)
-// A:
-// R:
+        // A:
+        // R:
         std::shared_ptr<Resource> res_ptr(new Resource("Res1"), ResourceDeleter());
         long use_count = res_ptr.use_count();
         EXPECT_EQ(use_count, 1);
@@ -190,8 +193,8 @@ TEST_F(AllocationPatternsTest, CustomDeleterWithTrackedObject)
         }
     }
     // Q: The deleter calls `delete res`. What happens inside `delete` that triggers the Tracked destructor?
-// A:
-// R:
+    // A:
+    // R:
     EXPECT_TRUE(deleter_called);
     EXPECT_TRUE(dtor_called);
 }
@@ -199,26 +202,24 @@ TEST_F(AllocationPatternsTest, ArrayAllocationWithCustomDeleter)
 {
     {
         // Q: Why must you use a custom deleter for arrays? What happens if you use the default deleter with `new T[]`?
-// A:
-// R:
-// R:
+        // A:
+        // R:
+        // R:
         // Q: What is the difference between `delete ptr` and `delete[] ptr`?
-// A:
-// A:
-// A:
-// R:
-// R:
-// R:
-// R:
-// R:
-// R:
-// R:
-// R:
-// R:
-        std::shared_ptr<Tracked> arr_ptr(
-            new Tracked[3]{Tracked("Arr1"), Tracked("Arr2"), Tracked("Arr3")},
-            LoggingArrayDeleter<Tracked>("ArrayDeleter")
-        );
+        // A:
+        // A:
+        // A:
+        // R:
+        // R:
+        // R:
+        // R:
+        // R:
+        // R:
+        // R:
+        // R:
+        // R:
+        std::shared_ptr<Tracked> arr_ptr(new Tracked[3]{Tracked("Arr1"), Tracked("Arr2"), Tracked("Arr3")},
+                                         LoggingArrayDeleter<Tracked>("ArrayDeleter"));
         long use_count = arr_ptr.use_count();
         EXPECT_EQ(use_count, 1);
     }
@@ -252,19 +253,20 @@ TEST_F(AllocationPatternsTest, DeleterTypeErasure)
         }
     };
     // Q: Both Deleter1 and Deleter2 have different types. How can p1 and p2 have the same type `shared_ptr<Tracked>`?
-// A:
-// R:
-// R:
-// R:
+    // A:
+    // R:
+    // R:
+    // R:
     std::shared_ptr<Tracked> p1(new Tracked("T1"), Deleter1());
     std::shared_ptr<Tracked> p2(new Tracked("T2"), Deleter2());
     // Q: When you assign p2 to p1, what happens to p1's original object and which deleter is invoked?
-// A:
-// A:
-// R:
-    // Q: After assignment, p1 now points to p2's object. Which deleter does p1's control block store—Deleter1 or Deleter2?
-// A:
-// R:
+    // A:
+    // A:
+    // R:
+    // Q: After assignment, p1 now points to p2's object. Which deleter does p1's control block store—Deleter1 or
+    // Deleter2?
+    // A:
+    // R:
     p1 = p2;
     auto events = EventLog::instance().events();
     bool deleter1_called = false;
@@ -282,8 +284,7 @@ TEST_F(AllocationPatternsTest, AliasingWithCustomDeleter)
     struct Container
     {
         Tracked member;
-        explicit Container(const std::string& name)
-        : member(name)
+        explicit Container(const std::string& name) : member(name)
         {
         }
     };
@@ -298,15 +299,17 @@ TEST_F(AllocationPatternsTest, AliasingWithCustomDeleter)
     long alias_count = 0;
     {
         std::shared_ptr<Container> owner(new Container("Owner"), ContainerDeleter());
-        // Q: The alias points to `&owner->member` (a Tracked*), but shares the control block with owner. Which deleter is stored in the control block?
-// A:
-// R:
+        // Q: The alias points to `&owner->member` (a Tracked*), but shares the control block with owner. Which deleter
+        // is stored in the control block?
+        // A:
+        // R:
         std::shared_ptr<Tracked> alias(owner, &owner->member);
         alias_count = alias.use_count();
-        // Q: After owner.reset(), only alias remains. When alias is destroyed, what gets deleted—the Tracked member or the Container?
-// A:
-// R:
-// R:
+        // Q: After owner.reset(), only alias remains. When alias is destroyed, what gets deleted—the Tracked member or
+        // the Container?
+        // A:
+        // R:
+        // R:
         owner.reset();
     }
     auto events = EventLog::instance().events();
@@ -333,13 +336,13 @@ TEST_F(AllocationPatternsTest, SharedDeleterBetweenPointers)
     };
     std::shared_ptr<Tracked> p1(new Tracked("Shared"), SharedDeleter());
     // Q: When you copy p1 to p2, do they share the same control block? What about the deleter stored in it?
-// A:
-// R:
+    // A:
+    // R:
     std::shared_ptr<Tracked> p2 = p1;
     long use_count = p1.use_count();
     // Q: After p1.reset(), the use_count drops to 1. Why isn't the deleter called yet?
-// A:
-// R:
+    // A:
+    // R:
     p1.reset();
     auto events_after_reset = EventLog::instance().events();
     bool deleter_called_early = false;

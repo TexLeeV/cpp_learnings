@@ -6,9 +6,9 @@ Build setup, dependencies, and how to run tests. For project overview, see the [
 
 ## Requirements
 
-- **CMake** — **3.23 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.14)` for manual configures; presets are the documented workflow.
-- **Compiler** — **C++20** (GCC 14 or recent Clang recommended).
-- **GoogleTest & GoogleMock** — Required (`find_package(GTest REQUIRED)`).
+- **CMake** — **3.21 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.21)` for manual configures; presets are the documented workflow.
+- **Compiler** — **C++20** required (use a C++20-capable GCC or Clang).
+- **GoogleTest & GoogleMock** — Install development packages for your OS (below). The build also uses **FetchContent** to obtain GoogleTest when you configure with CMake.
 - **Threads** — For concurrency tests (and deadlock tests when enabled).
 
 ---
@@ -27,12 +27,14 @@ ctest --preset gcc --verbose
 
 Use `cmake --preset clang` / `cmake --build --preset clang` if you prefer Clang.
 
+Each configure preset writes its build tree under **`build/<preset>/`** (for example `build/gcc`, `build/clang`, `build/gcc-asan`). Test binaries and `compile_commands.json` live there.
+
 ---
 
 ## Running specific tests
 
 ```bash
-# Run one executable (path matches your preset output directory)
+# Run one executable (use the directory for your preset, e.g. build/gcc)
 ./build/gcc/learning_shared_ptr/test_reference_counting
 
 # GoogleTest filter
@@ -51,7 +53,7 @@ ctest -R test_reference_counting --output-on-failure
 
 ### `learning_deadlocks`
 
-Targets are **not** registered by default (`add_learning_test` lines are commented in `learning_deadlocks/CMakeLists.txt`). After you uncomment them and reconfigure, binaries would appear under `build/gcc/learning_deadlocks/`. See [learning_deadlocks/SUMMARY.txt](../learning_deadlocks/SUMMARY.txt) for scenario layout.
+Targets are registered by default. Binaries appear under `build/<preset>/learning_deadlocks/` (for example `build/gcc/learning_deadlocks/`). Some scenario tests are intentionally disabled while remaining fixes are in progress. Scenarios live in `learning_deadlocks/tests/` (`test_mutex_ordering_deadlocks.cpp`, `test_circular_reference_deadlocks.cpp`, `test_condition_variable_deadlocks.cpp`, `test_ownership_transfer_deadlocks.cpp`).
 
 ---
 
@@ -82,10 +84,10 @@ brew install googletest cmake ninja
 
 ## Tools and environment
 
-- **Compiler:** GCC 14 / recent Clang with **C++20**
-- **Build:** CMake **3.23+** for presets; Ninja recommended (generator in presets)
+- **Compiler:** C++20-capable **GCC** or **Clang**
+- **Build:** CMake **3.21+** for presets; Ninja recommended (generator in presets)
 - **Tests:** GoogleTest & GoogleMock
-- **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`)
+- **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`). `.clangd` points at `build/gcc` for `compile_commands.json`; switch to `build/clang` if you use the clang preset.
 
 ---
 

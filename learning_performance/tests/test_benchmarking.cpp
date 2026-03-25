@@ -2,14 +2,14 @@
 // Estimated Time: 3 hours
 // Difficulty: Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <chrono>
-#include <vector>
+
 #include <algorithm>
-#include <numeric>
+#include <chrono>
 #include <cmath>
+#include <gtest/gtest.h>
+#include <numeric>
+#include <vector>
 
 class BenchmarkingTest : public ::testing::Test
 {
@@ -309,8 +309,7 @@ TEST_F(BenchmarkingTest, BenchmarkStabilityAndOutliers)
 
 TEST_F(BenchmarkingTest, IterationCountSelection)
 {
-    auto measure_operation = [](int iterations) -> double
-    {
+    auto measure_operation = [](int iterations) -> double {
         std::vector<int> data(1000);
         std::iota(data.begin(), data.end(), 0);
 

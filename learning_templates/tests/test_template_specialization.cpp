@@ -2,12 +2,12 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
+#include "instrumentation.h"
 
 #include <gtest/gtest.h>
-#include "instrumentation.h"
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 class TemplateSpecializationTest : public ::testing::Test
 {
@@ -22,8 +22,7 @@ protected:
 // TEST 1: Full Template Specialization - Easy
 // ============================================================================
 
-template<typename T>
-class TypeName
+template <typename T> class TypeName
 {
 public:
     static std::string name()
@@ -33,8 +32,7 @@ public:
     }
 };
 
-template<>
-class TypeName<int>
+template <> class TypeName<int>
 {
 public:
     static std::string name()
@@ -44,8 +42,7 @@ public:
     }
 };
 
-template<>
-class TypeName<double>
+template <> class TypeName<double>
 {
 public:
     static std::string name()
@@ -82,8 +79,7 @@ TEST_F(TemplateSpecializationTest, FullTemplateSpecialization)
 // TEST 2: Partial Template Specialization - Moderate
 // ============================================================================
 
-template<typename T>
-class Container
+template <typename T> class Container
 {
 public:
     void add(T value)
@@ -92,14 +88,16 @@ public:
         data_.push_back(value);
     }
 
-    size_t size() const { return data_.size(); }
+    size_t size() const
+    {
+        return data_.size();
+    }
 
 private:
     std::vector<T> data_;
 };
 
-template<typename T>
-class Container<T*>
+template <typename T> class Container<T*>
 {
 public:
     void add(T* value)
@@ -108,7 +106,10 @@ public:
         data_.push_back(value);
     }
 
-    size_t size() const { return data_.size(); }
+    size_t size() const
+    {
+        return data_.size();
+    }
 
 private:
     std::vector<T*> data_;
@@ -146,8 +147,7 @@ TEST_F(TemplateSpecializationTest, PartialTemplateSpecialization)
 // TEST 3: Specialization for const and reference types - Moderate
 // ============================================================================
 
-template<typename T>
-class TypeTraits
+template <typename T> class TypeTraits
 {
 public:
     static constexpr bool is_const = false;
@@ -155,8 +155,7 @@ public:
     static constexpr bool is_pointer = false;
 };
 
-template<typename T>
-class TypeTraits<const T>
+template <typename T> class TypeTraits<const T>
 {
 public:
     static constexpr bool is_const = true;
@@ -164,8 +163,7 @@ public:
     static constexpr bool is_pointer = false;
 };
 
-template<typename T>
-class TypeTraits<T&>
+template <typename T> class TypeTraits<T&>
 {
 public:
     static constexpr bool is_const = false;
@@ -173,8 +171,7 @@ public:
     static constexpr bool is_pointer = false;
 };
 
-template<typename T>
-class TypeTraits<T*>
+template <typename T> class TypeTraits<T*>
 {
 public:
     static constexpr bool is_const = false;
@@ -206,20 +203,17 @@ TEST_F(TemplateSpecializationTest, SpecializationForConstAndReference)
 // TEST 4: Function Template Specialization - Moderate
 // ============================================================================
 
-template<typename T>
-void print_type(T value)
+template <typename T> void print_type(T value)
 {
     EventLog::instance().record("print_type: generic");
 }
 
-template<>
-void print_type<int>(int value)
+template <> void print_type<int>(int value)
 {
     EventLog::instance().record("print_type: int specialization");
 }
 
-template<>
-void print_type<const char*>(const char* value)
+template <> void print_type<const char*>(const char* value)
 {
     EventLog::instance().record("print_type: const char* specialization");
 }
@@ -268,8 +262,7 @@ TEST_F(TemplateSpecializationTest, DISABLED_SpecializationForStdVector)
 // TEST 6: Specialization Resolution Order - Hard
 // ============================================================================
 
-template<typename T>
-class Selector
+template <typename T> class Selector
 {
 public:
     static std::string select()
@@ -279,8 +272,7 @@ public:
     }
 };
 
-template<typename T>
-class Selector<T*>
+template <typename T> class Selector<T*>
 {
 public:
     static std::string select()
@@ -290,8 +282,7 @@ public:
     }
 };
 
-template<typename T>
-class Selector<const T*>
+template <typename T> class Selector<const T*>
 {
 public:
     static std::string select()
@@ -329,8 +320,7 @@ TEST_F(TemplateSpecializationTest, SpecializationResolutionOrder)
 // TEST 7: Specialization for Multiple Parameters - Hard
 // ============================================================================
 
-template<typename T1, typename T2>
-class Pair
+template <typename T1, typename T2> class Pair
 {
 public:
     static std::string type()
@@ -340,8 +330,7 @@ public:
     }
 };
 
-template<typename T>
-class Pair<T, T>
+template <typename T> class Pair<T, T>
 {
 public:
     static std::string type()
@@ -351,8 +340,7 @@ public:
     }
 };
 
-template<typename T>
-class Pair<T, int>
+template <typename T> class Pair<T, int>
 {
 public:
     static std::string type()
@@ -362,8 +350,7 @@ public:
     }
 };
 
-template<>
-class Pair<int, int>
+template <> class Pair<int, int>
 {
 public:
     static std::string type()

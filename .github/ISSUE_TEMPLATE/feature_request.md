@@ -15,7 +15,7 @@ A clear and concise description of what you'd like to see added to the learning 
 What C++ concept or pattern should this feature cover?
 
 - **Topic**: [e.g., coroutines, ranges, concepts, specific STL container internals]
-- **C++ Standard**: [e.g., C++20 (repo default), or topic focus such as C++17-era features]
+- **C++ Standard**: [C++20 (repo default); note if the topic highlights features from an earlier ISO revision]
 - **Estimated Difficulty**: [⭐☆☆☆☆ to ⭐⭐⭐⭐⭐]
 
 ## Prerequisites

@@ -205,9 +205,7 @@ TEST_F(SelfReferencePatternsTest, TimerWithSelfReference)
 
     auto timer = std::make_shared<Timer>("Timer1");
 
-    timer->schedule([&captured_use_count](std::shared_ptr<Timer> self) {
-        captured_use_count = self.use_count();
-    });
+    timer->schedule([&captured_use_count](std::shared_ptr<Timer> self) { captured_use_count = self.use_count(); });
 
     timer->execute();
 
@@ -258,9 +256,8 @@ TEST_F(SelfReferencePatternsTest, ChainedAsyncOperations)
 
     conn->async_read([&read_use_count, &write_use_count](std::shared_ptr<Connection> self) {
         read_use_count = self.use_count();
-        self->async_write([&write_use_count](std::shared_ptr<Connection> inner_self) {
-            write_use_count = inner_self.use_count();
-        });
+        self->async_write(
+            [&write_use_count](std::shared_ptr<Connection> inner_self) { write_use_count = inner_self.use_count(); });
     });
 
     EXPECT_EQ(read_use_count, 2);
@@ -316,12 +313,8 @@ TEST_F(SelfReferencePatternsTest, EventEmitterWithWeakFromThis)
 
     auto emitter = std::make_shared<EventEmitter>("Emitter1");
 
-    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) {
-        handler_count++;
-    });
-    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) {
-        handler_count++;
-    });
+    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) { handler_count++; });
+    emitter->on_event([&handler_count](std::shared_ptr<EventEmitter> self) { handler_count++; });
 
     emitter->emit();
 

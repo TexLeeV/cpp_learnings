@@ -2,15 +2,15 @@
 // Estimated Time: 3 hours
 // Difficulty: Moderate to Hard
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <vector>
-#include <list>
-#include <chrono>
-#include <numeric>
+
 #include <algorithm>
+#include <chrono>
+#include <gtest/gtest.h>
+#include <list>
+#include <numeric>
 #include <random>
+#include <vector>
 
 class CacheFriendlyTest : public ::testing::Test
 {
@@ -42,13 +42,20 @@ struct ParticlesSoA
 
     void resize(size_t n)
     {
-        x.resize(n); y.resize(n); z.resize(n);
-        vx.resize(n); vy.resize(n); vz.resize(n);
+        x.resize(n);
+        y.resize(n);
+        z.resize(n);
+        vx.resize(n);
+        vy.resize(n);
+        vz.resize(n);
         mass.resize(n);
         id.resize(n);
     }
 
-    size_t size() const { return x.size(); }
+    size_t size() const
+    {
+        return x.size();
+    }
 };
 
 TEST_F(CacheFriendlyTest, ArrayOfStructsVsStructOfArrays)
@@ -178,8 +185,7 @@ TEST_F(CacheFriendlyTest, LoopFusionOptimization)
 
     for (size_t i = 0; i < count; ++i)
     {
-        transforms[i] = {static_cast<float>(i), static_cast<float>(i * 2),
-                         static_cast<float>(i * 3), 1.0f};
+        transforms[i] = {static_cast<float>(i), static_cast<float>(i * 2), static_cast<float>(i * 3), 1.0f};
     }
 
     auto start_separate = std::chrono::high_resolution_clock::now();
@@ -196,13 +202,12 @@ TEST_F(CacheFriendlyTest, LoopFusionOptimization)
         transforms[i].z *= transforms[i].scale;
     }
     auto end_separate = std::chrono::high_resolution_clock::now();
-    auto separate_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_separate - start_separate).count();
+    auto separate_duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end_separate - start_separate).count();
 
     for (size_t i = 0; i < count; ++i)
     {
-        transforms[i] = {static_cast<float>(i), static_cast<float>(i * 2),
-                         static_cast<float>(i * 3), 1.0f};
+        transforms[i] = {static_cast<float>(i), static_cast<float>(i * 2), static_cast<float>(i * 3), 1.0f};
     }
 
     auto start_fused = std::chrono::high_resolution_clock::now();
@@ -213,8 +218,7 @@ TEST_F(CacheFriendlyTest, LoopFusionOptimization)
         transforms[i].z *= transforms[i].scale;
     }
     auto end_fused = std::chrono::high_resolution_clock::now();
-    auto fused_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_fused - start_fused).count();
+    auto fused_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_fused - start_fused).count();
 
     EventLog::instance().record("Separate loops: " + std::to_string(separate_duration) + " us");
     EventLog::instance().record("Fused loop: " + std::to_string(fused_duration) + " us");
@@ -456,8 +460,8 @@ TEST_F(CacheFriendlyTest, BranchPredictionImpact)
         total_unsorted += sum;
     }
     auto end_unsorted = std::chrono::high_resolution_clock::now();
-    auto unsorted_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-        end_unsorted - start_unsorted).count();
+    auto unsorted_duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_unsorted - start_unsorted).count();
 
     long long total_sorted = 0;
     auto start_sorted = std::chrono::high_resolution_clock::now();
@@ -474,8 +478,7 @@ TEST_F(CacheFriendlyTest, BranchPredictionImpact)
         total_sorted += sum;
     }
     auto end_sorted = std::chrono::high_resolution_clock::now();
-    auto sorted_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-        end_sorted - start_sorted).count();
+    auto sorted_duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_sorted - start_sorted).count();
 
     EventLog::instance().record("Unsorted branch: " + std::to_string(unsorted_duration) + " ms");
     EventLog::instance().record("Sorted branch: " + std::to_string(sorted_duration) + " ms");

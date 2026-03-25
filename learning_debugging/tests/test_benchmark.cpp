@@ -2,14 +2,14 @@
 // Estimated Time: 3 hours
 // Difficulty: Easy
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <chrono>
-#include <vector>
+
 #include <algorithm>
+#include <chrono>
+#include <gtest/gtest.h>
 #include <numeric>
 #include <string>
+#include <vector>
 
 class BenchmarkTest : public ::testing::Test
 {
@@ -156,25 +156,25 @@ TEST_F(BenchmarkTest, CacheEffectsOnPerformance)
 class LargeObject
 {
 public:
-    explicit LargeObject(size_t size)
-    : data_(size, 0)
+    explicit LargeObject(size_t size) : data_(size, 0)
     {
         EventLog::instance().record("LargeObject::ctor size=" + std::to_string(size));
     }
 
-    LargeObject(const LargeObject& other)
-    : data_(other.data_)
+    LargeObject(const LargeObject& other) : data_(other.data_)
     {
         EventLog::instance().record("LargeObject::copy_ctor size=" + std::to_string(data_.size()));
     }
 
-    LargeObject(LargeObject&& other) noexcept
-    : data_(std::move(other.data_))
+    LargeObject(LargeObject&& other) noexcept : data_(std::move(other.data_))
     {
         EventLog::instance().record("LargeObject::move_ctor");
     }
 
-    size_t size() const { return data_.size(); }
+    size_t size() const
+    {
+        return data_.size();
+    }
 
 private:
     std::vector<int> data_;
@@ -237,7 +237,7 @@ TEST_F(BenchmarkTest, MoveVsCopyPerformance)
     // R:
 
     EXPECT_EQ(EventLog::instance().count_events("move_ctor"), iterations * 2);
-    
+
     if (copy_duration > 0 && move_duration > 0)
     {
         double ratio = static_cast<double>(copy_duration) / move_duration;
@@ -258,8 +258,7 @@ TEST_F(BenchmarkTest, MoveVsCopyPerformance)
 class Microbenchmark
 {
 public:
-    template<typename Func>
-    void run(const std::string& name, Func func, int warmup_iters, int bench_iters)
+    template <typename Func> void run(const std::string& name, Func func, int warmup_iters, int bench_iters)
     {
         // TODO: Run warmup iterations
         // TODO: Collect timing data for bench_iters
@@ -272,14 +271,16 @@ TEST_F(BenchmarkTest, DISABLED_MicrobenchmarkWithWarmup)
 {
     Microbenchmark bench;
 
-    bench.run("vector_push_back", []()
-    {
-        std::vector<int> v;
-        for (int i = 0; i < 1000; ++i)
-        {
-            v.push_back(i);
-        }
-    }, 10, 100);
+    bench.run(
+        "vector_push_back",
+        []() {
+            std::vector<int> v;
+            for (int i = 0; i < 1000; ++i)
+            {
+                v.push_back(i);
+            }
+        },
+        10, 100);
 
     // Q: Why are warmup iterations necessary? What CPU/cache effects do they mitigate?
     // A:
@@ -301,8 +302,8 @@ TEST_F(BenchmarkTest, MemoryAllocationPerformance)
         delete ptr;
     }
     auto end_individual = std::chrono::high_resolution_clock::now();
-    auto individual_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_individual - start_individual).count();
+    auto individual_duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end_individual - start_individual).count();
 
     auto start_batch = std::chrono::high_resolution_clock::now();
     int* batch = new int[iterations];
@@ -312,8 +313,7 @@ TEST_F(BenchmarkTest, MemoryAllocationPerformance)
     }
     delete[] batch;
     auto end_batch = std::chrono::high_resolution_clock::now();
-    auto batch_duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        end_batch - start_batch).count();
+    auto batch_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_batch - start_batch).count();
 
     EventLog::instance().record("Individual allocations: " + std::to_string(individual_duration) + " us");
     EventLog::instance().record("Batch allocation: " + std::to_string(batch_duration) + " us");

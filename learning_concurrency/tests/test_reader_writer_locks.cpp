@@ -2,15 +2,15 @@
 // Estimated Time: 4 hours
 // Difficulty: Moderate
 
-
-#include <gtest/gtest.h>
 #include "instrumentation.h"
-#include <thread>
-#include <shared_mutex>
-#include <mutex>
-#include <vector>
+
 #include <atomic>
 #include <chrono>
+#include <gtest/gtest.h>
+#include <mutex>
+#include <shared_mutex>
+#include <thread>
+#include <vector>
 
 class ReaderWriterLocksTest : public ::testing::Test
 {
@@ -28,7 +28,9 @@ protected:
 class SharedCounter
 {
 public:
-    SharedCounter() : value_(0) {}
+    SharedCounter() : value_(0)
+    {
+    }
 
     int read() const
     {
@@ -70,10 +72,11 @@ TEST_F(ReaderWriterLocksTest, MultipleReadersNoContention)
 
     for (int i = 0; i < num_readers; ++i)
     {
-        threads.emplace_back([&counter, &ready_count]()
-        {
+        threads.emplace_back([&counter, &ready_count]() {
             ready_count.fetch_add(1);
-            while (ready_count.load() < num_readers) {}
+            while (ready_count.load() < num_readers)
+            {
+            }
             int val = counter.read();
             EXPECT_EQ(val, 42);
         });
@@ -84,8 +87,8 @@ TEST_F(ReaderWriterLocksTest, MultipleReadersNoContention)
         t.join();
     }
 
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - start).count();
+    auto elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     int concurrent_shared_lock_events = EventLog::instance().count_events("acquired shared_lock");
 
     // Compare against a local serialized baseline to reduce cross-platform
@@ -95,8 +98,8 @@ TEST_F(ReaderWriterLocksTest, MultipleReadersNoContention)
     {
         EXPECT_EQ(counter.read(), 42);
     }
-    auto sequential_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - seq_start).count();
+    auto sequential_elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - seq_start).count();
 
     // Q: If readers held exclusive locks, 5 readers × 10ms sleep = 50ms minimum.
     // Q: With shared_lock, what is the expected minimum elapsed time? Why?
@@ -118,14 +121,15 @@ TEST_F(ReaderWriterLocksTest, WriterBlocksReaders)
     std::atomic<bool> writer_finished{false};
     std::atomic<int> readers_blocked{0};
 
-    std::thread writer([&counter, &writer_started, &writer_finished]()
-    {
+    std::thread writer([&counter, &writer_started, &writer_finished]() {
         writer_started.store(true);
         counter.write(100);
         writer_finished.store(true);
     });
 
-    while (!writer_started.load()) {}
+    while (!writer_started.load())
+    {
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
     constexpr int num_readers = 3;
@@ -133,8 +137,7 @@ TEST_F(ReaderWriterLocksTest, WriterBlocksReaders)
 
     for (int i = 0; i < num_readers; ++i)
     {
-        readers.emplace_back([&counter, &writer_finished, &readers_blocked]()
-        {
+        readers.emplace_back([&counter, &writer_finished, &readers_blocked]() {
             readers_blocked.fetch_add(1);
             int val = counter.read();
             EXPECT_TRUE(writer_finished.load());
@@ -171,19 +174,19 @@ TEST_F(ReaderWriterLocksTest, ReaderBlocksWriter)
     std::atomic<bool> reader_finished{false};
     std::atomic<bool> writer_blocked{false};
 
-    std::thread reader([&counter, &reader_started, &reader_finished]()
-    {
+    std::thread reader([&counter, &reader_started, &reader_finished]() {
         reader_started.store(true);
         int val = counter.read();
         EXPECT_EQ(val, 50);
         reader_finished.store(true);
     });
 
-    while (!reader_started.load()) {}
+    while (!reader_started.load())
+    {
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-    std::thread writer([&counter, &writer_blocked, &reader_finished]()
-    {
+    std::thread writer([&counter, &writer_blocked, &reader_finished]() {
         writer_blocked.store(true);
         counter.write(200);
         EXPECT_TRUE(reader_finished.load());
@@ -215,7 +218,9 @@ TEST_F(ReaderWriterLocksTest, ReaderBlocksWriter)
 class UpgradableCache
 {
 public:
-    UpgradableCache() : value_(0) {}
+    UpgradableCache() : value_(0)
+    {
+    }
 
     int get_or_compute(int key)
     {
@@ -241,8 +246,7 @@ TEST_F(ReaderWriterLocksTest, DISABLED_UpgradableLockPattern)
 
     for (int i = 0; i < num_threads; ++i)
     {
-        threads.emplace_back([&cache, &compute_count]()
-        {
+        threads.emplace_back([&cache, &compute_count]() {
             int val = cache.get_or_compute(1);
             EXPECT_EQ(val, 1);
         });
@@ -266,7 +270,9 @@ TEST_F(ReaderWriterLocksTest, DISABLED_UpgradableLockPattern)
 class StarvationDemo
 {
 public:
-    StarvationDemo() : value_(0) {}
+    StarvationDemo() : value_(0)
+    {
+    }
 
     int read() const
     {
@@ -299,8 +305,7 @@ TEST_F(ReaderWriterLocksTest, ReaderWriterStarvation)
 
     for (int i = 0; i < num_readers; ++i)
     {
-        readers.emplace_back([&demo, &stop]()
-        {
+        readers.emplace_back([&demo, &stop]() {
             while (!stop.load())
             {
                 demo.read();
@@ -311,8 +316,7 @@ TEST_F(ReaderWriterLocksTest, ReaderWriterStarvation)
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    std::thread writer([&demo, &write_count]()
-    {
+    std::thread writer([&demo, &write_count]() {
         for (int i = 0; i < 5; ++i)
         {
             demo.write(i);
@@ -344,7 +348,9 @@ TEST_F(ReaderWriterLocksTest, ReaderWriterStarvation)
 class ExceptionSafeReader
 {
 public:
-    ExceptionSafeReader() : value_(0) {}
+    ExceptionSafeReader() : value_(0)
+    {
+    }
 
     int read_with_exception() const
     {
@@ -370,8 +376,7 @@ TEST_F(ReaderWriterLocksTest, SharedLockExceptionSafety)
 {
     ExceptionSafeReader reader;
 
-    std::thread t1([&reader]()
-    {
+    std::thread t1([&reader]() {
         try
         {
             reader.read_with_exception();
@@ -384,10 +389,7 @@ TEST_F(ReaderWriterLocksTest, SharedLockExceptionSafety)
 
     t1.join();
 
-    std::thread t2([&reader]()
-    {
-        reader.write(100);
-    });
+    std::thread t2([&reader]() { reader.write(100); });
 
     t2.join();
 
