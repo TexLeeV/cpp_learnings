@@ -27,16 +27,18 @@ ctest --preset gcc --verbose
 
 Use `cmake --preset clang` / `cmake --build --preset clang` if you prefer Clang.
 
+Each configure preset writes its build tree under **`build/<preset>/`** (for example `build/gcc`, `build/clang`, `build/gcc-asan`). Test binaries and `compile_commands.json` live there.
+
 ---
 
 ## Running specific tests
 
 ```bash
-# Run one executable (path matches your preset output directory)
-./build/learning_shared_ptr/test_reference_counting
+# Run one executable (use the directory for your preset, e.g. build/gcc)
+./build/gcc/learning_shared_ptr/test_reference_counting
 
 # GoogleTest filter
-./build/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 
 # Build one target
 cmake --build --preset gcc --target test_reference_counting
@@ -45,13 +47,13 @@ cmake --build --preset gcc --target test_reference_counting
 **Filter by name with ctest:**
 
 ```bash
-cd build
+cd build/gcc
 ctest -R test_reference_counting --output-on-failure
 ```
 
 ### `learning_deadlocks`
 
-Targets are registered by default. Binaries appear under `build/learning_deadlocks/` (or your active preset directory). Some scenario tests are intentionally disabled while remaining fixes are in progress. Scenarios live in `learning_deadlocks/tests/` (`test_mutex_ordering_deadlocks.cpp`, `test_circular_reference_deadlocks.cpp`, `test_condition_variable_deadlocks.cpp`, `test_ownership_transfer_deadlocks.cpp`).
+Targets are registered by default. Binaries appear under `build/<preset>/learning_deadlocks/` (for example `build/gcc/learning_deadlocks/`). Some scenario tests are intentionally disabled while remaining fixes are in progress. Scenarios live in `learning_deadlocks/tests/` (`test_mutex_ordering_deadlocks.cpp`, `test_circular_reference_deadlocks.cpp`, `test_condition_variable_deadlocks.cpp`, `test_ownership_transfer_deadlocks.cpp`).
 
 ---
 
@@ -85,7 +87,7 @@ brew install googletest cmake ninja
 - **Compiler:** C++20-capable **GCC** or **Clang**
 - **Build:** CMake **3.14+** for presets; Ninja recommended (generator in presets)
 - **Tests:** GoogleTest & GoogleMock
-- **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`)
+- **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`). `.clangd` points at `build/gcc` for `compile_commands.json`; switch to `build/clang` if you use the clang preset.
 
 ---
 

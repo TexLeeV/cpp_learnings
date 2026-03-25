@@ -45,7 +45,7 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 
 Dependencies are soft; adjust for your goals.
 
-1. **Orientation** — Build the project, run `./build/examples/test_try_it_out` (or your preset output directory).
+1. **Orientation** — Build the project, run `./build/<preset>/examples/test_try_it_out` (for example `./build/gcc/examples/test_try_it_out` after `cmake --preset gcc`).
 2. **Ownership baseline** — `learning_shared_ptr` (then `learning_raii` / `learning_memory` as needed).
 3. **Move semantics** — `learning_move_semantics` (pairs well after shared_ptr).
 4. **Modern syntax and STL** — `learning_modern_cpp`, `learning_stl`.

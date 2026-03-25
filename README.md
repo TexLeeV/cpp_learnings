@@ -107,7 +107,7 @@ You fill in TODOs and answer inline questions, run tests, and observe what happe
 
 1. **Prerequisites** — CMake **3.14+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; **C++20 is required** (set in the root file and presets).
 2. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
-3. **Try it** — `./build/examples/test_try_it_out`
+3. **Try it** — `./build/gcc/examples/test_try_it_out` (replace `gcc` with your configure preset name, e.g. `clang`)
 4. **Next** — Start with `learning_shared_ptr` or follow [Full Curriculum](docs/LEARNING_PATH.md).
 
 ## Modules (high level)

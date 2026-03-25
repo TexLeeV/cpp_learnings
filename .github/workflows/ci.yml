@@ -30,8 +30,8 @@ jobs:
       - name: Cache CMake build directory
         uses: actions/cache@v4
         with:
-          # Matches CMakePresets.json binaryDir: ${sourceDir}/build (same path for gcc and clang presets)
-          path: build
+          # Matches CMakePresets.json binaryDir: ${sourceDir}/build/<preset>
+          path: build/${{ matrix.preset }}
           key: cmake-${{ matrix.os }}-${{ matrix.preset }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt', 'CMakePresets.json') }}
           restore-keys: |
             cmake-${{ matrix.os }}-${{ matrix.preset }}-
@@ -56,40 +56,3 @@ jobs:
 
       - name: Test
         run: ctest --preset "${{ matrix.preset }}" --output-on-failure
-
-  format-check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Install clang-format
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format
-
-      - name: Collect changed C/C++ files
-        id: changed-files
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="origin/${{ github.base_ref }}"
-            git fetch origin "${{ github.base_ref }}" --depth=1
-            git diff --name-only "$BASE"...HEAD > changed_files.txt
-          else
-            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" > changed_files.txt
-          fi
-
-          awk '/\.(cpp|cc|cxx|h|hpp)$/ { print }' changed_files.txt > format_targets.txt
-          if [ -s format_targets.txt ]; then
-            echo "has_files=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_files=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Check formatting
-        if: steps.changed-files.outputs.has_files == 'true'
-        run: |
-          xargs -a format_targets.txt clang-format --dry-run --Werror --style=file

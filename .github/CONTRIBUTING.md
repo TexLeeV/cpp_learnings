@@ -130,11 +130,13 @@ cmake --build --preset gcc
 ctest --preset gcc --verbose
 
 # Run specific test suite
-./build/learning_shared_ptr/test_reference_counting
+./build/gcc/learning_shared_ptr/test_reference_counting
 
 # Run with filter
-./build/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
+./build/gcc/learning_shared_ptr/test_reference_counting --gtest_filter=*BasicCreation*
 ```
+
+Configure presets write outputs under `build/<preset>/` (here `gcc`); use `build/clang` if you use the clang preset.
 
 ## Submitting a Pull Request
 
