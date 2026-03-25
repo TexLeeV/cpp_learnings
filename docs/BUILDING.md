@@ -6,7 +6,7 @@ Build setup, dependencies, and how to run tests. For project overview, see the [
 
 ## Requirements
 
-- **CMake** — **3.14 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.14)` for manual configures; presets are the documented workflow.
+- **CMake** — **3.21 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.21)` for manual configures; presets are the documented workflow.
 - **Compiler** — **C++20** required (use a C++20-capable GCC or Clang).
 - **GoogleTest & GoogleMock** — Install development packages for your OS (below). The build also uses **FetchContent** to obtain GoogleTest when you configure with CMake.
 - **Threads** — For concurrency tests (and deadlock tests when enabled).
@@ -85,7 +85,7 @@ brew install googletest cmake ninja
 ## Tools and environment
 
 - **Compiler:** C++20-capable **GCC** or **Clang**
-- **Build:** CMake **3.14+** for presets; Ninja recommended (generator in presets)
+- **Build:** CMake **3.21+** for presets; Ninja recommended (generator in presets)
 - **Tests:** GoogleTest & GoogleMock
 - **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`). `.clangd` points at `build/gcc` for `compile_commands.json`; switch to `build/clang` if you use the clang preset.
 

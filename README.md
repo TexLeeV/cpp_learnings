@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey.svg)]()
-[![CMake](https://img.shields.io/badge/CMake-3.14+%20(presets)-064F8C.svg)](https://cmake.org)
+[![CMake](https://img.shields.io/badge/CMake-3.21+%20(presets)-064F8C.svg)](https://cmake.org)
 
 ## Why This Exists
 
@@ -105,7 +105,7 @@ You fill in TODOs and answer inline questions, run tests, and observe what happe
 
 ## Quickstart
 
-1. **Prerequisites** — CMake **3.14+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.14+** if you configure manually; **C++20 is required** (set in the root file and presets).
+1. **Prerequisites** — CMake **3.21+** for [CMakePresets.json](CMakePresets.json) (`cmake --preset gcc`). The root `CMakeLists.txt` allows **3.21+** if you configure manually; **C++20 is required** (set in the root file and presets).
 2. **Build** — `cmake --preset gcc` then `cmake --build --preset gcc`
 3. **Try it** — `./build/gcc/examples/test_try_it_out` (replace `gcc` with your configure preset name, e.g. `clang`)
 4. **Next** — Start with `learning_shared_ptr` or follow [Full Curriculum](docs/LEARNING_PATH.md).

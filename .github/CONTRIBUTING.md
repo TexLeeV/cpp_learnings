@@ -30,7 +30,7 @@ Thank you for your interest in contributing! This repository helps developers le
 
 ### Required Dependencies
 
-- **CMake 3.14+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.14+ for manual configures
+- **CMake 3.21+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.21+ for manual configures
 - **C++20-compatible compiler** (GCC or Clang with full C++20 support)
 - **GoogleTest and GoogleMock** (for testing; see installation)
 - **Ninja** (recommended build system)
