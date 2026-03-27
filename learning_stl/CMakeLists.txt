@@ -1,7 +1,5 @@
 # STL Deep Dive test suite
 
-find_package(TBB REQUIRED)
-
 add_learning_test(test_container_internals tests/test_container_internals.cpp instrumentation)
 add_learning_test(test_iterators tests/test_iterators.cpp instrumentation)
 add_learning_test(test_algorithms tests/test_algorithms.cpp instrumentation TBB::tbb)
