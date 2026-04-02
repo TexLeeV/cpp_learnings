@@ -1,7 +1,8 @@
 #include "move_instrumentation.h"
+
 #include <gtest/gtest.h>
-#include <utility>
 #include <memory>
+#include <utility>
 #include <vector>
 
 class MoveOnlyTypesTest : public ::testing::Test
@@ -15,114 +16,95 @@ protected:
 
 TEST_F(MoveOnlyTypesTest, UniquePtrBasics)
 {
-    // TODO: Create unique_ptr to MoveTracked with name "Unique"
-    // YOUR CODE HERE
-    
-    // Q: Can you copy a unique_ptr?
-    // A: 
-    // R: 
-    
-    // Q: Why is unique_ptr a move-only type?
-    // A: 
-    // R: 
-    
-    // TODO: Move the unique_ptr to ptr2
-    // YOUR CODE HERE
-    
-    // Q: After moving, what does ptr1 contain?
-    // A: 
-    // R: 
-    
+    auto ptr1 = std::make_unique<MoveTracked>("Unique");
+    auto ptr2 = std::move(ptr1);
+
+    // Q: Why is unique_ptr move-only and what would break if it were copyable?
+    // A:
+    // R:
+
+    // Q: After the move, what does ptr1 contain and what EventLog entries confirm the MoveTracked object was not
+    // destroyed? A: R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
-    
+
     EXPECT_EQ(ctor_count, 1);
 }
 
 TEST_F(MoveOnlyTypesTest, MoveOnlyResourceClass)
 {
-    // TODO: Create Resource object with name "MoveOnly"
-    // YOUR CODE HERE
-    
-    // Q: How do you make a class move-only?
-    // A: 
-    // R: 
-    
-    // TODO: Try to create res2 by moving from res1
-    // YOUR CODE HERE
-    
-    // Q: After moving, is res1 still valid?
-    // A: 
-    // R: 
-    
-    // Q: Can you call res1.is_valid()?
-    // A: 
-    // R: 
-    
+    Resource res1("MoveOnly");
+    Resource res2(std::move(res1));
+
+    // Q: What special member functions must be deleted or defaulted to make a class move-only?
+    // A:
+    // R:
+
+    // Q: After the move, what operations on res1 are well-defined and what would be undefined behavior?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(move_ctor, 1);
 }
 
 TEST_F(MoveOnlyTypesTest, MoveOnlyInContainer)
 {
     std::vector<Resource> vec;
-    
-    // TODO: Create resource with name "InVector"
-    // YOUR CODE HERE
-    
-    // TODO: Move resource into vector
-    // YOUR CODE HERE
-    
-    // Q: Can you push_back a move-only type without std::move?
-    // A: 
-    // R: 
-    
-    // Q: What happens if the vector needs to resize?
-    // A: 
-    // R: 
-    
+    Resource resource("InVector");
+
+    vec.push_back(std::move(resource));
+
+    // Q: What prevents push_back(resource) without std::move from compiling?
+    // A:
+    // R:
+
+    // Q: When the vector resizes, what operation does it use to relocate move-only elements?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_GE(move_ctor, 1);
 }
 
 Resource create_resource()
 {
     Resource res("Created");
-    
+
     // Q: Do you need std::move when returning a local variable?
-    // A: 
-    // R: 
-    
+    // A:
+    // R:
+
     // Q: What is automatic move from local variables?
-    // A: 
-    // R: 
-    
+    // A:
+    // R:
+
     return res;
 }
 
 TEST_F(MoveOnlyTypesTest, ReturnValueOptimization)
 {
     EventLog::instance().clear();
-    
-    // TODO: Call create_resource and capture result
-    // YOUR CODE HERE
-    
-    // Q: Was there a move constructor call?
-    // A: 
-    // R: 
-    
-    // Q: What is copy elision / RVO?
-    // A: 
-    // R: 
-    
+
+    Resource result = create_resource();
+
+    // Q: What EventLog entries show how many constructor calls occurred? What optimization eliminated move operations?
+    // A:
+    // R:
+
+    // Q: What conditions must be met for RVO to apply?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(ctor_count, 1);
     EXPECT_EQ(move_ctor, 0);
 }
@@ -139,184 +121,163 @@ Resource create_conditional(bool condition)
         Resource res2("Branch2");
         return res2;
     }
-    
+
     // Q: Can RVO apply when there are multiple return paths?
-    // A: 
-    // R: 
-    
+    // A:
+    // R:
+
     // Q: What happens to the non-returned object?
-    // A: 
-    // R: 
+    // A:
+    // R:
 }
 
 TEST_F(MoveOnlyTypesTest, ConditionalReturn)
 {
     EventLog::instance().clear();
-    
-    // TODO: Call create_conditional(true)
-    // YOUR CODE HERE
-    
-    // Q: How many Resource constructors were called?
-    // A: 
-    // R: 
-    
-    // Q: How many moves occurred?
-    // A: 
-    // R: 
-    
+
+    Resource result = create_conditional(true);
+
+    // Q: What EventLog entries show how many constructors and moves occurred? Can RVO apply with multiple return paths?
+    // A:
+    // R:
+
+    // Q: What happens to the Resource object in the non-taken branch?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
-    
+
     EXPECT_EQ(ctor_count, 1);
 }
 
 Resource wrong_return_move()
 {
     Resource res("WrongMove");
-    
+
     // Q: Should you use std::move(res) when returning?
-    // A: 
-    // R: 
-    
+    // A:
+    // R:
+
     // Q: How does std::move affect RVO?
-    // A: 
-    // R: 
-    
+    // A:
+    // R:
+
     return std::move(res);
 }
 
 TEST_F(MoveOnlyTypesTest, ReturnMoveAntiPattern)
 {
     EventLog::instance().clear();
-    
-    // TODO: Call wrong_return_move and capture result
-    // YOUR CODE HERE
-    
-    // Q: Was RVO applied when using std::move in return?
-    // A: 
-    // R: 
-    
-    // Q: Why is return std::move(local) an anti-pattern?
-    // A: 
-    // R: 
-    
+
+    Resource result = wrong_return_move();
+
+    // Q: What EventLog entries show whether RVO was applied? How many move operations occurred?
+    // A:
+    // R:
+
+    // Q: Why does `return std::move(local);` prevent RVO and what performance cost does this introduce?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(move_ctor, 1);
 }
 
 struct MoveOnlyWrapper
 {
-    explicit MoveOnlyWrapper(const std::string& name)
-    : resource_(name)
+    explicit MoveOnlyWrapper(const std::string& name) : resource_(name)
     {
     }
-    
+
     MoveOnlyWrapper(const MoveOnlyWrapper&) = delete;
     MoveOnlyWrapper& operator=(const MoveOnlyWrapper&) = delete;
-    
+
     MoveOnlyWrapper(MoveOnlyWrapper&&) = default;
     MoveOnlyWrapper& operator=(MoveOnlyWrapper&&) = default;
-    
+
     Resource resource_;
 };
 
 TEST_F(MoveOnlyTypesTest, DefaultedMoveOperations)
 {
-    // TODO: Create wrapper1 with "Wrapper1"
-    // YOUR CODE HERE
-    
-    // TODO: Move wrapper1 to wrapper2
-    // YOUR CODE HERE
-    
-    // Q: What does = default do for move constructor?
-    // A: 
-    // R: 
-    
-    // Q: What happens to wrapper1.resource_ after the move?
-    // A: 
-    // R: 
-    
+    MoveOnlyWrapper wrapper1("Wrapper1");
+    MoveOnlyWrapper wrapper2(std::move(wrapper1));
+
+    // Q: What does = default generate for the move constructor and what EventLog entries confirm the member-wise move?
+    // A:
+    // R:
+
+    // Q: After the move, what state is wrapper1.resource_ in?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_GE(move_ctor, 1);
 }
 
 TEST_F(MoveOnlyTypesTest, UniquePtrOwnershipTransfer)
 {
     auto ptr1 = std::make_unique<MoveTracked>("UniqueOwner");
-    
-    // TODO: Transfer ownership to ptr2
-    // YOUR CODE HERE
-    
-    // Q: Can you access ptr1 after the transfer?
-    // A: 
-    // R: 
-    
-    // Q: What happens if you dereference ptr1 after transfer?
-    // A: 
-    // R: 
-    
-    bool ptr1_is_null = false;
-    // TODO: Check if ptr1 is nullptr
-    // ptr1_is_null = ???
-    
+    auto ptr2 = std::move(ptr1);
+
+    // Q: What is the value of ptr1 after the transfer and what happens if you dereference it?
+    // A:
+    // R:
+
+    // Q: What EventLog entries confirm the MoveTracked object was not destroyed during the transfer?
+    // A:
+    // R:
+
+    bool ptr1_is_null = (ptr1 == nullptr);
+
     EXPECT_TRUE(ptr1_is_null);
 }
 
 std::unique_ptr<MoveTracked> factory_pattern(const std::string& name)
 {
-    // TODO: Return a unique_ptr created with make_unique
-    // YOUR CODE HERE
-    
-    // Q: Why is factory pattern common with unique_ptr?
-    // A: 
-    // R: 
-    
-    return nullptr;
+    return std::make_unique<MoveTracked>(name);
 }
 
 TEST_F(MoveOnlyTypesTest, FactoryWithUniquePtr)
 {
     EventLog::instance().clear();
-    
-    // TODO: Call factory_pattern and capture result
-    // YOUR CODE HERE
-    
-    // Q: How many moves occurred in the return?
-    // A: 
-    // R: 
-    
-    // Q: Does returning unique_ptr guarantee no copies?
-    // A: 
-    // R: 
-    
+
+    auto ptr = factory_pattern("Factory");
+
+    // Q: What EventLog entries show how many moves occurred? Why is returning unique_ptr efficient?
+    // A:
+    // R:
+
+    // Q: Why is the factory pattern common with unique_ptr and what ownership semantics does it establish?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
-    
+
     EXPECT_GE(ctor_count, 0);
 }
 
 TEST_F(MoveOnlyTypesTest, MoveOnlyInVector)
 {
     std::vector<std::unique_ptr<MoveTracked>> vec;
-    
-    // TODO: Create unique_ptr and move into vector
-    // YOUR CODE HERE
-    
-    // TODO: Move another unique_ptr into vector
-    // YOUR CODE HERE
-    
-    // Q: Can vector<unique_ptr> be copied?
-    // A: 
-    // R: 
-    
-    // Q: Can vector<unique_ptr> be moved?
-    // A: 
-    // R: 
-    
+
+    vec.push_back(std::make_unique<MoveTracked>("First"));
+    vec.push_back(std::make_unique<MoveTracked>("Second"));
+
+    // Q: What prevents vector<unique_ptr<T>> from being copyable?
+    // A:
+    // R:
+
+    // Q: When you move a vector<unique_ptr<T>>, what happens to the unique_ptrs and their managed objects?
+    // A:
+    // R:
+
     size_t vec_size = vec.size();
     EXPECT_GE(vec_size, 0);
 }
@@ -324,51 +285,48 @@ TEST_F(MoveOnlyTypesTest, MoveOnlyInVector)
 TEST_F(MoveOnlyTypesTest, TemporaryMoveOnly)
 {
     std::vector<Resource> vec;
-    
-    // TODO: Push back a temporary Resource
-    // YOUR CODE HERE
-    
-    // Q: Is std::move needed for temporaries?
-    // A: 
-    // R: 
-    
-    // Q: How does the compiler treat temporary move-only objects?
-    // A: 
-    // R: 
-    
+
+    vec.push_back(Resource("Temporary"));
+
+    // Q: Why is std::move not needed when pushing back a temporary?
+    // A:
+    // R:
+
+    // Q: What value category is Resource("Temporary") and how does this enable move operations?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
-    
+
     EXPECT_GE(ctor_count, 1);
 }
 
 class MoveCounter
 {
 public:
-    MoveCounter()
-    : move_count_(0)
+    MoveCounter() : move_count_(0)
     {
     }
-    
+
     MoveCounter(const MoveCounter&) = delete;
     MoveCounter& operator=(const MoveCounter&) = delete;
-    
-    MoveCounter(MoveCounter&& other) noexcept
-    : move_count_(other.move_count_ + 1)
+
+    MoveCounter(MoveCounter&& other) noexcept : move_count_(other.move_count_ + 1)
     {
     }
-    
+
     MoveCounter& operator=(MoveCounter&& other) noexcept
     {
         move_count_ = other.move_count_ + 1;
         return *this;
     }
-    
+
     int move_count() const
     {
         return move_count_;
     }
-    
+
 private:
     int move_count_;
 };
@@ -376,17 +334,16 @@ private:
 TEST_F(MoveOnlyTypesTest, TrackingMoveOperations)
 {
     MoveCounter counter;
-    
-    // TODO: Move counter multiple times
-    // YOUR CODE HERE
-    
-    // Q: How many times was the object moved?
-    // A: 
-    // R: 
-    
-    // Q: What's the relationship between move count and object identity?
-    // A: 
-    // R: 
-    
+    MoveCounter c2(std::move(counter));
+    MoveCounter c3(std::move(c2));
+
+    // Q: What is c3.move_count() and how does the MoveCounter implementation track the number of moves?
+    // A:
+    // R:
+
+    // Q: After multiple moves, which object holds the final state and what happened to the previous objects?
+    // A:
+    // R:
+
     EXPECT_TRUE(true);
 }

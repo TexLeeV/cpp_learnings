@@ -1,30 +1,74 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": { "major": 3, "minor": 23, "patch": 0 },
-    "configurePresets": [
-      {
-        "name": "gcc",
-        "generator": "Ninja",
-        "binaryDir": "${sourceDir}/build/gcc",
-        "cacheVariables": {
-          "CMAKE_C_COMPILER": "gcc",
-          "CMAKE_CXX_COMPILER": "g++",
-          "CMAKE_CXX_STANDARD": "17",
-          "CMAKE_BUILD_TYPE": "Debug",
-          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-        }
+  "version": 3,
+  "cmakeMinimumRequired": {"major": 3, "minor": 14, "patch": 0},
+  "configurePresets": [
+    {
+      "name": "gcc",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
-    ],
-    "buildPresets": [
-      {
-        "name": "gcc",
-        "configurePreset": "gcc"
+    },
+    {
+      "name": "clang",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/clang",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
-    ],
-    "testPresets": [
-      {
-        "name": "gcc",
-        "configurePreset": "gcc"
+    },
+    {
+      "name": "gcc-asan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc-asan",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=address,undefined"
       }
-    ]
+    },
+    {
+      "name": "gcc-tsan",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc-tsan",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=thread"
+      }
+    }
+  ],
+  "buildPresets": [
+    {"name": "gcc", "configurePreset": "gcc"},
+    {"name": "clang", "configurePreset": "clang"},
+    {"name": "gcc-asan", "configurePreset": "gcc-asan"},
+    {"name": "gcc-tsan", "configurePreset": "gcc-tsan"}
+  ],
+  "testPresets": [
+    {"name": "gcc", "configurePreset": "gcc"},
+    {"name": "clang", "configurePreset": "clang"},
+    {"name": "gcc-asan", "configurePreset": "gcc-asan"},
+    {"name": "gcc-tsan", "configurePreset": "gcc-tsan"}
+  ]
 }

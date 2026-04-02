@@ -1,9 +1,10 @@
 #include "instrumentation.h"
+
 #include <gtest/gtest.h>
-#include <memory>
 #include <map>
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 
 class CollectionPatternsTest : public ::testing::Test
 {
@@ -17,16 +18,15 @@ protected:
 class CachedResource
 {
 public:
-    explicit CachedResource(const std::string& name)
-    : tracked_(name)
+    explicit CachedResource(const std::string& name) : tracked_(name)
     {
     }
-    
+
     std::string name() const
     {
         return tracked_.name();
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -38,29 +38,29 @@ public:
     std::shared_ptr<CachedResource> get(const std::string& key)
     {
         auto it = cache_.find(key);
-        
+
         if (it != cache_.end())
         {
             std::shared_ptr<CachedResource> resource = it->second.lock();
-            
+
             if (resource)
             {
                 return resource;
             }
-            
+
             cache_.erase(it);
         }
-        
+
         std::shared_ptr<CachedResource> new_resource = std::make_shared<CachedResource>(key);
         cache_[key] = new_resource;
         return new_resource;
     }
-    
+
     size_t size() const
     {
         return cache_.size();
     }
-    
+
     void cleanup()
     {
         for (auto it = cache_.begin(); it != cache_.end();)
@@ -75,7 +75,7 @@ public:
             }
         }
     }
-    
+
 private:
     std::map<std::string, std::weak_ptr<CachedResource>> cache_;
 };
@@ -83,29 +83,25 @@ private:
 TEST_F(CollectionPatternsTest, WeakPtrCacheBasic)
 {
     ResourceCache cache;
-    
-    size_t initial_size = 0;
-    // TODO: Get initial cache size
-    // initial_size = ???
-    
-    // TODO: Get resource "Resource1" from cache
-    // YOUR CODE HERE
-    
-    size_t after_first_get = 0;
-    // TODO: Get cache size after first get
-    // after_first_get = ???
-    
-    // TODO: Get same resource again
-    // YOUR CODE HERE
-    
-    size_t after_second_get = 0;
-    // TODO: Get cache size after second get
-    // after_second_get = ???
-    
-    long use_count = 0;
-    // TODO: Get use_count of r1
-    // use_count = ???
-    
+
+    size_t initial_size = cache.size();
+
+    auto r1 = cache.get("Resource1");
+
+    size_t after_first_get = cache.size();
+
+    auto r2 = cache.get("Resource1");
+
+    size_t after_second_get = cache.size();
+    // Q: Why does `after_second_get` remain at 1 instead of increasing to 2?
+    // A:
+    // R:
+
+    long use_count = r1.use_count();
+    // Q: What are the two owners contributing to `use_count == 2`?
+    // A:
+    // R:
+
     EXPECT_EQ(initial_size, 0);
     EXPECT_EQ(after_first_get, 1);
     EXPECT_EQ(after_second_get, 1);
@@ -115,23 +111,23 @@ TEST_F(CollectionPatternsTest, WeakPtrCacheBasic)
 TEST_F(CollectionPatternsTest, WeakPtrCacheExpiration)
 {
     ResourceCache cache;
-    
+
     {
-        // TODO: Get resource "Temp" in inner scope
-        // YOUR CODE HERE
+        auto temp = cache.get("Temp");
     }
-    
-    size_t before_cleanup = 0;
-    // TODO: Get cache size before cleanup
-    // before_cleanup = ???
-    
-    // TODO: Call cache.cleanup()
-    // YOUR CODE HERE
-    
-    size_t after_cleanup = 0;
-    // TODO: Get cache size after cleanup
-    // after_cleanup = ???
-    
+
+    size_t before_cleanup = cache.size();
+    // Q: After the scope exits, why does `before_cleanup` still equal 1? What does the cache still contain?
+    // A:
+    // R:
+
+    cache.cleanup();
+
+    size_t after_cleanup = cache.size();
+    // Q: What operation in `cleanup()` causes `after_cleanup` to become 0?
+    // A:
+    // R:
+
     EXPECT_EQ(before_cleanup, 1);
     EXPECT_EQ(after_cleanup, 0);
 }
@@ -139,30 +135,27 @@ TEST_F(CollectionPatternsTest, WeakPtrCacheExpiration)
 TEST_F(CollectionPatternsTest, WeakPtrCacheAutoRecreate)
 {
     ResourceCache cache;
-    
+
     {
-        // TODO: Get resource "AutoRecreate" in inner scope
-        // YOUR CODE HERE
+        auto r1 = cache.get("AutoRecreate");
     }
-    
-    // TODO: Get same resource again after first is destroyed
-    // YOUR CODE HERE
-    
-    long use_count = 0;
-    // TODO: Get use_count
-    // use_count = ???
-    
+
+    auto r2 = cache.get("AutoRecreate");
+
+    long use_count = r2.use_count();
+    // Q: After the first scope exits, what happens when `cache.get("AutoRecreate")` is called again? Walk through the
+    // logic in `get()`. A: R:
+
     EXPECT_EQ(use_count, 1);
 }
 
 class Event
 {
 public:
-    explicit Event(const std::string& name)
-    : tracked_(name)
+    explicit Event(const std::string& name) : tracked_(name)
     {
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -170,15 +163,14 @@ private:
 class Observer
 {
 public:
-    explicit Observer(const std::string& name)
-    : tracked_(name)
+    explicit Observer(const std::string& name) : tracked_(name)
     {
     }
-    
+
     void notify(const Event& event)
     {
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -191,13 +183,13 @@ public:
     {
         observers_.push_back(observer);
     }
-    
+
     void notify_all(const Event& event)
     {
         for (auto it = observers_.begin(); it != observers_.end();)
         {
             std::shared_ptr<Observer> observer = it->lock();
-            
+
             if (observer)
             {
                 observer->notify(event);
@@ -209,12 +201,12 @@ public:
             }
         }
     }
-    
+
     size_t observer_count() const
     {
         return observers_.size();
     }
-    
+
 private:
     std::vector<std::weak_ptr<Observer>> observers_;
 };
@@ -222,43 +214,47 @@ private:
 TEST_F(CollectionPatternsTest, ObserverPatternBasic)
 {
     Subject subject;
-    
-    // TODO: Create obs1 and obs2
-    // YOUR CODE HERE
-    
-    // TODO: Attach both observers to subject
-    // YOUR CODE HERE
-    
-    size_t count = 0;
-    // TODO: Get observer count
-    // count = ???
-    
-    // TODO: Create event and notify all
-    // YOUR CODE HERE
-    
+
+    auto obs1 = std::make_shared<Observer>("Obs1");
+    auto obs2 = std::make_shared<Observer>("Obs2");
+
+    subject.attach(obs1);
+    subject.attach(obs2);
+
+    size_t count = subject.observer_count();
+
+    Event event("Event1");
+    subject.notify_all(event);
+    // Q: Why does `Subject` store `weak_ptr<Observer>` instead of `shared_ptr<Observer>`? What problem does this
+    // prevent? A: R:
+
     EXPECT_EQ(count, 2);
 }
 
 TEST_F(CollectionPatternsTest, ObserverPatternAutoRemoval)
 {
     Subject subject;
-    
+
     {
-        // TODO: Create two observers in inner scope and attach them
-        // YOUR CODE HERE
+        auto obs1 = std::make_shared<Observer>("Obs1");
+        auto obs2 = std::make_shared<Observer>("Obs2");
+        subject.attach(obs1);
+        subject.attach(obs2);
     }
-    
-    size_t before_notify = 0;
-    // TODO: Get observer count before notify
-    // before_notify = ???
-    
-    // TODO: Create event and notify all
-    // YOUR CODE HERE
-    
-    size_t after_notify = 0;
-    // TODO: Get observer count after notify
-    // after_notify = ???
-    
+
+    size_t before_notify = subject.observer_count();
+    // Q: After the scope exits, why does `before_notify` still equal 2? What does the vector still contain?
+    // A:
+    // R:
+
+    Event event("Event1");
+    subject.notify_all(event);
+
+    size_t after_notify = subject.observer_count();
+    // Q: What operation in `notify_all()` causes `after_notify` to become 0?
+    // A:
+    // R:
+
     EXPECT_EQ(before_notify, 2);
     EXPECT_EQ(after_notify, 0);
 }
@@ -266,29 +262,25 @@ TEST_F(CollectionPatternsTest, ObserverPatternAutoRemoval)
 TEST_F(CollectionPatternsTest, ObserverPatternPartialExpiration)
 {
     Subject subject;
-    
-    // TODO: Create persistent observer in outer scope
-    // YOUR CODE HERE
-    
-    // TODO: Attach persistent observer
-    // YOUR CODE HERE
-    
+
+    auto persistent = std::make_shared<Observer>("Persistent");
+
+    subject.attach(persistent);
+
     {
-        // TODO: Create temporary observer in inner scope and attach
-        // YOUR CODE HERE
+        auto temporary = std::make_shared<Observer>("Temporary");
+        subject.attach(temporary);
     }
-    
-    size_t before_notify = 0;
-    // TODO: Get observer count before notify
-    // before_notify = ???
-    
-    // TODO: Notify all
-    // YOUR CODE HERE
-    
-    size_t after_notify = 0;
-    // TODO: Get observer count after notify
-    // after_notify = ???
-    
+
+    size_t before_notify = subject.observer_count();
+
+    Event event("Event1");
+    subject.notify_all(event);
+
+    size_t after_notify = subject.observer_count();
+    // Q: Why does `after_notify` equal 1 instead of 0? What differentiates the persistent observer from the temporary
+    // one? A: R:
+
     EXPECT_EQ(before_notify, 2);
     EXPECT_EQ(after_notify, 1);
 }
@@ -296,16 +288,15 @@ TEST_F(CollectionPatternsTest, ObserverPatternPartialExpiration)
 class RegistryEntry
 {
 public:
-    explicit RegistryEntry(const std::string& name)
-    : tracked_(name)
+    explicit RegistryEntry(const std::string& name) : tracked_(name)
     {
     }
-    
+
     std::string name() const
     {
         return tracked_.name();
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -318,24 +309,24 @@ public:
     {
         entries_[key] = entry;
     }
-    
+
     std::shared_ptr<RegistryEntry> lookup(const std::string& key)
     {
         auto it = entries_.find(key);
-        
+
         if (it != entries_.end())
         {
             return it->second.lock();
         }
-        
+
         return nullptr;
     }
-    
+
     size_t size() const
     {
         return entries_.size();
     }
-    
+
     void cleanup()
     {
         for (auto it = entries_.begin(); it != entries_.end();)
@@ -350,7 +341,7 @@ public:
             }
         }
     }
-    
+
 private:
     std::map<std::string, std::weak_ptr<RegistryEntry>> entries_;
 };
@@ -358,35 +349,31 @@ private:
 TEST_F(CollectionPatternsTest, RegistryPattern)
 {
     Registry registry;
-    
+
     {
-        // TODO: Create entry1 in inner scope and register with "key1"
-        // YOUR CODE HERE
+        auto entry1 = std::make_shared<RegistryEntry>("Entry1");
+        registry.register_entry("key1", entry1);
     }
-    
-    // TODO: Create entry2 in outer scope and register with "key2"
-    // YOUR CODE HERE
-    
-    size_t before_cleanup = 0;
-    // TODO: Get registry size before cleanup
-    // before_cleanup = ???
-    
-    // TODO: Call registry.cleanup()
-    // YOUR CODE HERE
-    
-    size_t after_cleanup = 0;
-    // TODO: Get registry size after cleanup
-    // after_cleanup = ???
-    
-    // TODO: Lookup both keys
-    // YOUR CODE HERE
-    
-    bool lookup1_null = false;
-    bool lookup2_not_null = false;
-    // TODO: Check lookup results
-    // lookup1_null = ???
-    // lookup2_not_null = ???
-    
+
+    auto entry2 = std::make_shared<RegistryEntry>("Entry2");
+    registry.register_entry("key2", entry2);
+
+    size_t before_cleanup = registry.size();
+    // Q: After entry1's scope exits, why does `before_cleanup` still equal 2? What does the registry still contain for
+    // "key1"? A: R:
+
+    registry.cleanup();
+
+    size_t after_cleanup = registry.size();
+
+    auto lookup1 = registry.lookup("key1");
+    auto lookup2 = registry.lookup("key2");
+
+    bool lookup1_null = (lookup1 == nullptr);
+    bool lookup2_not_null = (lookup2 != nullptr);
+    // Q: Why does `lookup1` return nullptr while `lookup2` returns a valid pointer? What differentiates their states in
+    // the registry? A: R:
+
     EXPECT_EQ(before_cleanup, 2);
     EXPECT_EQ(after_cleanup, 1);
     EXPECT_TRUE(lookup1_null);
@@ -396,21 +383,19 @@ TEST_F(CollectionPatternsTest, RegistryPattern)
 TEST_F(CollectionPatternsTest, MultipleObserversSharedLifetime)
 {
     Subject subject;
-    
-    // TODO: Create one observer
-    // YOUR CODE HERE
-    
-    // TODO: Attach same observer three times
-    // YOUR CODE HERE
-    
-    size_t count = 0;
-    // TODO: Get observer count
-    // count = ???
-    
-    long use_count = 0;
-    // TODO: Get use_count of obs1
-    // use_count = ???
-    
+
+    auto obs1 = std::make_shared<Observer>("Obs1");
+
+    subject.attach(obs1);
+    subject.attach(obs1);
+    subject.attach(obs1);
+
+    size_t count = subject.observer_count();
+
+    long use_count = obs1.use_count();
+    // Q: Why does `use_count` remain at 1 despite attaching the same observer three times? What does this reveal about
+    // weak_ptr's impact on reference counting? A: R:
+
     EXPECT_EQ(count, 3);
     EXPECT_EQ(use_count, 1);
 }

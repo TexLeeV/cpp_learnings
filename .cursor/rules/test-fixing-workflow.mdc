@@ -1,0 +1,62 @@
+---
+description: Workflow for fixing and validating unit tests one at a time
+alwaysApply: false
+---
+
+# Test Fixing Workflow
+
+## Core Principle
+
+Fix and validate tests **one at a time** with immediate feedback, not in bulk.
+
+## Workflow
+
+### 1. Fix One Test File
+
+- Read the test file
+- Identify TODO sections that need implementation
+- Fill according to active profile's "fill" setting (e.g., senior profile uses "fill: trivial-only")
+- Apply fixes to that file only
+
+### 2. Run Specific Test
+
+Use targeted ctest command:
+
+```bash
+ctest --preset gcc -R <test_name> --output-on-failure
+```
+
+Examples:
+- `ctest --preset gcc -R test_anti_patterns --output-on-failure`
+- `ctest --preset gcc -R test_try_it_out --output-on-failure`
+
+### 3. Validate Pass
+
+- Verify test passes (exit code 0, all assertions pass)
+- If test fails, fix issues immediately while context is fresh
+- Do NOT move to next test until current test passes
+
+### 4. Move to Next Test
+
+Only after current test fully passes, proceed to next failing test.
+
+## Anti-Patterns
+
+**Don't**:
+- Run full `ctest` suite between fixes
+- Fix multiple test files before validating any
+- Continue to next test with failing tests
+- Batch-fix errors across multiple files
+
+**Do**:
+- Fix one test file at a time
+- Run targeted ctest for that specific test
+- Validate pass before moving on
+- Keep feedback loop tight and immediate
+
+## Rationale
+
+- **Immediate feedback**: Catch errors in context while fresh
+- **Reduced cognitive load**: Focus on one problem at a time
+- **Incremental progress**: Each test becomes a validated checkpoint
+- **Faster debugging**: Errors are isolated to recent changes

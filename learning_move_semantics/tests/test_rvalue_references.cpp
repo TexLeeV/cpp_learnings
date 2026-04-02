@@ -1,4 +1,5 @@
 #include "move_instrumentation.h"
+
 #include <gtest/gtest.h>
 #include <utility>
 #include <vector>
@@ -14,66 +15,46 @@ protected:
 
 TEST_F(RvalueReferencesTest, LvalueVsRvalue)
 {
-    // TODO: Create an lvalue MoveTracked object named obj with "Lvalue"
-    // YOUR CODE HERE
-    
-    // TODO: Create a vector and push_back obj
-    // YOUR CODE HERE
-    
-    // Q: When you called push_back(obj), which constructor was invoked—copy or move?
-    // A: 
-    // R: 
-    
-    // Q: Why was the copy constructor chosen?
-    // A: 
-    // R: 
-    
-    // TODO: Now push_back an rvalue using MoveTracked("Rvalue")
-    // YOUR CODE HERE
-    
-    // Q: When you called push_back(MoveTracked("Rvalue")), which constructor was invoked?
-    // A: 
-    // R: 
-    
-    // Q: What is the difference between obj and MoveTracked("Rvalue") in terms of value category?
-    // A: 
-    // R: 
-    
+    MoveTracked obj("Lvalue");
+    std::vector<MoveTracked> vec;
+
+    vec.push_back(obj);
+    vec.push_back(MoveTracked("Rvalue"));
+
+    // Q: What EventLog entries distinguish the push_back(obj) from push_back(MoveTracked("Rvalue"))?
+    // A:
+    // R:
+
+    // Q: What property of obj versus MoveTracked("Rvalue") determines which constructor overload is selected?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t copy_ctor_count = EventLog::instance().count_events("copy_ctor");
     size_t move_ctor_count = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(copy_ctor_count, 1);
     EXPECT_GE(move_ctor_count, 1);
 }
 
 TEST_F(RvalueReferencesTest, StdMoveBasics)
 {
-    // TODO: Create obj1 with name "Original"
-    // YOUR CODE HERE
-    
-    // TODO: Create obj2 by moving from obj1 using std::move
-    // YOUR CODE HERE
-    
-    // Q: What does std::move(obj1) actually do to obj1?
-    // A: 
-    // R: 
-    
-    // Q: After the move, is obj1 still in a valid state?
-    // A: 
-    // R: 
-    
-    // Q: What observable signal in the event log confirms a move occurred?
-    // A: 
-    // R: 
-    
-    // TODO: Check if obj1 is moved-from
-    bool obj1_moved = false;
-    // obj1_moved = ???
-    
+    MoveTracked obj1("Original");
+    MoveTracked obj2(std::move(obj1));
+
+    // Q: What does std::move(obj1) do and what state is obj1 in after the move constructor completes?
+    // A:
+    // R:
+
+    // Q: What EventLog entry confirms a move occurred rather than a copy?
+    // A:
+    // R:
+
+    bool obj1_moved = obj1.name().empty();
+
     auto events = EventLog::instance().events();
     size_t move_ctor_count = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_TRUE(obj1_moved);
     EXPECT_EQ(move_ctor_count, 1);
 }
@@ -81,101 +62,80 @@ TEST_F(RvalueReferencesTest, StdMoveBasics)
 TEST_F(RvalueReferencesTest, TemporaryLifetime)
 {
     {
-        // TODO: Create an lvalue reference that binds to a temporary
-        // Hint: This is illegal - const MoveTracked& ref = MoveTracked("Temp"); is legal
-        // YOUR CODE HERE
-        
-        // Q: Can you bind a non-const lvalue reference to a temporary?
-        // A: 
-        // R: 
-        
-        // Q: Why does const lvalue reference extend the temporary's lifetime?
-        // A: 
-        // R: 
-        
-        // TODO: Create an rvalue reference that binds to a temporary
-        // YOUR CODE HERE
-        
-        // Q: Does the rvalue reference extend the temporary's lifetime?
-        // A: 
-        // R: 
+        const MoveTracked& ref = MoveTracked("Temp");
+        MoveTracked&& rref = MoveTracked("RTemp");
+
+        // Q: What EventLog entries show when each temporary was constructed and when will each be destroyed?
+        // A:
+        // R:
+
+        // Q: If you removed the const from the lvalue reference, would the code compile?
+        // A:
+        // R:
     }
-    
-    // Q: At what point in the code was the temporary destroyed?
-    // A: 
-    // R: 
-    
+
+    // Q: At this point, what EventLog entries confirm both temporaries were destroyed?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor");
     size_t dtor_count = EventLog::instance().count_events("::dtor");
-    
+
     EXPECT_GE(ctor_count, 1);
     EXPECT_GE(dtor_count, 1);
 }
 
 TEST_F(RvalueReferencesTest, MoveConstructorElision)
 {
+    std::vector<MoveTracked> vec;
+    vec.reserve(2);
+
     EventLog::instance().clear();
-    
-    // TODO: Create a vector and reserve space for 2 elements
-    // YOUR CODE HERE
-    
-    EventLog::instance().clear();
-    
-    // TODO: Push back MoveTracked("First")
-    // YOUR CODE HERE
-    
-    // Q: How many MoveTracked constructors were called for this push_back?
-    // A: 
-    // R: 
-    
-    // Q: Was there a move constructor call, or was the object constructed in-place?
-    // A: 
-    // R: 
-    
+
+    vec.emplace_back("First");
+
+    // Q: What EventLog entries appear from this emplace_back? How many MoveTracked objects were constructed?
+    // A:
+    // R:
+
+    // Q: How does emplace_back differ from push_back in terms of construction location?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
     size_t move_ctor_count = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(ctor_count, 1);
     EXPECT_EQ(move_ctor_count, 0);
 }
 
 TEST_F(RvalueReferencesTest, RvalueReferenceFunctionOverloading)
 {
-    auto process_lvalue = [](MoveTracked& obj)
-    {
-        EventLog::instance().record("process_lvalue called");
-    };
-    
-    auto process_rvalue = [](MoveTracked&& obj)
-    {
-        EventLog::instance().record("process_rvalue called");
-    };
-    
-    // TODO: Create an lvalue object
-    // YOUR CODE HERE
-    
+    auto process_lvalue = [](MoveTracked& obj) { EventLog::instance().record("process_lvalue called"); };
+
+    auto process_rvalue = [](MoveTracked&& obj) { EventLog::instance().record("process_rvalue called"); };
+
+    MoveTracked obj("Overload");
+
     EventLog::instance().clear();
-    
-    // TODO: Call process_lvalue with the lvalue
-    // YOUR CODE HERE
-    
-    // TODO: Call process_rvalue with std::move(obj)
-    // YOUR CODE HERE
-    
-    // Q: Why does std::move(obj) bind to the rvalue reference overload?
-    // A: 
-    // R: 
-    
-    // Q: After calling process_rvalue(std::move(obj)), is obj still valid?
-    // A: 
-    // R: 
-    
+
+    process_lvalue(obj);
+    process_rvalue(std::move(obj));
+
+    // Q: What determines which overload is selected and what EventLog entries confirm the selections?
+    // A:
+    // R:
+
+    // Q: After process_rvalue(std::move(obj)), obj is still valid. What operations on obj would be well-defined?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t lvalue_calls = EventLog::instance().count_events("process_lvalue");
     size_t rvalue_calls = EventLog::instance().count_events("process_rvalue");
-    
+
     EXPECT_EQ(lvalue_calls, 1);
     EXPECT_EQ(rvalue_calls, 1);
 }
@@ -183,55 +143,39 @@ TEST_F(RvalueReferencesTest, RvalueReferenceFunctionOverloading)
 TEST_F(RvalueReferencesTest, MoveIntoContainer)
 {
     std::vector<MoveTracked> vec;
-    
-    // TODO: Create obj with name "ToMove"
-    // YOUR CODE HERE
-    
+    MoveTracked obj("ToMove");
+
     EventLog::instance().clear();
-    
-    // TODO: Move obj into vector
-    // YOUR CODE HERE
-    
-    // Q: How many copy constructors were called?
-    // A: 
-    // R: 
-    
-    // Q: How many move constructors were called?
-    // A: 
-    // R: 
-    
-    // Q: What is the performance benefit of moving instead of copying?
-    // A: 
-    // R: 
-    
+
+    vec.push_back(std::move(obj));
+
+    // Q: What EventLog entries confirm zero copies and at least one move?
+    // A:
+    // R:
+
+    // Q: For a type with expensive copy operations, what resource operations does move avoid?
+    // A:
+    // R:
+
     auto events = EventLog::instance().events();
     size_t copy_count = EventLog::instance().count_events("copy_ctor");
     size_t move_count = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(copy_count, 0);
     EXPECT_GE(move_count, 1);
 }
 
 TEST_F(RvalueReferencesTest, ValueCategoryInExpression)
 {
-    // TODO: Create obj with name "Value"
-    // YOUR CODE HERE
-    
-    // Q: What is the value category of obj?
-    // A: 
-    // R: 
-    
-    // Q: What is the value category of std::move(obj)?
-    // A: 
-    // R: 
-    
-    // Q: What is the value category of MoveTracked("Temp")?
-    // A: 
-    // R: 
-    
-    // Q: Does calling std::move on obj change obj's type?
-    // A: 
-    // R: 
-    
+    MoveTracked obj("Value");
+
+    // Q: What are the value categories of: obj, std::move(obj), and MoveTracked("Temp")?
+    // A:
+    // R:
+
+    // Q: Does std::move change obj's type or just cast it? What is the return type of std::move(obj)?
+    // A:
+    // R:
+
     EXPECT_TRUE(true);
 }

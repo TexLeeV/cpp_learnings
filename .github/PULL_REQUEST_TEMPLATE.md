@@ -43,7 +43,7 @@ Paste relevant test output here
 
 ## Documentation
 
-- [ ] Updated main README.md (if adding new module)
+- [ ] Updated main README.md and `docs/LEARNING_PATH.md` (if adding or changing module registration)
 - [ ] Q/A/R patterns are correct and preserved (if applicable)
 - [ ] No additional README files created in subdirectories
 - [ ] No large summary sections added to code files

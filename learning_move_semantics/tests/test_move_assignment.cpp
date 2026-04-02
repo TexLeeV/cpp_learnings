@@ -1,4 +1,5 @@
 #include "move_instrumentation.h"
+
 #include <gtest/gtest.h>
 #include <utility>
 
@@ -13,84 +14,62 @@ protected:
 
 TEST_F(MoveAssignmentTest, BasicMoveAssignment)
 {
-    // TODO: Create obj1 with name "Source"
-    // YOUR CODE HERE
-    
-    // TODO: Create obj2 with name "Destination"
-    // YOUR CODE HERE
-    
+    MoveTracked obj1("Source");
+    MoveTracked obj2("Destination");
+
     EventLog::instance().clear();
-    
-    // TODO: Move assign obj1 to obj2 using std::move
-    // YOUR CODE HERE
-    
-    // Q: Which object's move assignment operator was called?
-    // A: 
-    // R: 
-    
-    // Q: After the move assignment, what happens to obj2's original state?
-    // A: 
-    // R: 
-    
-    // Q: What is the key difference between move constructor and move assignment?
-    // A: 
-    // R: 
-    
+
+    obj2 = std::move(obj1);
+
+    // Q: What EventLog entries confirm the move assignment and what happened to obj2's original resource?
+    // A:
+    // R:
+
+    // Q: Move constructor initializes a new object; move assignment replaces an existing one. What resource management
+    // must move assignment handle that move constructor does not? A: R:
+
     auto events = EventLog::instance().events();
     size_t move_assign_count = EventLog::instance().count_events("move_assign");
-    
+
     EXPECT_EQ(move_assign_count, 1);
 }
 
 TEST_F(MoveAssignmentTest, SelfMoveAssignment)
 {
-    // TODO: Create obj with name "SelfMove"
-    // YOUR CODE HERE
-    
+    MoveTracked obj("SelfMove");
+
     EventLog::instance().clear();
-    
-    // TODO: Move assign obj to itself: obj = std::move(obj)
-    // YOUR CODE HERE
-    
-    // Q: What should happen when an object is move-assigned to itself?
-    // A: 
-    // R: 
-    
-    // Q: Should the move assignment operator check for self-assignment?
-    // A: 
-    // R: 
-    
-    // Q: What would happen if there's no self-assignment check?
-    // A: 
-    // R: 
-    
+
+    obj = std::move(obj);
+
+    // Q: What observable behavior results from self-move-assignment? What EventLog entries appear?
+    // A:
+    // R:
+
+    // Q: If the move assignment operator lacked a self-assignment check and deleted its resource before stealing from
+    // 'other', what would happen when this == &other? A: R:
+
     auto events = EventLog::instance().events();
     size_t move_assign_count = EventLog::instance().count_events("move_assign");
-    
+
     EXPECT_EQ(move_assign_count, 1);
 }
 
 class RuleOfFive
 {
 public:
-    explicit RuleOfFive(const std::string& name)
-    : tracked_(name)
+    explicit RuleOfFive(const std::string& name) : tracked_(name)
     {
     }
-    
-    // TODO: Implement copy constructor
-    RuleOfFive(const RuleOfFive& other)
-    : tracked_(other.tracked_)
+
+    RuleOfFive(const RuleOfFive& other) : tracked_(other.tracked_)
     {
     }
-    
-    // TODO: Implement move constructor
-    RuleOfFive(RuleOfFive&& other) noexcept
-    : tracked_(std::move(other.tracked_))
+
+    RuleOfFive(RuleOfFive&& other) noexcept : tracked_(std::move(other.tracked_))
     {
     }
-    
-    // TODO: Implement copy assignment operator
+
     RuleOfFive& operator=(const RuleOfFive& other)
     {
         if (this != &other)
@@ -99,8 +78,7 @@ public:
         }
         return *this;
     }
-    
-    // TODO: Implement move assignment operator
+
     RuleOfFive& operator=(RuleOfFive&& other) noexcept
     {
         if (this != &other)
@@ -109,152 +87,124 @@ public:
         }
         return *this;
     }
-    
-    // TODO: Implement destructor
+
     ~RuleOfFive()
     {
     }
-    
+
     std::string name() const
     {
         return tracked_.name();
     }
-    
+
 private:
     MoveTracked tracked_;
 };
 
 TEST_F(MoveAssignmentTest, RuleOfFiveComplete)
 {
-    // TODO: Create obj1 with "First"
-    // YOUR CODE HERE
-    
-    // TODO: Create obj2 by copying obj1
-    // YOUR CODE HERE
-    
-    // TODO: Create obj3 by moving from obj1
-    // YOUR CODE HERE
-    
-    // Q: How many copy constructors were called in total?
-    // A: 
-    // R: 
-    
-    // Q: How many move constructors were called in total?
-    // A: 
-    // R: 
-    
-    // Q: Why do we need all five special member functions (Rule of Five)?
-    // A: 
-    // R: 
-    
+    RuleOfFive obj1("First");
+    RuleOfFive obj2(obj1);
+    RuleOfFive obj3(obj2);
+    RuleOfFive obj4(std::move(obj1));
+
+    // Q: What EventLog entries confirm the copy and move operations? How many of each occurred?
+    // A:
+    // R:
+
+    // Q: If you define a move constructor but not a move assignment operator, what happens when you attempt move
+    // assignment? A: R:
+
     auto events = EventLog::instance().events();
     size_t copy_ctor = EventLog::instance().count_events("copy_ctor");
     size_t move_ctor = EventLog::instance().count_events("move_ctor");
-    
+
     EXPECT_EQ(copy_ctor, 2);
     EXPECT_EQ(move_ctor, 1);
 }
 
 TEST_F(MoveAssignmentTest, MoveAssignmentChain)
 {
-    // TODO: Create obj1, obj2, obj3 with names "First", "Second", "Third"
-    // YOUR CODE HERE
-    
+    MoveTracked obj1("First");
+    MoveTracked obj2("Second");
+    MoveTracked obj3("Third");
+
     EventLog::instance().clear();
-    
-    // TODO: Chain move assignments: obj3 = std::move(obj2) = std::move(obj1)
-    // Note: This should NOT compile correctly - assignment doesn't return rvalue ref
-    // Instead, do: obj2 = std::move(obj1); obj3 = std::move(obj2);
-    // YOUR CODE HERE
-    
-    // Q: After obj2 = std::move(obj1), what state is obj1 in?
-    // A: 
-    // R: 
-    
-    // Q: After obj3 = std::move(obj2), can you still move from obj2 again?
-    // A: 
-    // R: 
-    
-    // Q: How many objects are in valid (not moved-from) state?
-    // A: 
-    // R: 
-    
+
+    obj2 = std::move(obj1);
+    obj3 = std::move(obj2);
+
+    // Q: After the two move assignments, which objects are in moved-from state and what EventLog entries confirm this?
+    // A:
+    // R:
+
+    // Q: If you attempted obj4 = std::move(obj1) after obj1 is already moved-from, what guarantees does the standard
+    // provide about this operation? A: R:
+
     auto events = EventLog::instance().events();
     size_t move_assign_count = EventLog::instance().count_events("move_assign");
-    
+
     EXPECT_EQ(move_assign_count, 2);
 }
 
 TEST_F(MoveAssignmentTest, MoveFromTemporary)
 {
-    // TODO: Create obj with name "Target"
-    // YOUR CODE HERE
-    
+    MoveTracked obj("Target");
+
     EventLog::instance().clear();
-    
-    // TODO: Move assign a temporary to obj: obj = MoveTracked("Temporary")
-    // YOUR CODE HERE
-    
-    // Q: Is std::move needed when assigning from a temporary?
-    // A: 
-    // R: 
-    
-    // Q: Why does the compiler automatically treat temporaries as rvalues?
-    // A: 
-    // R: 
-    
+
+    obj = MoveTracked("Temporary");
+
+    // Q: What EventLog entries appear from this assignment? Does std::move appear anywhere in the code?
+    // A:
+    // R:
+
+    // Q: What value category is MoveTracked("Temporary") and why does this determine which assignment operator is
+    // called? A: R:
+
     auto events = EventLog::instance().events();
     size_t ctor_count = EventLog::instance().count_events("::ctor [id=");
     size_t move_assign_count = EventLog::instance().count_events("move_assign");
-    
+
     EXPECT_GE(ctor_count, 1);
     EXPECT_EQ(move_assign_count, 1);
 }
 
 TEST_F(MoveAssignmentTest, MoveAssignmentExceptionSafety)
 {
-    // TODO: Create obj1 and obj2 with names "Safe1" and "Safe2"
-    // YOUR CODE HERE
-    
-    // Q: Why should move assignment be marked noexcept?
-    // A: 
-    // R: 
-    
-    // Q: What happens in std::vector::resize if move assignment can throw?
-    // A: 
-    // R: 
-    
-    // Q: How does noexcept affect move semantics in standard containers?
-    // A: 
-    // R: 
-    
+    MoveTracked obj1("Safe1");
+    MoveTracked obj2("Safe2");
+
+    // Q: Why should move assignment be marked noexcept and what observable consequence occurs in std::vector if it's
+    // not? A: R:
+
+    // Q: If move assignment can throw, what fallback does std::vector use during reallocation and why does this impact
+    // performance? A: R:
+
     EXPECT_TRUE(true);
 }
 
 class ResourceWrapper
 {
 public:
-    explicit ResourceWrapper(const std::string& name)
-    : resource_(new MoveTracked(name))
+    explicit ResourceWrapper(const std::string& name) : resource_(new MoveTracked(name))
     {
     }
-    
+
     ~ResourceWrapper()
     {
         delete resource_;
     }
-    
-    ResourceWrapper(const ResourceWrapper& other)
-    : resource_(new MoveTracked(*other.resource_))
+
+    ResourceWrapper(const ResourceWrapper& other) : resource_(new MoveTracked(*other.resource_))
     {
     }
-    
-    ResourceWrapper(ResourceWrapper&& other) noexcept
-    : resource_(other.resource_)
+
+    ResourceWrapper(ResourceWrapper&& other) noexcept : resource_(other.resource_)
     {
         other.resource_ = nullptr;
     }
-    
+
     ResourceWrapper& operator=(const ResourceWrapper& other)
     {
         if (this != &other)
@@ -264,7 +214,7 @@ public:
         }
         return *this;
     }
-    
+
     ResourceWrapper& operator=(ResourceWrapper&& other) noexcept
     {
         if (this != &other)
@@ -275,73 +225,58 @@ public:
         }
         return *this;
     }
-    
+
     std::string name() const
     {
         return resource_ ? resource_->name() : "null";
     }
-    
+
 private:
     MoveTracked* resource_;
 };
 
 TEST_F(MoveAssignmentTest, RawPointerMoveSemantics)
 {
-    // TODO: Create wrapper1 with "Resource1"
-    // YOUR CODE HERE
-    
-    // TODO: Create wrapper2 with "Resource2"
-    // YOUR CODE HERE
-    
+    ResourceWrapper wrapper1("Resource1");
+    ResourceWrapper wrapper2("Resource2");
+
     EventLog::instance().clear();
-    
-    // TODO: Move assign wrapper1 to wrapper2
-    // YOUR CODE HERE
-    
-    // Q: After the move assignment, what happened to wrapper2's original resource?
-    // A: 
-    // R: 
-    
-    // Q: What happened to wrapper1's resource pointer?
-    // A: 
-    // R: 
-    
-    // Q: Why is it critical to set other.resource_ = nullptr in the move constructor?
-    // A: 
-    // R: 
-    
+
+    wrapper2 = std::move(wrapper1);
+
+    // Q: What EventLog entries confirm wrapper2's original resource was destroyed and wrapper1's pointer was nulled?
+    // A:
+    // R:
+
+    // Q: If the move assignment operator did not null out other.resource_, what would happen when wrapper1's destructor
+    // runs? A: R:
+
     auto events = EventLog::instance().events();
     size_t dtor_count = EventLog::instance().count_events("::dtor");
-    
+
     EXPECT_EQ(dtor_count, 1);
 }
 
 TEST_F(MoveAssignmentTest, MovedFromStateAccess)
 {
-    // TODO: Create obj1 with name "Original"
-    // YOUR CODE HERE
-    
-    // TODO: Create obj2 by moving from obj1
-    // YOUR CODE HERE
-    
-    // Q: After moving from obj1, can you safely call obj1.name()?
-    // A: 
-    // R: 
-    
-    // Q: What guarantees does the C++ standard provide about moved-from objects?
-    // A: 
-    // R: 
-    
-    // Q: Can you reassign a value to obj1 after it's been moved from?
-    // A: 
-    // R: 
-    
-    // TODO: Reassign obj1 with a new value
-    // YOUR CODE HERE
-    
-    bool obj1_valid = false;
-    // TODO: Check if obj1 is no longer moved-from
-    // obj1_valid = ???
-    
+    MoveTracked obj1("Original");
+    MoveTracked obj2(std::move(obj1));
+
+    // Q: What guarantees does the standard provide about calling obj1.name() after the move? What could it return?
+    // A:
+    // R:
+
+    // Q: Which operations on moved-from obj1 are well-defined and which would be undefined behavior?
+    // A:
+    // R:
+
+    obj1 = MoveTracked("Reassigned");
+
+    bool obj1_valid = !obj1.name().empty();
+
+    // Q: After reassignment, what EventLog entries confirm obj1 is no longer in a moved-from state?
+    // A:
+    // R:
+
     EXPECT_TRUE(obj1_valid);
 }

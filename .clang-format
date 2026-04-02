@@ -2,7 +2,7 @@
 # Compatible with clang-format 18
 BasedOnStyle: Microsoft
 Language: Cpp
-Standard: c++11
+Standard: c++20
 
 # Indent
 IndentWidth: 4

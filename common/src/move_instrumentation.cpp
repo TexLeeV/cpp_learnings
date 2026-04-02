@@ -1,22 +1,17 @@
 #include "move_instrumentation.h"
+
 #include <sstream>
 
 int MoveTracked::next_id_ = 1;
 
-MoveTracked::MoveTracked(const std::string& name)
-: name_(name)
-, id_(next_id_++)
-, moved_from_(false)
+MoveTracked::MoveTracked(const std::string& name) : name_(name), id_(next_id_++), moved_from_(false)
 {
     std::ostringstream oss;
     oss << "MoveTracked(" << name_ << ")::ctor [id=" << id_ << "]";
     EventLog::instance().record(oss.str());
 }
 
-MoveTracked::MoveTracked(const MoveTracked& other)
-: name_(other.name_)
-, id_(next_id_++)
-, moved_from_(false)
+MoveTracked::MoveTracked(const MoveTracked& other) : name_(other.name_), id_(next_id_++), moved_from_(false)
 {
     std::ostringstream oss;
     oss << "MoveTracked(" << name_ << ")::copy_ctor from [id=" << other.id_ << "] to [id=" << id_ << "]";
@@ -24,9 +19,7 @@ MoveTracked::MoveTracked(const MoveTracked& other)
 }
 
 MoveTracked::MoveTracked(MoveTracked&& other) noexcept
-: name_(std::move(other.name_))
-, id_(other.id_)
-, moved_from_(false)
+    : name_(std::move(other.name_)), id_(other.id_), moved_from_(false)
 {
     std::ostringstream oss;
     oss << "MoveTracked(" << name_ << ")::move_ctor from [id=" << other.id_ << "]";
@@ -86,20 +79,14 @@ bool MoveTracked::is_moved_from() const
 
 int Resource::next_id_ = 1;
 
-Resource::Resource(const std::string& name)
-: name_(name)
-, id_(next_id_++)
-, valid_(true)
+Resource::Resource(const std::string& name) : name_(name), id_(next_id_++), valid_(true)
 {
     std::ostringstream oss;
     oss << "Resource(" << name_ << ")::ctor [id=" << id_ << "]";
     EventLog::instance().record(oss.str());
 }
 
-Resource::Resource(Resource&& other) noexcept
-: name_(std::move(other.name_))
-, id_(other.id_)
-, valid_(true)
+Resource::Resource(Resource&& other) noexcept : name_(std::move(other.name_)), id_(other.id_), valid_(true)
 {
     std::ostringstream oss;
     oss << "Resource(" << name_ << ")::move_ctor from [id=" << other.id_ << "]";

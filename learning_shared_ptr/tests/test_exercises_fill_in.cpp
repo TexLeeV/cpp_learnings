@@ -1,10 +1,11 @@
 #include "instrumentation.h"
-#include <gtest/gtest.h>
-#include <memory>
-#include <map>
-#include <vector>
+
 #include <algorithm>
+#include <gtest/gtest.h>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <vector>
 
 class FillInExercisesTest : public ::testing::Test
 {
@@ -46,18 +47,17 @@ TEST_F(FillInExercisesTest, Demo_InstrumentationOutput)
 class Widget : public std::enable_shared_from_this<Widget>
 {
 public:
-    explicit Widget(const std::string& name)
-    : tracked_(name)
+    explicit Widget(const std::string& name) : tracked_(name)
     {
     }
-    
+
     // TODO: Implement this method to return a shared_ptr to this object
     std::shared_ptr<Widget> get_self()
     {
         // YOUR CODE HERE
         return shared_from_this();
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -77,7 +77,7 @@ TEST_F(FillInExercisesTest, Exercise1_EnableSharedFromThis)
     }
     // std::shared_ptr<Widget> w1 = std::make_shared<Widget>("W1");
     // std::shared_ptr<Widget> w2 = w1->get_self();
-    
+
     // EXPECT_EQ(w1.use_count(), 2);
     // EXPECT_EQ(w2.use_count(), 2);
     // EXPECT_EQ(w1.get(), w2.get());
@@ -93,7 +93,7 @@ public:
         // TODO: Implement cache logic:
         // 1. Check if key exists in cache
         auto it = cache_.find(key);
-        
+
         // 2. If exists, try to lock the weak_ptr
         if (it != cache_.end())
         {
@@ -104,19 +104,19 @@ public:
                 return locked;
             }
         }
-        
+
         // 4. If lock fails or key doesn't exist, create new resource
         std::shared_ptr<Tracked> new_resource = std::make_shared<Tracked>(key);
-        
+
         // 5. Store weak_ptr in cache and return shared_ptr
         cache_[key] = new_resource;
         return new_resource;
     }
-    
+
     void cleanup()
     {
         // TODO: Remove all expired weak_ptr entries from cache
-        for (auto it = cache_.begin(); it != cache_.end(); )
+        for (auto it = cache_.begin(); it != cache_.end();)
         {
             if (it->second.expired())
             {
@@ -128,13 +128,13 @@ public:
             }
         }
     }
-    
+
     size_t size() const
     {
         // YOUR CODE HERE
         return cache_.size();
     }
-    
+
 private:
     // TODO: Add appropriate data structure to store weak_ptr
     std::map<std::string, std::weak_ptr<Tracked>> cache_;
@@ -189,16 +189,15 @@ TEST_F(FillInExercisesTest, Exercise2_WeakPtrCache)
 class Observer
 {
 public:
-    explicit Observer(const std::string& name)
-    : tracked_(name)
+    explicit Observer(const std::string& name) : tracked_(name)
     {
     }
-    
+
     void notify()
     {
         EventLog::instance().record("Observer notified");
     }
-    
+
 private:
     Tracked tracked_;
 };
@@ -211,14 +210,14 @@ public:
         // TODO: Store observer as weak_ptr
         observers_.push_back(observer);
     }
-    
+
     void notify_all()
     {
         // TODO: Iterate through observers
         // 1. Try to lock each weak_ptr
         // 2. If lock succeeds, call notify()
         // 3. If lock fails, remove from list
-        for (auto it = observers_.begin(); it != observers_.end(); )
+        for (auto it = observers_.begin(); it != observers_.end();)
         {
             std::shared_ptr<Observer> locked = it->lock();
             if (locked)
@@ -232,13 +231,13 @@ public:
             }
         }
     }
-    
+
     size_t observer_count() const
     {
         // YOUR CODE HERE
         return observers_.size();
     }
-    
+
 private:
     // TODO: Add data structure to store weak_ptr<Observer>
     std::vector<std::weak_ptr<Observer>> observers_;
@@ -247,19 +246,19 @@ private:
 TEST_F(FillInExercisesTest, Exercise3_ObserverPattern)
 {
     Subject subject;
-    
+
     {
         std::shared_ptr<Observer> obs1 = std::make_shared<Observer>("Obs1");
         std::shared_ptr<Observer> obs2 = std::make_shared<Observer>("Obs2");
-        
+
         subject.attach(obs1);
         subject.attach(obs2);
-        
+
         EXPECT_EQ(subject.observer_count(), 2);
-        
+
         EventLog::instance().clear();
         subject.notify_all();
-        
+
         auto events = EventLog::instance().events();
         size_t notify_count = 0;
         for (const auto& event : events)
@@ -271,7 +270,7 @@ TEST_F(FillInExercisesTest, Exercise3_ObserverPattern)
         }
         EXPECT_EQ(notify_count, 2);
     }
-    
+
     subject.notify_all();
     EXPECT_EQ(subject.observer_count(), 0);
 }
@@ -282,23 +281,22 @@ TEST_F(FillInExercisesTest, Exercise4_CustomDeleter)
 {
     {
         FILE* file = std::tmpfile();
-        
+
         // TODO: Create a shared_ptr with a custom deleter that:
         // 1. Logs "Custom deleter called" to EventLog
         // 2. Closes the file with fclose()
         // YOUR CODE HERE - create shared_ptr<FILE> with custom deleter
-        std::shared_ptr<FILE> file_ptr(file, [](FILE* f)
-        {
+        std::shared_ptr<FILE> file_ptr(file, [](FILE* f) {
             EventLog::instance().record("Custom deleter called");
             if (f)
             {
                 fclose(f);
             }
         });
-        
+
         EXPECT_NE(file_ptr.get(), nullptr);
     }
-    
+
     auto events = EventLog::instance().events();
     bool deleter_called = false;
     for (const auto& event : events)
@@ -318,26 +316,25 @@ TEST_F(FillInExercisesTest, Exercise5_AliasingConstructor)
     struct Container
     {
         Tracked member;
-        explicit Container(const std::string& name)
-        : member(name)
+        explicit Container(const std::string& name) : member(name)
         {
         }
     };
-    
+
     std::shared_ptr<Container> owner = std::make_shared<Container>("Owner");
-    
+
     // TODO: Create a shared_ptr<Tracked> that:
     // 1. Points to owner->member
     // 2. Shares ownership with owner (keeps Container alive)
     // 3. Use the aliasing constructor
     // YOUR CODE HERE
     std::shared_ptr<Tracked> alias(owner, &owner->member);
-    
+
     EXPECT_EQ(owner.use_count(), 2);
     EXPECT_EQ(alias.use_count(), 2);
-    
+
     owner.reset();
-    
+
     EXPECT_EQ(alias.use_count(), 1);
     EXPECT_NE(alias.get(), nullptr);
 }
@@ -347,20 +344,19 @@ TEST_F(FillInExercisesTest, Exercise5_AliasingConstructor)
 class CowString
 {
 public:
-    explicit CowString(const std::string& str)
-    : data_(std::make_shared<Tracked>(str))
+    explicit CowString(const std::string& str) : data_(std::make_shared<Tracked>(str))
     {
         // TODO: Initialize data_ with a shared_ptr to Tracked
         // YOUR CODE HERE
     }
-    
+
     std::string get() const
     {
         // TODO: Return the string from data_
         // YOUR CODE HERE
         return data_->name();
     }
-    
+
     void set(const std::string& str)
     {
         // TODO: Implement copy-on-write:
@@ -377,13 +373,13 @@ public:
             data_ = std::make_shared<Tracked>(str);
         }
     }
-    
+
     long use_count() const
     {
         // YOUR CODE HERE
         return data_.use_count();
     }
-    
+
 private:
     // TODO: Add shared_ptr<Tracked> member
     std::shared_ptr<Tracked> data_;
@@ -393,11 +389,11 @@ TEST_F(FillInExercisesTest, Exercise6_CopyOnWrite)
 {
     CowString s1("Original");
     EXPECT_EQ(s1.use_count(), 1);
-    
+
     CowString s2 = s1;
     EXPECT_EQ(s1.use_count(), 2);
     EXPECT_EQ(s2.use_count(), 2);
-    
+
     s2.set("Modified");
     EXPECT_EQ(s1.use_count(), 1);
     EXPECT_EQ(s2.use_count(), 1);
@@ -410,11 +406,10 @@ TEST_F(FillInExercisesTest, Exercise6_CopyOnWrite)
 class Node
 {
 public:
-    explicit Node(const std::string& name)
-    : tracked_(name)
+    explicit Node(const std::string& name) : tracked_(name)
     {
     }
-    
+
     void set_next(std::shared_ptr<Node> next)
     {
         // TODO: Store next in a way that doesn't create circular reference
@@ -422,14 +417,14 @@ public:
         // YOUR CODE HERE
         next_ = next;
     }
-    
+
     std::shared_ptr<Node> next() const
     {
         // TODO: Return the next node (may need to lock if using weak_ptr)
         // YOUR CODE HERE
         return next_.lock();
     }
-    
+
 private:
     Tracked tracked_;
     // TODO: Add member to store next node
@@ -441,14 +436,14 @@ TEST_F(FillInExercisesTest, Exercise7_BreakCircularReference)
     {
         std::shared_ptr<Node> node1 = std::make_shared<Node>("Node1");
         std::shared_ptr<Node> node2 = std::make_shared<Node>("Node2");
-        
+
         node1->set_next(node2);
         node2->set_next(node1);
-        
+
         EXPECT_EQ(node1.use_count(), 1);
         EXPECT_EQ(node2.use_count(), 1);
     }
-    
+
     auto events = EventLog::instance().events();
     size_t dtor_count = 0;
     for (const auto& event : events)

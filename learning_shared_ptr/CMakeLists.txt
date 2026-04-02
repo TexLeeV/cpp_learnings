@@ -14,16 +14,3 @@ add_learning_test(test_singleton_registry tests/test_singleton_registry.cpp inst
 add_learning_test(test_interop_patterns tests/test_interop_patterns.cpp instrumentation)
 add_learning_test(test_conditional_lifetime tests/test_conditional_lifetime.cpp instrumentation)
 add_learning_test(test_exercises_fill_in tests/test_exercises_fill_in.cpp instrumentation)
-add_learning_test(test_asio_basics tests/test_asio_basics.cpp instrumentation Threads::Threads)
-add_learning_test(test_multi_threaded_patterns tests/test_multi_threaded_patterns.cpp instrumentation Threads::Threads)
-
-find_path(ASIO_INCLUDE_DIR asio.hpp
-    PATHS /usr/include /usr/local/include
-)
-
-if(ASIO_INCLUDE_DIR)
-    target_include_directories(test_asio_basics PRIVATE ${ASIO_INCLUDE_DIR})
-    target_compile_definitions(test_asio_basics PRIVATE ASIO_STANDALONE)
-    target_include_directories(test_multi_threaded_patterns PRIVATE ${ASIO_INCLUDE_DIR})
-    target_compile_definitions(test_multi_threaded_patterns PRIVATE ASIO_STANDALONE)
-endif()

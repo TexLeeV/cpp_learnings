@@ -6,7 +6,7 @@ This document explains the pedagogical approach used in this repository. For an 
 
 ## Overview
 
-The repository uses a **Socratic teaching methodology**: you are asked questions before receiving explanations. Exercises combine fill-in code, broken implementations to fix, and guided Q/A/R (Question/Answer/Response) patterns. Every exercise uses **instrumentation** so that runtime behavior (constructors, destructors, copies, moves) is observable. You predict what will happen, run the code, see the results, and learn from evidence-based feedback.
+The repository uses a **Socratic teaching methodology**: you are asked questions before receiving explanations. Exercises combine fill-in code, broken implementations to fix, and guided Q/A/R (Question/Answer/Response) patterns. Every exercise uses **instrumentation** so that runtime behavior (constructors, destructors, copies, moves) is observable. You predict what will happen, run the code, see the results, and learn from evidence-based feedback. The codebase **requires C++20** (`CMakeLists.txt` and `CMakePresets.json`); comments and Q/A/R may still refer to the ISO C++ revision that introduced a feature, without changing the build standard.
 
 ---
 
@@ -56,15 +56,19 @@ The `.cursor/rules/` directory contains AI teaching rules that activate automati
 
 ### Customizing Your Experience
 
-The Socratic method is configurable. Tell the AI your preferences in chat:
+The Socratic method is configurable. Tell the AI your preferences in chat (override strings match [.cursor/rules/socratic-software-engineering.mdc](../.cursor/rules/socratic-software-engineering.mdc)):
 
-- **Pacing**: "one test at a time" (default), "bulk mode", "self-directed"
-- **Hints**: "no hints unless I ask" (default), "offer hints when stuck"
-- **Feedback**: inline Q/A/R (default), "chat-only", "mixed mode"
-- **Response depth**: "precise technical" (default), "beginner-friendly"
-- **Verification**: "always verify" (default), "trust context"
+- **Pacing**: `pacing: one-test` (default), `pacing: self-directed`, `pacing: bulk-self-assessment`
+- **Hints**: `hints: on-request` (default for many profiles), `hints: proactive`, `hints: ladder-after-2`
+- **Response depth**: depends on profile (e.g. senior: precise technical); overrides include `depth: beginner-friendly`, `depth: mechanism-focused`, etc.
+- **Verification**: `verification: trust-context` (default in the main rule), or `verification: relaxed` as documented there
+- **Questioning style**: `questioning: standard` (default), `questioning: adversarial`, `questioning: pathological`
 
-See [.cursor/rules/socratic-software-engineering.mdc](../.cursor/rules/socratic-software-engineering.mdc) for full details.
+See [.cursor/rules/socratic-software-engineering.mdc](../.cursor/rules/socratic-software-engineering.mdc) for authoritative defaults and the full option list.
+
+### Audience
+
+Exercises assume **working familiarity with C++** (see [Learning Path](LEARNING_PATH.md)). The **junior profile** adjusts explanation depth and hints; it does not replace a first course in the language.
 
 ### Works Without Cursor
 

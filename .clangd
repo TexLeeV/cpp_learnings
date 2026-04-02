@@ -1,2 +1,7 @@
 CompileFlags:
+  # Default matches `cmake --preset gcc`; use gcc/clang if you configure with the clang preset.
   CompilationDatabase: build/gcc
+  # CompilationDatabase: build/clang
+
+Index:
+  Background: Skip

@@ -61,6 +61,11 @@ _deps/
 *~
 .cursor/projects/
 
+# Keep shared tooling config tracked in the repo
+!.clang-format
+!.clang-tidy
+!.clangd
+
 # OS
 .DS_Store
 Thumbs.db
