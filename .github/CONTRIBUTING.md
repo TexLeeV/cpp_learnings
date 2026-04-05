@@ -32,10 +32,10 @@ Thank you for your interest in contributing! This repository helps developers le
 
 - **CMake 3.21+** when using **`cmake --preset`** (see `CMakePresets.json`); root `CMakeLists.txt` allows 3.21+ for manual configures
 - **C++20-compatible compiler** (GCC or Clang with full C++20 support)
-- **GoogleTest and GoogleMock** (for testing; see installation)
+- **GoogleTest and GoogleMock** are downloaded automatically by `cmake --preset <name>` via FetchContent (see optional fallback installation below)
 - **Ninja** (recommended build system)
 
-### Installation
+### Optional fallback installation
 
 **Ubuntu/Debian:**
 ```bash

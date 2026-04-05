@@ -155,7 +155,7 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 
 ## Building and running
 
-Quick path: `cmake --preset gcc`, `cmake --build --preset gcc`, `ctest --preset gcc --verbose`. Dependencies (GoogleTest/GoogleMock), targeted tests, and CMake notes: [docs/BUILDING.md](docs/BUILDING.md).
+Quick path: `cmake --preset gcc`, `cmake --build --preset gcc`, `ctest --preset gcc --verbose`. GoogleTest/GoogleMock are downloaded automatically during preset-based configure; targeted tests and CMake notes are in [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Contributing
 

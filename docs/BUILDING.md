@@ -8,7 +8,7 @@ Build setup, dependencies, and how to run tests. For project overview, see the [
 
 - **CMake** — **3.21 or newer** if you use **`cmake --preset`** ([CMakePresets.json](../CMakePresets.json)). The root [CMakeLists.txt](../CMakeLists.txt) declares `cmake_minimum_required(3.21)` for manual configures; presets are the documented workflow.
 - **Compiler** — **C++20** required (use a C++20-capable GCC or Clang).
-- **GoogleTest & GoogleMock** — Install development packages for your OS (below). The build also uses **FetchContent** to obtain GoogleTest when you configure with CMake.
+- **GoogleTest & GoogleMock** — Downloaded automatically during `cmake --preset <name>` configuration via **FetchContent**. System packages below are optional fallback if your environment blocks FetchContent/network access.
 - **Threads** — For concurrency tests (and deadlock tests when enabled).
 
 ---
@@ -57,9 +57,9 @@ Targets are registered by default. Binaries appear under `build/<preset>/learnin
 
 ---
 
-## Installing dependencies
+## Installing optional system dependencies
 
-### GoogleTest & GoogleMock (required)
+### GoogleTest & GoogleMock (optional fallback)
 
 **Ubuntu/Debian:**
 
@@ -86,7 +86,7 @@ brew install googletest cmake ninja
 
 - **Compiler:** C++20-capable **GCC** or **Clang**
 - **Build:** CMake **3.21+** for presets; Ninja recommended (generator in presets)
-- **Tests:** GoogleTest & GoogleMock
+- **Tests:** GoogleTest & GoogleMock (auto-fetched by preset-based configure)
 - **IDE:** Cursor (optional Socratic rules in `.cursor/rules/`). `.clangd` points at `build/gcc` for `compile_commands.json`; switch to `build/clang` if you use the clang preset.
 
 ---
