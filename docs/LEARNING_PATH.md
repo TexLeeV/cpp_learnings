@@ -29,6 +29,7 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 | [learning_error_handling](../learning_error_handling/) | 5 | Exceptions, optional/result, noexcept, etc. |
 | [learning_stl](../learning_stl/) | 5 | Containers, iterators, algorithms, comparators, invalidation. |
 | [learning_concurrency](../learning_concurrency/) | 5 | Requires `Threads::Threads`. |
+| [learning_polymorphism](../learning_polymorphism/) | 6 | Virtual dispatch, destructors, abstract interfaces, diamonds, RTTI, CRTP/variant/concepts. |
 | [learning_design_patterns](../learning_design_patterns/) | 4 | Creational, structural, behavioral, modern idioms. |
 | [learning_templates](../learning_templates/) | 6 | Specialization, SFINAE, variadics, traits, etc. |
 | [learning_performance](../learning_performance/) | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks. |
@@ -52,7 +53,8 @@ Dependencies are soft; adjust for your goals.
 5. **Error handling and templates** — `learning_error_handling`, `learning_templates` (order flexible).
 6. **Concurrency** — `learning_concurrency` after you are comfortable with mutex/RAII basics.
 7. **Deadlocks (advanced lab)** — Work through `learning_deadlocks` scenarios one file at a time; some cases are intentionally disabled until remaining fixes are completed.
-8. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
+8. **Polymorphism** — `learning_polymorphism` after move semantics; lays the dispatch/inheritance groundwork the patterns module assumes.
+9. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
 
 ---
 

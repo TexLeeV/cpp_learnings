@@ -3,5 +3,5 @@ CompileFlags:
   CompilationDatabase: build/gcc
   # CompilationDatabase: build/clang
 
-Index:
-  Background: Skip
+# Index:
+#   Background: Skip
