@@ -125,6 +125,7 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 | `learning_stl` | 5 | Containers, iterators, algorithms, invalidation |
 | `learning_concurrency` | 5 | Threads, mutexes, lock-free basics, pools |
 | `learning_polymorphism` | 6 | Virtual dispatch, virtual destructors, abstract interfaces, multiple inheritance, RTTI, CRTP / variant / concepts |
+| `learning_asio` | 4 | Asio async model: `io_context`, timers, strands, handler-lifetime use-after-free (Boost.Asio; targets pinned to **C++11**) |
 | `learning_design_patterns` | 4 | Creational, structural, behavioral, modern |
 | `learning_templates` | 6 | Templates, SFINAE, variadics, traits |
 | `learning_performance` | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks |

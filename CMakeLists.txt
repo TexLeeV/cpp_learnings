@@ -39,6 +39,7 @@ add_subdirectory(common)
 add_subdirectory(examples)
 add_subdirectory(profile_showcase)
 
+add_subdirectory(learning_asio)
 add_subdirectory(learning_shared_ptr)
 add_subdirectory(learning_deadlocks)
 add_subdirectory(learning_move_semantics)
