@@ -80,7 +80,15 @@ Activate a profile by stating the exact override string (e.g., `"profile: staff"
 
 ### Configuration
 
-The framework lives in `.cursor/rules/` and activates automatically in Cursor IDE:
+Cursor loads rules from `.cursor/rules/`. The shared mentoring engine (core rule, profiles, learning-module guide) comes from the git submodule [cursor-socratic-mentor](https://github.com/TexLeeV/cursor-socratic-mentor) at `.cursor/packs/cursor-socratic-mentor`, symlinked into `.cursor/rules/`. Repo-specific policy rules (`final-newline`, `no-extra-readmes`, etc.) stay as local files in `.cursor/rules/`.
+
+After clone, initialize the pack:
+
+```bash
+git submodule update --init --recursive
+```
+
+(or `git clone --recurse-submodules …` on a fresh clone).
 
 - **Main rule:** [socratic-software-engineering.mdc](.cursor/rules/socratic-software-engineering.mdc) — Core methodology and configurable preferences
 - **Profile files:** [profiles/junior.mdc](.cursor/rules/profiles/junior.mdc), [profiles/intermediate.mdc](.cursor/rules/profiles/intermediate.mdc), [profiles/senior.mdc](.cursor/rules/profiles/senior.mdc), [profiles/staff.mdc](.cursor/rules/profiles/staff.mdc), [profiles/principal.mdc](.cursor/rules/profiles/principal.mdc)
@@ -146,7 +154,9 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 ├── README.md
 ├── CMakeLists.txt
 ├── CMakePresets.json
-├── .cursor/rules/          # Socratic rules and profiles
+├── .cursor/
+│   ├── packs/cursor-socratic-mentor/  # submodule: shared mentoring engine
+│   └── rules/                         # Cursor entrypoint (symlinks + local policy)
 ├── cmake/                  # add_learning_test helper
 ├── common/                 # instrumentation, move_instrumentation
 ├── docs/                   # BUILDING, LEARNING_PATH, TEACHING_METHOD
