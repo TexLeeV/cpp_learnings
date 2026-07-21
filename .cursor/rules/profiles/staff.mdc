@@ -8,7 +8,7 @@ alwaysApply: false
 ## Overrides
 - "depth: mechanism-focused"
 - "hints: on-request"
-- "fill: trivial-only"
+- "fill: all-ops"
 - "verification: trust-context"
 - "questioning: adversarial"
 - "pacing: one-test"

@@ -1,228 +1,131 @@
 ---
-description: Methodology for implementing new learning modules with Socratic Q/A/R patterns
+description: How to build Socratic learning modules with runnable lessons and Q/A/R prompts
 alwaysApply: false
 ---
 
 # Learning Module Implementation
 
-## When to Apply
+Optional methodology for authoring learning modules. Separate from the Socratic core and `profiles/`.
 
-Use this methodology when implementing new learning modules (e.g., `learning_*` directories) that follow the repository's Socratic teaching pattern.
+## Scope
 
-**Project docs:** Keep the [README.md](../../README.md) module table and [docs/LEARNING_PATH.md](../../docs/LEARNING_PATH.md) aligned with what is registered in each module’s `CMakeLists.txt`.
+- **USE** when creating or extending a learning module.
+- **MODULE** = lesson files that teach one topic via runnable checks plus inline Q/A/R.
 
-## Implementation Strategy
+## Workflow
 
-### Approach: One-File-at-a-Time with Immediate Validation
+**MUST** complete and validate one lesson file before starting the next:
 
-Implement test files sequentially with build-test-verify after each file:
+1. Write the full lesson file
+2. Enable it in the project's build or test setup
+3. Build and run that file's checks
+4. Fix failures immediately
+5. Start the next file only after this one passes
 
-1. **Implement one test file** completely
-2. **Uncomment its CMakeLists.txt entry**
-3. **Build the specific test target**
-4. **Run the test and verify it passes**
-5. **Fix any issues immediately** while context is fresh
-6. **Move to next file**
+**MUST NOT** batch-implement or batch-fix across multiple files.
 
-**Rationale**: Immediate feedback loop catches errors in context, reduces cognitive load, and provides incremental progress validation.
+## Lesson file requirements
 
-## Test File Structure
+Each lesson file **MUST** include:
 
-Each test file should include:
+- Header: time estimate, difficulty, topic scope
+- Setup that resets shared state before every check
+- 3-6 checks with rising difficulty
+- Q/A/R at key learning points
+- Mix of worked examples and thinking prompts
+- At least one observable signal (print, assert, log, trace, counter, or equivalent)
 
-### Required Elements
+### Fill level
 
-- **File header** with time estimate, difficulty, C++ standard
-- **Test fixture** with `SetUp()` that clears `EventLog`
-- **3-6 TEST_F blocks** with progressive difficulty
-- **Socratic Q/A/R pattern** embedded at key learning points
-- **TODO markers** for learner fill-in exercises
-- **EventLog integration** for observable behavior
-- **Mix of demonstrations and exercises**
+- **DEFAULT:** filled demonstration code (`all-ops`)
+- **GOAL:** mental model and Q/A/R, not retyping known syntax
+- **OPTIONAL:** learner TODOs only when `fill: minimal` or `fill: trivial-only` is intentional
 
-### Test Independence (Critical)
+### Independence
 
-- **Each test file** must be runnable in isolation
-- **Each TEST_F** must be independent of other tests
-- **SetUp()** must reset all shared state (EventLog, counters, etc.)
-- **No test** should depend on execution order
-- **No test** should leave side effects for other tests
+**MUST:**
 
-This ensures tests can run in any order and be debugged individually.
+- Run each lesson file in isolation
+- Keep each check independent of other checks
+- Reset all shared state in setup
+- Avoid order dependence between checks
+- Avoid side effects that affect later checks
 
-### Progressive Difficulty
+### Difficulty labels
 
-Label test scenarios:
-- Easy — Foundational concepts, basic syntax
-- Moderate — Practical patterns, common pitfalls
-- Hard — Edge cases, performance, cleanup and cross-boundary hazards
+- **Easy:** main idea, happy path
+- **Moderate:** realistic use, common pitfalls
+- **Hard:** edge cases, failure modes, awkward boundaries
 
-### Q/A/R Pattern Requirements
+**MUST** assume surface syntax is known. **MUST** focus questions on mechanisms and failure modes.
 
-```cpp
-// Q: [Question probing mechanism understanding]
-// A:
-// R:
+### Q/A/R
+
+**FORM** (use the active language's line-comment prefix):
+
+```
+# Q: [Ask how the mechanism works]
+# A:
+# R:
 ```
 
-- Questions should probe **mechanisms**, not facts
-- Focus on **observable signals** (e.g. EventLog, counters, traces—whatever the module instruments)
-- Challenge assumptions about **contracts, lifetimes, aliasing**, and **structural consistency**
-- Require **falsifiable reasoning**
+**MUST:**
 
-**CRITICAL - Q/A/R Placement**:
-- Q/A/R blocks **MUST be inside TEST_F blocks**, but **CAN BE** outside in helper functions where applicable
-- Place questions **immediately after** the code being questioned
-- Questions should reference **observable test behavior**, not abstract helper functions
-- **Correct**: Q/A/R after helper function definition, before TEST_F where applicable
-- **Correct**: Q/A/R inside TEST_F, after calling the helper and observing results
+- Ask how/why, not trivia
+- Tie questions to observable signals
+- Challenge topic-relevant rules (contracts, ownership, sharing, structure)
+- Require answers that can be checked against code or output
 
-## Instrumentation Integration
+**PLACEMENT:**
 
-Use existing instrumentation types:
-- `Tracked` — Logs all lifecycle events
-- `MoveTracked` — Tracks move operations
-- `Resource` — Move-only resource type
-- `EventLog::instance()` — Observable behavior verification
+- **MUST** put Q/A/R immediately after the behavior being questioned
+- **SHOULD** keep Q/A/R inside the check
+- **MAY** place Q/A/R by a helper only when the question is about that helper's contract
 
-**Pattern**:
-```cpp
-EventLog::instance().clear();
-// ... code under test ...
-EXPECT_EQ(EventLog::instance().count_events("::ctor"), expected_count);
-```
+## Size targets
 
-## Build Integration
+| Metric | Target |
+|--------|--------|
+| Lines per file | 200-400 (max 450) |
+| Checks per file | 3-6 |
+| Q/A/R pairs per file | 10-20 |
+| Learner time per file | 1-4 hours |
 
-### CMakeLists.txt Pattern
+**SHOULD** keep teaching logic in the checks. **MAY** extract helpers for clarity or reuse only.
 
-Uncomment entries one at a time:
-```cmake
-add_learning_test(test_feature tests/test_feature.cpp instrumentation)
-```
+## Post-file checklist
 
-### Build Command Pattern
+After each file, verify:
 
-```bash
-cmake --build --preset gcc --target test_feature && \
-./build/learning_module/test_feature --gtest_brief=1
-```
+- [ ] Builds without errors
+- [ ] All checks pass
+- [ ] Q/A/R present after relevant observable behavior
+- [ ] Within size target; few or no one-off helpers
+- [ ] Observable signal available to the learner
+- [ ] Difficulty progresses Easy → Hard
+- [ ] No dependence on other lesson files or checks
 
-**Note**: If CMake complains about missing presets, run `cmake --preset gcc` first to reconfigure.
+## Anti-patterns
 
-## Common Pitfalls to Avoid
+**MUST NOT:**
 
-### File Bloat (CRITICAL)
-- **Target**: 200-400 lines per file (max 450)
-- **Symptom**: Excessive single-use helpers outside TEST_F blocks
-- **Fix**: Prefer inline code in TEST_F; extract only for clarity or reuse
-- **Balance**: Helpers are valuable when they serve the learning objective
+- Finish all files before running any
+- Skip running checks after a build
+- Continue while checks fail
+- Share hidden state across files or checks
+- Hide important logic in single-use helpers
+- Exceed ~450 lines per file
 
-### Q/A/R Placement (CRITICAL)
-- **Prefer**: Inside TEST_F, immediately after observable behavior
-- **Allow**: After helper functions where applicable
-- **Principle**: Place questions immediately after the code being questioned
+**MUST:**
 
-### Event Log Format
-- **Wrong**: `"Tracked::ctor"`
-- **Correct**: `"::ctor"` (matches actual instrumentation.cpp format)
-- **Tip**: When searching for events, use specific substrings to avoid false matches
-- **Example**: Use `"move_assign id="` instead of `"move_assign"` if your log contains both `"move_assign"` and `"before move_assign"`
+- Validate each file before moving on
+- Keep checks self-contained
+- Keep each question next to what was just observed
 
-### Allocator Requirements
-- Must include `rebind` template for C++11/14 compatibility
-- Must implement proper equality operators
-- Pool allocators with `std::vector`: vector may request n>1 allocations during growth
+## If a file exceeds ~400 lines
 
-### C++ Standard Features
-- Default project language is **C++20**; use standard-restriction overrides from the main Socratic rules in chat only when intentionally narrowing a lesson.
-- When a lesson targets an older feature set, verify the snippet compiles under the active standard (for example `requires` expressions need C++20).
-- Example: Designated aggregate initializers are C++20; without C++20, use a constructor or member-by-member initialization instead.
+Ask and act on:
 
-### File I/O in Tests
-- Use `TearDown()` to clean up test files: `std::remove("test_file.txt")`
-- Ensure file operations don't interfere between tests
-
-## Target Metrics per File
-
-- **Lines**: 200-400 lines per test file (STRICT - do not exceed 450 lines)
-- **Tests**: 3-6 TEST_F blocks
-- **Questions**: 10-20 Q/A/R pairs
-- **TODOs**: 2-5 fill-in exercises
-- **Time estimate**: 2-4 hours per file (for learner)
-- **Actual range observed**: 192-415 lines across implemented modules
-
-**Key Principle**: TEST_F blocks are the primary teaching vehicle. Extract helpers only when they clarify or enable reuse.
-
-## Validation Checklist
-
-After implementing each file:
-
-- [ ] File compiles without errors
-- [ ] All tests pass (100%)
-- [ ] No linter errors
-- [ ] **Q/A/R pattern present at key points (prefer inside TEST_F)**
-- [ ] **File is 200-450 lines (not bloated with excessive helpers)**
-- [ ] Instrumentation used for observable behavior (EventLog or equivalent in that module)
-- [ ] Progressive difficulty (Easy → Hard)
-- [ ] TODO markers for learner exercises
-- [ ] **Helper functions are minimal and necessary**
-
-## Example Implementation Order
-
-For an 8-file module (actual learning_modern_cpp implementation):
-1. **Implement file 1** (foundational concept, e.g., lambdas)
-2. Uncomment CMakeLists.txt entry
-3. Build + test → fix any issues immediately
-4. **Implement file 2** (next logical topic, e.g., auto)
-5. Uncomment CMakeLists.txt entry
-6. Build + test → verify pass
-7. **Repeat for remaining files** (3-8)
-8. Group by logical progression: C++ standard, then complexity
-9. Run all tests together with ctest
-10. Update `README.md` (module table) and `docs/LEARNING_PATH.md` if the curriculum or test counts changed
-
-**Actual order used**: foundational topics first (lambdas, auto, uniform init, delegating ctors), then later topics (structured bindings, optional/variant/any, string_view, if constexpr)
-
-**Important**: Files are logically ordered for learning progression, but each test file and test case must be **fully independent** — no test should depend on state from another test.
-
-## Anti-Patterns
-
-**Don't**:
-- Implement all files before building any
-- Skip test execution after building
-- Continue to next file with failing tests
-- Batch-fix errors across multiple files
-- Ignore compilation warnings
-- Create test dependencies between files
-- Create single-use helpers that obscure test logic
-- Exceed 450 lines per file
-
-**Do**:
-- Validate each file immediately
-- Fix issues in context while fresh
-- Ensure each test is fully independent
-- Target 200-400 lines per file
-- Extract helpers only for clarity or reuse
-- Keep Q/A/R close to observable behavior
-
-## Success Metrics
-
-Across modules implemented:
-- **learning_memory, learning_modern_cpp, learning_raii**: 16 files, 86 tests, ~4,500 lines, 98% first-time pass rate
-- **learning_stl**: 5 files, 47 tests, 1,525 lines (305 lines/file avg) ✓ Within target
-- **learning_error_handling**: 5 files, 60 tests, 4,049 lines (810 lines/file avg) ✗ Needs refactoring
-
-## Design Heuristics
-
-### Extraction Principle
-Extract helpers when they **clarify** or enable **reuse**. Keep inline when extraction adds indirection without benefit.
-
-### File Size Discipline
-**Target**: 200-400 lines per file
-
-**If exceeding 400 lines, ask**:
-- Are helpers single-use?
-- Can lambdas replace functions?
-- Are you covering too many concepts?
-- Should this split into two files?
+1. Are helpers used only once?
+2. Does the file cover more than one idea?
+3. Should it split into two lesson files?

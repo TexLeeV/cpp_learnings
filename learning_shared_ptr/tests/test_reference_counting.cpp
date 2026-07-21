@@ -1,7 +1,13 @@
+// Test Suite: Reference Counting
+// Estimated Time: 1-2 hours
+// Difficulty: Easy
+// C++ Standard: C++20
+
 #include "instrumentation.h"
 
 #include <gtest/gtest.h>
 #include <memory>
+
 class ReferenceCountingTest : public ::testing::Test
 {
 protected:
@@ -10,654 +16,124 @@ protected:
         EventLog::instance().clear();
     }
 };
-TEST_F(ReferenceCountingTest, BasicCreationAndDestruction)
+
+// ============================================================================
+// Scenario 1: Copy Shares Ownership (Easy)
+// ============================================================================
+
+TEST_F(ReferenceCountingTest, CopyIncrementsUntilLastOwnerDestroys)
 {
-    long initial_count = 0;
-    long after_creation_count = 0;
-    long after_copy_count = 0;
-    long after_scope_exit_count = 0;
+    long after_creation = 0;
+    long after_copy = 0;
 
     {
-        // TODO: Create a shared_ptr<Tracked> named p1 with a new Tracked("A")
         std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("A");
+        after_creation = p1.use_count();
 
-        // TODO: Capture the use_count of p1
-        after_creation_count = p1.use_count();
-        EXPECT_EQ(after_creation_count, 1);
+        // Q: What does `use_count()` count here?
+        // A:
+        // R:
 
         {
-            // TODO: Create p2 by copying p1
             std::shared_ptr<Tracked> p2 = p1;
+            after_copy = p1.use_count();
 
-            // TODO: Capture the use_count of p1 after copying
-            after_copy_count = p1.use_count();
-            EXPECT_EQ(after_copy_count, 2);
-            EXPECT_EQ(p2.use_count(), after_copy_count);
+            // Q: Why do `p1.use_count()` and `p2.use_count()` agree?
+            // A:
+            // R:
+
+            EXPECT_EQ(after_copy, 2);
         }
 
-        // TODO: Capture the use_count of p1 after p2 goes out of scope
-        after_scope_exit_count = p1.use_count();
-        EXPECT_EQ(after_scope_exit_count, 1);
+        EXPECT_EQ(p1.use_count(), 1);
+        EXPECT_EQ(EventLog::instance().count_events("::dtor"), 0);
     }
-    EXPECT_EQ(after_creation_count, 1);
-    EXPECT_EQ(after_copy_count, 2);
-    EXPECT_EQ(after_scope_exit_count, 1);
-}
-TEST_F(ReferenceCountingTest, MoveSemantics)
-{
-    long count_before_move = 0;
-    long count_after_move_source = 0;
-    long count_after_move_dest = 0;
 
-    // TODO: Create p1 with a new Tracked("B")
+    // Q: Which EventLog signal confirms destruction only after the last owner left?
+    // A:
+    // R:
+
+    EXPECT_EQ(after_creation, 1);
+    EXPECT_EQ(after_copy, 2);
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 1);
+}
+
+// ============================================================================
+// Scenario 2: Move Transfers Without Increment (Easy)
+// ============================================================================
+
+TEST_F(ReferenceCountingTest, MoveTransfersOwnershipWithoutIncrement)
+{
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("B");
-    // TODO: Capture use_count before move
-    count_before_move = p1.use_count(); // 1
-    // TODO: Move p1 into p2 using std::move
-    std::shared_ptr<Tracked> p2 = std::move(p1); // still 1
-    // TODO: Capture use_count of p1 (source) after move
-    count_after_move_source = p1.use_count(); // 0
-    // TODO: Capture use_count of p2 (destination) after move
-    count_after_move_dest = p2.use_count(); // 1
-    EXPECT_EQ(count_before_move, 1);
-    EXPECT_EQ(count_after_move_source, 0);
-    EXPECT_EQ(count_after_move_dest, 1);
+    std::shared_ptr<Tracked> p2 = std::move(p1);
+
+    // Q: After the move, what are `p1.use_count()` and `p2.use_count()`, and why
+    //    is neither 2?
+    // A:
+    // R:
+
+    EXPECT_EQ(p1.use_count(), 0);
+    EXPECT_EQ(p1.get(), nullptr);
+    EXPECT_EQ(p2.use_count(), 1);
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 0);
 }
-TEST_F(ReferenceCountingTest, AliasingConstructor)
+
+// ============================================================================
+// Scenario 3: reset() Releases or Retargets (Moderate)
+// ============================================================================
+
+TEST_F(ReferenceCountingTest, ResetReleasesThenRetargetsIndependently)
 {
-    struct Container
-    {
-        Tracked member;
-        explicit Container(const std::string& name)
-            // Q: What does explicit prevent in this context?
-            // A:
-            // R:
-            //
-            // Q: Without explicit, what implicit conversion would be allowed?
-            // A:
-            // R:
-            : member(name)
-        {
-        }
-    };
-    long owner_count = 0;
-    long alias_count = 0;
-    long both_alive_owner_count = 0;
-    long both_alive_alias_count = 0;
-    long after_owner_reset_alias_count = 0;
-
-    // TODO: Create owner shared_ptr to Container
-    std::shared_ptr<Container> owner = std::make_shared<Container>("MyContainer");
-    // TODO: Capture owner's use_count
-    owner_count = owner.use_count();
-    // Q: How many shared_ptr instances share ownership of the Container at this point?
-    // A:
-    // R:
-
-    // TODO: Create alias shared_ptr using aliasing constructor
-    // Hint: std::shared_ptr<Tracked> alias(owner, &owner->member);
-    std::shared_ptr<Tracked> alias(owner, &owner->member);
-    // Q: This constructor takes two arguments: a shared_ptr and a raw pointer.
-    //    Which argument determines what gets destroyed when use_count reaches 0?
-    // A:
-    // R:
-    //
-    // Q: Which argument determines what alias.get() returns?
-    // A:
-    // R:
-    //
-    // Q: The member is not a pointer—it's a Tracked object by value inside Container.
-    //    How can you take &owner->member and store it in a shared_ptr without double-deletion?
-    // A:
-    // R:
-
-    // TODO: Capture alias use_count right after creation
-    alias_count = alias.use_count();
-    // Q: The aliasing constructor at line 107 took `owner` as its first argument.
-    //    Does this create a new control block, or does it share owner's control block?
-    // A:
-    // R:
-    //
-    // Q: After line 107 executes, how many shared_ptr instances reference the same control block?
-    // A:
-    // R:
-    //
-    // Q: What does alias.use_count() query—the control block or the pointed-to object?
-    // A:
-    // R:
-    both_alive_owner_count = owner.use_count();
-    both_alive_alias_count = alias.use_count();
-    // Q: owner.use_count() and alias.use_count() both query the same control block.
-    //    Between line 107 and line 132, did any shared_ptr go out of scope?
-    // A:
-    // R:
-    //
-    // Q: How many shared_ptr instances currently hold a reference to the control block at line 132?
-    // A:
-    // R:
-    //
-    // Q: Why do owner and alias return the same use_count value even though they point to different objects?
-    // A:
-    // R:
-
-    // TODO: Reset owner
-    owner.reset();
-    // TODO: Capture alias use_count after owner is reset
-    after_owner_reset_alias_count = alias.use_count();
-    // Q: After owner.reset(), how many shared_ptr instances remain that reference the control block?
-    // A:
-    // R:
-    //
-    // Q: The Container object is still alive at this point. Which shared_ptr is keeping it alive?
-    // A:
-    // A:
-    // R:
-    //
-    //    Q: What observable signal in the event log would confirm that the Container is destroyed only after alias goes
-    //    out of scope? A: oss << "Tracked(" << name_ << ")::dtor [id=" << id_ << "]"; A: The answer is "alias"
-    EXPECT_EQ(owner_count, 1);
-    EXPECT_EQ(alias_count, 2);
-    EXPECT_EQ(both_alive_owner_count, 2);
-    EXPECT_EQ(both_alive_alias_count, 2);
-    EXPECT_EQ(after_owner_reset_alias_count, 1);
-}
-TEST_F(ReferenceCountingTest, ResetBehavior)
-{
-    long initial_count = 0;
-    long after_reset_empty_count = 0;
-    long after_reset_new_count = 0;
-
-    // TODO: Create p1 and p2 (copy of p1)
     std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
     std::shared_ptr<Tracked> p2 = p1;
-    // Q: After line 229, how many shared_ptr instances share ownership of Tracked("Tracked1")?
-    // A:
-    // R:
-    //
-    // Q: What is p2's use_count() at this point?
-    // A:
-    // R:
-    initial_count = p1.use_count(); // 2
-    // Q: Why do both p1 and p2 return use_count() == 2?
-    // A:
-    // R:
-    p1.reset(); // 1
-    // Q: After p1.reset(), what happens to the Tracked("Tracked1") object?
-    // A:
-    // R:
-    //
-    // Q: What is p2.use_count() after p1.reset()?
-    // A:
-    // R:
-    //
-    // Q: What does p1.get() return after reset()?
-    // A:
-    // R:
-    after_reset_empty_count = p1.use_count(); // 0
-    // Q: Why does an empty shared_ptr return use_count() == 0?
-    // A:
-    // R:
-    //
-    // Q: Is p1 now equivalent to a default-constructed shared_ptr<Tracked>()?
-    // A:
-    // R:
-    // RQ:
-    // RR:
-    //
-    //     Default construction: shared_ptr<Tracked> p1;
-    //     - Control block pointer: nullptr
-    //     - Stored pointer: nullptr
-    //     - use_count(): 0 (by specification when control block is null)
-    //
-    //     After p1.reset() (where p1 previously owned an object):
-    //     - Control block pointer: nullptr (released the previous control block)
-    //     - Stored pointer: nullptr
-    //     - use_count(): 0
-    //
-    //     Both states are identical. The question asks: "Is the state after reset() the same as never having owned
-    //     anything?" Answer: Yes. reset() returns p1 to the same state as if it was just declared without
-    //     initialization.
-    //
-    //     After reset(), p1 has no control block and no stored pointer. This is the same as never initializing p1 in
-    //     the first place. Both mean: p1 owns nothing and points to nothing.
 
-    // TODO: Reset p1 with a new Tracked("E")
+    p1.reset();
+
+    // Q: After `p1.reset()`, why is Tracked("Tracked1") still alive?
+    // A:
+    // R:
+
+    EXPECT_EQ(p1.get(), nullptr);
+    EXPECT_EQ(p2.use_count(), 1);
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 0);
+
     p1.reset(new Tracked("E"));
-    // Q: After this reset, how many Tracked objects exist in total?
+
+    // Q: Do `p1` and `p2` share a control block after retargeting `p1`?
     // A:
     // R:
-    //
-    // Q: Does p1 now share ownership with p2?
-    // A:
-    // R:
-    //
-    // Q: What would happen if you wrote p1.reset(p2.get()) instead?
-    // A:
-    // R:
-    // RA:
-    after_reset_new_count = p1.use_count(); // 1
-    // Q: Why is p1.use_count() == 1 and not 2?
-    // A:
-    // A:
-    // R:
-    //
-    //    Because p1 and p2 point to different objects. Each object has its own control block with its own use_count.
-    //
-    // Q: When does Tracked("Tracked1") get destroyed?
-    // A:
-    // R:
-    //
-    // Q: When does Tracked("E") get destroyed?
-    // A:
-    // R:
-    EXPECT_EQ(initial_count, 2);
-    EXPECT_EQ(after_reset_empty_count, 0);
-    EXPECT_EQ(after_reset_new_count, 1);
+
+    EXPECT_EQ(p1.use_count(), 1);
+    EXPECT_NE(p1.get(), p2.get());
+
+    p2.reset();
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 1);
 }
-TEST_F(ReferenceCountingTest, MakesharedVsNewAllocation)
+
+// ============================================================================
+// Scenario 4: Move Across Scopes (Moderate)
+// ============================================================================
+
+TEST_F(ReferenceCountingTest, MoveOutlivesInnerScope)
 {
-    long new_count = 0;
-    long makeshared_count = 0;
-    // TODO: Create p1 using new
-    std::shared_ptr<Tracked> p1(new Tracked("Tracked1"));
-    // Q: How many heap allocations occur with this construction?
-    // A:
-    // R:
-    //
-    // Q: Where is the Tracked object allocated? Where is the control block allocated?
-    // A:
-    // R:
-
-    // TODO: Capture use_count
-    new_count = p1.use_count(); // 1
-    // Q: Why is use_count() == 1 for both construction methods?
-    // A:
-    // A:
-    // R:
-    //
-    // QA:
-    // RR:
-    //
-    //     new allocates the object. Then shared_ptr allocates a control block to track ownership. Two allocations
-    //     total.
-    // TODO: Create p2 using std::make_shared
-    std::shared_ptr<Tracked> p2 = std::make_shared<Tracked>("Tracked2");
-    // Q: How many heap allocations occur with make_shared?
-    // A:
-    // R:
-    //
-    //    make_shared allocates the control block and object together in one allocation.
-    //
-    // Q: What is the memory layout difference between p1 and p2?
-    // A:
-    // R:
-    //
-    //    **p2 (using make_shared):**
-    //    Heap location C: [Control block | Tracked object] ← adjacent, single allocation
-    //
-    //    The adjacency in p2 improves cache locality: accessing the control block (for use_count) and the object
-    //    is more likely to hit the CPU cache.
-    //
-    //    p1 has object and control block in separate memory locations. p2 has them next to each other.
-    //
-    // Q: What exception safety advantage does make_shared provide?
-    // A:
-    // R:
-    //
-    //    **With make_shared:**
-    //    foo(make_shared<T>(), bar());
-    //    make_shared is a single function call that completes atomically:
-    //    - Either: allocation succeeds, object constructed, shared_ptr created (no leak possible)
-    //    - Or: exception thrown during construction, allocation is cleaned up automatically
-    //
-    //    make_shared eliminates the window where a raw pointer exists without ownership.
-    //
-    //    With new, if an exception happens between allocation and shared_ptr construction, you leak memory.
-    //    make_shared prevents this by doing everything in one step.
-
-    // TODO: Capture use_count
-    makeshared_count = p2.use_count(); // 1
-    // Q: Both use_count() values are 1. Does this mean they have identical behavior?
-    // A:
-    // R:
-    //
-    //    Same use_count, but different performance and memory layout.
-    //
-    // Q: What performance difference exists between the two construction methods?
-    // A:
-    // QA:
-    // R:
-    //
-    //    **p1 (new):**
-    //    - 2 heap allocations (slower)
-    //    - 2 separate deallocations when destroyed
-    //    - Object and control block may be in different cache lines (worse cache performance)
-    //
-    //    **p2 (make_shared):**
-    //    - 1 heap allocation (faster)
-    //    - 1 deallocation when destroyed
-    //    - Object and control block adjacent (better cache locality → fewer cache misses)
-    //
-    //    **Benchmark example (typical):**
-    //    - new: ~100ns per construction (2 allocations)
-    //    - make_shared: ~50ns per construction (1 allocation)
-    //
-    //    This isn't compiler optimization—it's a runtime library design difference.
-    //    make_shared is implemented to allocate one larger block instead of two separate blocks.
-    //
-    //    make_shared is faster because it does one allocation instead of two. It also improves cache performance.
-    //
-    // Q: When would you prefer new over make_shared?
-    // A:
-    // R:
-    //
-    //    1. **Custom deleters required:**
-    //       shared_ptr<FILE> f(fopen("file.txt", "r"), fclose); // Can't use make_shared with custom deleter
-    //
-    //    2. **weak_ptr lifetime issues:**
-    //       With make_shared, the object and control block are in the same allocation.
-    //       If weak_ptr exists, the entire allocation (object + control block) can't be freed until weak_ptr expires,
-    //       even though the object is already destroyed. This can waste memory.
-    //       With new, the object memory is freed when use_count reaches 0, even if weak_ptr still exists.
-    //
-    //    3. **Very large objects with long-lived weak_ptr:**
-    //       If you have a 10MB object and weak_ptr that outlives the object by hours, make_shared keeps 10MB allocated.
-    //       With new, only the small control block remains allocated.
-    //
-    //    4. **Adopting existing raw pointers:**
-    //       shared_ptr<T> p(existing_raw_ptr); // Can't use make_shared here
-    //
-    //    **Default: Use make_shared unless you have a specific reason not to.**
-    //
-    //    Use make_shared by default. Use new when you need custom deleters or are wrapping existing raw pointers.
-
-    EXPECT_EQ(new_count, 1);
-    EXPECT_EQ(makeshared_count, 1);
-}
-TEST_F(ReferenceCountingTest, MultipleAliases)
-{
-    long count_after_first = 0;
-    long count_after_second = 0;
-    long count_after_third = 0;
-    // TODO: Create p1
-    std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
-    // Q: How many Tracked objects exist after this line?
-    // A:
-    // R:
-    //
-    // Q: How many control blocks exist?
-    // A:
-    // R:
-
-    // TODO: Capture use_count after first creation
-    count_after_first = p1.use_count(); // 1
-    // Q: Why is use_count() == 1 when only p1 exists?
-    // A:
-    // R:
-    //
-    //    use_count tracks how many shared_ptr instances own the object. Only p1 exists, so count is 1.
-
-    // TODO: Create p2 as copy of p1
-    std::shared_ptr<Tracked> p2 = p1;
-    // Q: Does p2 create a new Tracked object or share p1's object?
-    // A:
-    // R:
-    //
-    // Q: Does p2 create a new control block or share p1's control block?
-    // A:
-    // R:
-    //
-    // Q: What operation does the copy constructor perform on the control block?
-    // A:
-    // R:
-    //
-    //    Copying a shared_ptr increments the reference count in the shared control block.
-
-    // TODO: Capture use_count after second copy
-    count_after_second = p2.use_count(); // 2
-    // Q: Why do both p1.use_count() and p2.use_count() return 2?
-    // A:
-    // R:
-    //
-    // Q: If you called p1.use_count() at this point, what would it return?
-    // A:
-    // R:
-
-    // TODO: Create p3 as copy of p2
-    std::shared_ptr<Tracked> p3 = p2;
-    // Q: How many shared_ptr instances now reference the same Tracked object?
-    // A:
-    // R:
-    //
-    // Q: How many Tracked objects exist in total?
-    // A:
-    // R:
-
-    // TODO: Capture use_count after third copy
-    count_after_third = p3.use_count(); // 3
-    // Q: What would p1.use_count() and p2.use_count() return at this point?
-    // A:
-    // R:
-    //
-    // Q: When will the Tracked object be destroyed?
-    // A:
-    // R:
-    //
-    //    The object is destroyed when the last shared_ptr releases ownership.
-    //
-    // Q: If you wrote p2.reset() here, what would p1.use_count() and p3.use_count() become?
-    // A:
-    // R:
-
-    EXPECT_EQ(count_after_first, 1);
-    EXPECT_EQ(count_after_second, 2);
-    EXPECT_EQ(count_after_third, 3);
-}
-TEST_F(ReferenceCountingTest, SelfAssignment)
-{
-    long count_before = 0;
-    long count_after = 0;
-    // TODO: Create p1
-    std::shared_ptr<Tracked> p1 = std::make_shared<Tracked>("Tracked1");
-    // Q: What is the initial use_count of p1?
-    // A:
-    // R:
-
-    // TODO: Capture use_count before self-assignment
-    count_before = p1.use_count();
-    // Q: Why is count_before == 1?
-    // A:
-    // R:
-
-    // TODO: Assign p1 to itself (p1 = p1)
-    p1 = p1;
-    // Q: What does the assignment operator do when source and destination are the same object?
-    // A:
-    // A:
-    // R:
-    //
-    //    The assignment operator checks if source and destination are the same and skips all operations if they are.
-    //
-    // Q: Does self-assignment increment the reference count?
-    // A:
-    // R:
-    //
-    // Q: What would happen if shared_ptr's assignment operator didn't check for self-assignment?
-    /* A:
-        - count goes to 0
-        - memory gets released
-        - copy from a release Tracked object which is now stale
-        - Will result in a double-free segfault
-    */
-    // R:
-    //
-    //    This is a use-after-free bug. The self-assignment check prevents this by detecting that source and destination
-    //    share the same control block before any operations occur.
-    //
-    //    Without the check, self-assignment would destroy the object, then try to use the destroyed control block. This
-    //    crashes.
-    //
-    // QR: Provide a line by line code process flow between numbers 1-3.  I'd like to understand how exactly the memory
-    // gets released between 2 and 3
-    // RR:
-    //
-    //     **Actual implementation (simplified):**
-    //     ```cpp
-    //     shared_ptr& operator=(const shared_ptr& rhs) {
-    //         // Self-assignment check (optimization, not correctness requirement)
-    //         if (control_block_ == rhs.control_block_) {
-    //             return *this;
-    //         }
-    //
-    //         // Save old control block
-    //         ControlBlock* old_cb = control_block_;
-    //
-    //         // Step 1: Copy new pointers and increment FIRST
-    //         control_block_ = rhs.control_block_;
-    //         stored_ptr_ = rhs.stored_ptr_;
-    //         if (control_block_ != nullptr) {
-    //             control_block_->use_count++;  // Increment new
-    //         }
-    //
-    //         // Step 2: Decrement old LAST
-    //         if (old_cb != nullptr) {
-    //             old_cb->use_count--;
-    //             if (old_cb->use_count == 0) {
-    //                 old_cb->deleter(stored_ptr_);  // Destroy object
-    //                 if (old_cb->weak_count == 0) {
-    //                     delete old_cb;  // Free control block
-    //                 }
-    //             }
-    //         }
-    //
-    //         return *this;
-    //     }
-    //     ```
-    //
-    //     **Why increment-first prevents the bug:**
-    //     Even in self-assignment (p1 = p1), incrementing first ensures use_count never reaches 0 prematurely.
-    //     - Increment: 1 → 2
-    //     - Decrement: 2 → 1
-    //     - Object stays alive throughout
-    //
-    //     **Why the self-assignment check still exists:**
-    //     It's an **optimization** to avoid unnecessary atomic operations (increment + decrement on the same control
-    //     block). Without the check, self-assignment is **safe but slower**.
-    //
-    //     Modern shared_ptr increments the new count before decrementing the old count. This prevents premature
-    //     destruction, even during self-assignment. The self-assignment check is just an optimization to skip
-    //     unnecessary work.
-
-    // TODO: Capture use_count after self-assignment
-    count_after = p1.use_count();
-    // Q: Why does use_count remain 1 after self-assignment?
-    // A:
-    // R:
-    //
-    // Q: Did the Tracked object get destroyed during self-assignment?
-    // A:
-    // R:
-    //
-    // Q: Is self-assignment a common pattern in real code?
-    // A:
-    // R:
-    //
-    //    While direct self-assignment (p1 = p1) is rare, indirect self-assignment through references, pointers,
-    //    or container indexing is common enough that the standard library must handle it correctly.
-    //
-    //    Self-assignment is rare in direct form but common in generic code. The standard library handles it safely.
-
-    EXPECT_EQ(count_before, 1);
-    EXPECT_EQ(count_after, 1);
-}
-TEST_F(ReferenceCountingTest, OwnershipTransferAcrossScopes)
-{
-    long inner_count = 0;
-    long outer_count_before = 0;
-    long outer_count_after = 0;
-    // TODO: Create empty outer shared_ptr
     std::shared_ptr<Tracked> outer;
-    // Q: What is the state of a default-constructed shared_ptr?
-    // A:
-    // R:
-    //
-    // Q: What does outer.get() return?
-    // A:
-    // R:
-    //
-    //    Default-constructed shared_ptr is empty. It owns nothing and get() returns nullptr.
-
-    // TODO: Capture outer's use_count (should be 0)
-    outer_count_before = outer.use_count();
-    // Q: Why does an empty shared_ptr return use_count() == 0?
-    // A:
-    // R:
 
     {
-        // TODO: Create inner shared_ptr
         std::shared_ptr<Tracked> inner = std::make_shared<Tracked>("inner");
-        // Q: Where is the Tracked object created (stack or heap)?
-        // A:
-        // R:
-        //
-        // Q: What is inner's scope?
-        // A:
-        // R:
-        //
-        //    inner exists only within the braces. It's destroyed at the closing brace.
-
-        // TODO: Capture inner's use_count
-        inner_count = inner.use_count();
-        // Q: Why is inner.use_count() == 1?
-        // A:
-        // R:
         outer = std::move(inner);
-        // Q: After this move, what is inner.use_count()?
-        // A:
-        // R:
-        //
-        // Q: After this move, what is outer.use_count()?
-        // A:
-        // R:
-        //
-        // Q: Does std::move create a copy of the Tracked object?
-        // A:
-        // R:
-        //
-        //    Move transfers the control block pointer from inner to outer. No copy, no reference count change. inner
-        //    becomes empty.
-        //
-        // Q: What is the state of inner after the move?
+
+        // Q: Why can `inner`'s destructor run without destroying Tracked("inner")?
         // A:
         // R:
     }
-    // Q: At this closing brace, inner goes out of scope. What happens to the Tracked object?
-    // A:
-    // R:
-    //
-    // Q: Why doesn't the Tracked object get destroyed when inner's destructor runs?
-    // A:
-    // R:
-    //
-    //    inner is empty after the move, so its destructor does nothing. outer keeps the object alive.
 
-    // TODO: Capture outer's use_count after inner goes out of scope
-    outer_count_after = outer.use_count();
-    // Q: Why is outer.use_count() still 1 after inner is destroyed?
+    // Q: What EventLog count proves the object outlived the inner scope?
     // A:
     // R:
-    //
-    // Q: When will the Tracked object be destroyed?
-    // A:
-    // R:
-    //
-    // Q: If you had used outer = inner (copy) instead of outer = std::move(inner), what would outer.use_count() be?
-    // A:
-    // R:
-    //
-    //    Copy would temporarily increase use_count to 2, then back to 1. Move keeps it at 1 throughout (more
-    //    efficient).
-    EXPECT_EQ(outer_count_before, 0);
-    EXPECT_EQ(inner_count, 1);
-    EXPECT_EQ(outer_count_after, 1);
+
+    EXPECT_EQ(outer.use_count(), 1);
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 0);
+
+    outer.reset();
+    EXPECT_EQ(EventLog::instance().count_events("::dtor"), 1);
 }

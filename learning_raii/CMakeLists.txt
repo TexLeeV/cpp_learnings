@@ -1,6 +1,5 @@
-# RAII and Resource Management test suite
+# RAII learning suite — condensed core lessons
 
 add_learning_test(test_scope_guards tests/test_scope_guards.cpp instrumentation)
-add_learning_test(test_file_socket_management tests/test_file_socket_management.cpp instrumentation)
-add_learning_test(test_custom_resource_managers tests/test_custom_resource_managers.cpp instrumentation)
-add_learning_test(test_smart_pointers_from_scratch tests/test_smart_pointers_from_scratch.cpp instrumentation)
+add_learning_test(test_resource_handles tests/test_resource_handles.cpp instrumentation)
+add_learning_test(test_unique_ptr_from_scratch tests/test_unique_ptr_from_scratch.cpp instrumentation)

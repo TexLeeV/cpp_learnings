@@ -1,6 +1,7 @@
-// Test Suite: Iterator Categories and Custom Iterators
-// Estimated Time: 3 hours
+// Test Suite: Iterators and Invalidation
+// Estimated Time: 1-2 hours
 // Difficulty: Moderate
+// C++ Standard: C++20
 
 #include "instrumentation.h"
 
@@ -8,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <iterator>
 #include <list>
+#include <type_traits>
 #include <vector>
 
 class IteratorsTest : public ::testing::Test
@@ -20,286 +22,110 @@ protected:
 };
 
 // ============================================================================
-// Iterator Categories
+// Scenario 1: Categories and Traits (Easy)
 // ============================================================================
 
-TEST_F(IteratorsTest, IteratorCategories_Hierarchy)
+TEST_F(IteratorsTest, CategoriesAndTraitsDistinguishContainers)
 {
-    // Easy: Understanding the five iterator categories
+    using VecCat = typename std::iterator_traits<std::vector<int>::iterator>::iterator_category;
+    using ListCat = typename std::iterator_traits<std::list<int>::iterator>::iterator_category;
 
-    std::vector<int> vec = {1, 2, 3};
-    std::list<int> lst = {1, 2, 3};
+    static_assert(std::is_same_v<VecCat, std::random_access_iterator_tag>);
+    static_assert(std::is_same_v<ListCat, std::bidirectional_iterator_tag>);
 
-    auto vec_it = vec.begin();
-    auto lst_it = lst.begin();
+    std::vector<int> v{10, 20, 30};
+    auto vit = v.begin();
+    vit += 2;
+    EXPECT_EQ(*vit, 30);
 
-    // Q: What iterator category does std::vector::iterator provide?
+    std::list<int> lst{10, 20, 30};
+    auto lit = lst.begin();
+    ++lit;
+    ++lit;
+    EXPECT_EQ(*lit, 30);
+
+    // Q: Why can `vit += 2` compile for vector but the same expression is invalid for
+    //    a list iterator?
     // A:
     // R:
 
-    // Q: What iterator category does std::list::iterator provide?
-    // A:
-    // R:
-
-    // Random access iterator supports arithmetic
-    vec_it += 2;
-    EXPECT_EQ(*vec_it, 3);
-
-    // Bidirectional iterator requires increment/decrement
-    ++lst_it;
-    ++lst_it;
-    EXPECT_EQ(*lst_it, 3);
-
-    // Q: Can you do lst_it += 2? Why or why not?
-    // A:
-    // R:
-}
-
-TEST_F(IteratorsTest, IteratorTraits_CompileTimeQuery)
-{
-    // Moderate: Using iterator_traits to query iterator properties
-
-    using VecIter = std::vector<int>::iterator;
-    using ListIter = std::list<int>::iterator;
-
-    using VecCategory = typename std::iterator_traits<VecIter>::iterator_category;
-    using ListCategory = typename std::iterator_traits<ListIter>::iterator_category;
-
-    static_assert(std::is_same_v<VecCategory, std::random_access_iterator_tag>,
-                  "vector iterator should be random access");
-
-    static_assert(std::is_same_v<ListCategory, std::bidirectional_iterator_tag>,
-                  "list iterator should be bidirectional");
-
-    // Q: Why do algorithms need to query iterator categories?
+    // Q: Why do algorithms query `iterator_traits` at compile time?
     // A:
     // R:
 }
 
 // ============================================================================
-// Custom Iterator Implementation
+// Scenario 2: Vector Invalidation on Reallocation (Moderate)
 // ============================================================================
 
-template <typename T> class RangeIterator
+TEST_F(IteratorsTest, VectorReallocationInvalidatesIterators)
 {
-public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = T;
-    using difference_type = std::ptrdiff_t;
-    using pointer = T*;
-    using reference = T&;
+    std::vector<int> v;
+    v.reserve(2);
+    v.push_back(1);
+    v.push_back(2);
 
-    explicit RangeIterator(T value) : current_(value)
-    {
-        EventLog::instance().record("RangeIterator::ctor");
-    }
-
-    T operator*() const
-    {
-        return current_;
-    }
-
-    RangeIterator& operator++()
-    {
-        ++current_;
-        return *this;
-    }
-
-    RangeIterator operator++(int)
-    {
-        RangeIterator temp = *this;
-        ++current_;
-        return temp;
-    }
-
-    bool operator==(const RangeIterator& other) const
-    {
-        return current_ == other.current_;
-    }
-
-    bool operator!=(const RangeIterator& other) const
-    {
-        return current_ != other.current_;
-    }
-
-private:
-    T current_;
-};
-
-// Q: What typedefs must a custom iterator provide?
-// A:
-// R:
-
-TEST_F(IteratorsTest, CustomIterator_ForwardIterator)
-{
-    // Hard: Implementing a custom forward iterator
-
-    RangeIterator<int> begin(0);
-    RangeIterator<int> end(5);
-
-    std::vector<int> result;
-    for (auto it = begin; it != end; ++it)
-    {
-        result.push_back(*it);
-    }
-
-    EXPECT_EQ(result, std::vector<int>({0, 1, 2, 3, 4}));
-
-    // Q: Can RangeIterator be used with std::sort? Why or why not?
-    // A:
-    // R:
-}
-
-// ============================================================================
-// Iterator Adaptors
-// ============================================================================
-
-TEST_F(IteratorsTest, ReverseIterator_Adaptor)
-{
-    // Easy: std::reverse_iterator adapts bidirectional iterators
-
-    std::vector<int> vec = {1, 2, 3, 4, 5};
-
-    std::vector<int> reversed;
-    for (auto it = vec.rbegin(); it != vec.rend(); ++it)
-    {
-        reversed.push_back(*it);
-    }
-
-    EXPECT_EQ(reversed, std::vector<int>({5, 4, 3, 2, 1}));
-
-    // Q: What does rbegin() return in terms of regular iterators?
-    // A:
-    // R:
-
-    // Q: Can you use reverse_iterator with std::list?
-    // A:
-    // R:
-}
-
-TEST_F(IteratorsTest, BackInserter_OutputIterator)
-{
-    // Moderate: std::back_inserter creates output iterator
-
-    std::vector<int> source = {1, 2, 3};
-    std::vector<int> dest;
-
-    std::copy(source.begin(), source.end(), std::back_inserter(dest));
-
-    EXPECT_EQ(dest, source);
-
-    // Q: What does back_inserter do differently than assigning to dest.begin()?
-    // A:
-    // R:
-
-    // Q: What happens if you use dest.begin() instead of back_inserter with empty dest?
-    // A:
-    // R:
-}
-
-// ============================================================================
-// Iterator Algorithms and Distance
-// ============================================================================
-
-TEST_F(IteratorsTest, IteratorDistance_Complexity)
-{
-    // Moderate: std::distance complexity varies by iterator category
-
-    std::vector<int> vec = {1, 2, 3, 4, 5};
-    std::list<int> lst = {1, 2, 3, 4, 5};
-
-    auto vec_dist = std::distance(vec.begin(), vec.end());
-    auto lst_dist = std::distance(lst.begin(), lst.end());
-
-    EXPECT_EQ(vec_dist, 5);
-    EXPECT_EQ(lst_dist, 5);
-
-    // Q: What is the time complexity of std::distance for random access iterators?
-    // A:
-    // R:
-
-    // Q: What is the time complexity of std::distance for bidirectional iterators?
-    // A:
-    // R:
-}
-
-TEST_F(IteratorsTest, IteratorAdvance_Optimization)
-{
-    // Moderate: std::advance optimizes based on iterator category
-
-    std::vector<int> vec = {1, 2, 3, 4, 5};
-
-    auto it = vec.begin();
-    std::advance(it, 3);
-
-    EXPECT_EQ(*it, 4);
-
-    // Q: How does std::advance optimize for random access iterators?
-    // A:
-    // R:
-
-    std::list<int> lst = {1, 2, 3, 4, 5};
-    auto lst_it = lst.begin();
-    std::advance(lst_it, 3);
-
-    EXPECT_EQ(*lst_it, 4);
-
-    // Q: How does std::advance work for bidirectional iterators?
-    // A:
-    // R:
-}
-
-// ============================================================================
-// Iterator Invalidation Basics
-// ============================================================================
-
-TEST_F(IteratorsTest, Iterator_ValidityAfterModification)
-{
-    // Hard: Understanding when iterators remain valid
-
-    std::vector<int> vec = {1, 2, 3};
-    auto it = vec.begin();
-
+    const auto* data_before = v.data();
+    auto it = v.begin();
     EXPECT_EQ(*it, 1);
 
-    // Modify without reallocation
-    vec[0] = 10;
-    EXPECT_EQ(*it, 10); // Iterator still valid
+    const auto cap_before = v.capacity();
+    v.push_back(3);
 
-    // Q: When does vector invalidate iterators?
+    // Q: After capacity grew, why must you treat the old `it` as unusable?
     // A:
     // R:
 
-    vec.reserve(100); // May reallocate
-    // Q: Is 'it' still valid after reserve?
-    // A:
-    // R:
+    EXPECT_GT(v.capacity(), cap_before);
+    EXPECT_NE(v.data(), data_before);
+    EXPECT_EQ(*v.begin(), 1);
 }
 
 // ============================================================================
-// const_iterator vs iterator
+// Scenario 3: List Iterators Stable Across Insert (Moderate)
 // ============================================================================
 
-TEST_F(IteratorsTest, ConstIterator_Immutability)
+TEST_F(IteratorsTest, ListInsertDoesNotInvalidateExistingIterators)
 {
-    // Easy: const_iterator prevents modification
+    std::list<int> lst{1, 2, 3};
+    auto it = lst.begin();
+    ++it;
+    EXPECT_EQ(*it, 2);
 
-    std::vector<int> vec = {1, 2, 3};
+    lst.insert(lst.begin(), 0);
+    lst.push_back(4);
 
-    std::vector<int>::iterator it = vec.begin();
-    *it = 10; // OK
-    EXPECT_EQ(vec[0], 10);
-
-    std::vector<int>::const_iterator cit = vec.cbegin();
-    // *cit = 20;  // Compile error
-
-    EXPECT_EQ(*cit, 10);
-
-    // Q: Can you convert iterator to const_iterator?
+    // Q: Why does `it` still name the element `2` after inserts at both ends?
     // A:
     // R:
 
-    // Q: Can you convert const_iterator to iterator?
+    EXPECT_EQ(*it, 2);
+    EXPECT_EQ(lst.front(), 0);
+    EXPECT_EQ(lst.back(), 4);
+    EXPECT_EQ(lst.size(), 5u);
+}
+
+// ============================================================================
+// Scenario 4: Erase-Remove Idiom (Moderate)
+// ============================================================================
+
+TEST_F(IteratorsTest, EraseRemoveIdiomErasesSafely)
+{
+    std::vector<int> v{1, 2, 3, 2, 4, 2, 5};
+
+    // Q: After `std::remove` alone, why is `v.size()` still 7?
     // A:
     // R:
+
+    auto new_end = std::remove(v.begin(), v.end(), 2);
+    EXPECT_EQ(v.size(), 7u);
+
+    v.erase(new_end, v.end());
+
+    // Q: What does the iterator returned by `std::remove` mark, and why must
+    //    `erase` consume it to shrink the container?
+    // A:
+    // R:
+
+    EXPECT_EQ(v, (std::vector<int>{1, 3, 4, 5}));
 }

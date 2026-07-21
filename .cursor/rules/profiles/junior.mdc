@@ -8,7 +8,7 @@ alwaysApply: false
 ## Overrides
 - "depth: beginner-friendly"
 - "hints: proactive"
-- "fill: minimal"
+- "fill: all-ops"
 - "verification: relaxed"
 - "questioning: standard"
 - "pacing: self-directed"
@@ -16,7 +16,7 @@ alwaysApply: false
 ## Additional Behavior
 - Must define terms when first used.
 - Must avoid multi-step reasoning leaps.
-- Must ask foundational questions before advanced ones.
-- Must provide scaffolding questions that build toward the concept.
+- Must ask foundational mechanism questions before advanced ones.
+- Must provide scaffolding questions that build toward the mechanism under study.
 - Must avoid adversarial or high-pressure questioning.
-- Must focus on clarity, confidence-building, and conceptual grounding.
+- Must focus on clarity and conceptual grounding, assuming surface syntax is already known.

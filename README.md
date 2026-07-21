@@ -116,20 +116,21 @@ Registered test counts match each module’s `CMakeLists.txt` (what `ctest` runs
 
 | Module | Registered tests | Topic (short) |
 |--------|------------------|----------------|
-| `learning_shared_ptr` | 16 | `shared_ptr` / `weak_ptr`, ownership, aliasing (16 `.cpp` under `tests/`) |
+| `learning_shared_ptr` | 6 | `shared_ptr` / `weak_ptr`, ownership, aliasing, cycles, lifetime pitfalls |
 | `learning_memory` | 4 | Placement new, allocators, pools, alignment |
-| `learning_modern_cpp` | 8 | Modern C++ evolution (by lesson); **C++20** required |
-| `learning_raii` | 4 | Scope guards, handles, smart pointers from scratch |
-| `learning_move_semantics` | 5 | Moves, forwarding, move-only types |
+| `learning_modern_cpp` | 14 | Features by ISO revision under `tests/cpp11|cpp14|cpp17|cpp20/`; **C++20** build |
+| `learning_raii` | 3 | Scope guards, resource handles, custom `unique_ptr` |
+| `learning_move_semantics` | 4 | Move basics, assignment, forwarding, move-only types |
 | `learning_error_handling` | 5 | Exceptions, optional/result, noexcept |
-| `learning_stl` | 5 | Containers, iterators, algorithms, invalidation |
+| `learning_stl` | 3 | Containers, iterators, algorithms |
 | `learning_concurrency` | 5 | Threads, mutexes, lock-free basics, pools |
-| `learning_polymorphism` | 6 | Virtual dispatch, virtual destructors, abstract interfaces, multiple inheritance, RTTI, CRTP / variant / concepts |
+| `learning_polymorphism` | 4 | Virtual dispatch/destructors, interfaces/casts, static polymorphism |
 | `learning_design_patterns` | 4 | Creational, structural, behavioral, modern |
-| `learning_templates` | 6 | Templates, SFINAE, variadics, traits |
+| `learning_templates` | 4 | Basics, specialization, variadics, SFINAE/traits |
 | `learning_performance` | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks |
 | `learning_debugging` | 3 | GoogleMock, debugging, benchmark exercise |
 | `learning_deadlocks` | 4 | Deadlock scenario suites are registered by default; some scenario cases are intentionally disabled while remaining fixes are in progress |
+| `learning_asio` | 3 | Standalone Asio (`asio::`): `io_context`, timers, async composition |
 | `examples` | 1 | Onboarding test |
 | `profile_showcase` | 1 | Move instrumentation demo |
 

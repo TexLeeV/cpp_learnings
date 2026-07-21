@@ -21,20 +21,21 @@ Each row is a `learning_*` directory. **Registered tests** are targets listed in
 
 | Module | Registered tests | Notes |
 |--------|-------------------|--------|
-| [learning_shared_ptr](../learning_shared_ptr/) | 16 | 16 `.cpp` files under `tests/` (all registered). |
+| [learning_shared_ptr](../learning_shared_ptr/) | 6 | Condensed core: reference counting, aliasing/`weak_ptr`, allocation/lifetime, ownership cycles, callbacks, pitfalls. |
 | [learning_memory](../learning_memory/) | 4 | Placement new, allocators, pools, alignment. |
-| [learning_modern_cpp](../learning_modern_cpp/) | 8 | Modern C++ evolution (by lesson); **C++20** required. |
-| [learning_raii](../learning_raii/) | 4 | Scope guards, handles, custom managers, pointers from scratch. |
-| [learning_move_semantics](../learning_move_semantics/) | 5 | Value categories, move, forward, move-only types. |
+| [learning_modern_cpp](../learning_modern_cpp/) | 14 | Grouped under `tests/cpp11/`, `cpp14/`, `cpp17/`, `cpp20/` by introduction revision; project still builds as **C++20**. |
+| [learning_raii](../learning_raii/) | 3 | Scope guards, resource handles, custom `unique_ptr` from scratch. |
+| [learning_move_semantics](../learning_move_semantics/) | 4 | Move basics, assignment, perfect forwarding, move-only types. |
 | [learning_error_handling](../learning_error_handling/) | 5 | Exceptions, optional/result, noexcept, etc. |
-| [learning_stl](../learning_stl/) | 5 | Containers, iterators, algorithms, comparators, invalidation. |
+| [learning_stl](../learning_stl/) | 3 | Containers, iterators, algorithms. |
 | [learning_concurrency](../learning_concurrency/) | 5 | Requires `Threads::Threads`. |
-| [learning_polymorphism](../learning_polymorphism/) | 6 | Virtual dispatch, destructors, abstract interfaces, diamonds, RTTI, CRTP/variant/concepts. |
+| [learning_polymorphism](../learning_polymorphism/) | 4 | Virtual dispatch/destructors, interfaces/casts, CRTP/variant/concepts. |
 | [learning_design_patterns](../learning_design_patterns/) | 4 | Creational, structural, behavioral, modern idioms. |
-| [learning_templates](../learning_templates/) | 6 | Specialization, SFINAE, variadics, traits, etc. |
+| [learning_templates](../learning_templates/) | 4 | Basics, specialization, variadics, SFINAE/traits. |
 | [learning_performance](../learning_performance/) | 6 | Profiling, cache layout, elision, SSO, constexpr, benchmarks. |
 | [learning_debugging](../learning_debugging/) | 3 | GoogleMock, debugging techniques, benchmark exercise. |
 | [learning_deadlocks](../learning_deadlocks/) | 4 | Four deadlock suites are part of default `ctest`; several scenario cases are intentionally disabled while remaining fixes are in progress. |
+| [learning_asio](../learning_asio/) | 3 | Standalone Asio (`asio::`, not `std::asio`): `io_context`, timers, async composition / strands. Fetched via CMake FetchContent. |
 | [examples](../examples/) | 1 | `test_try_it_out` — good first run after build. |
 | [profile_showcase](../profile_showcase/) | 1 | Demonstrates move instrumentation. |
 
@@ -52,9 +53,10 @@ Dependencies are soft; adjust for your goals.
 4. **Modern syntax and STL** — `learning_modern_cpp`, `learning_stl`.
 5. **Error handling and templates** — `learning_error_handling`, `learning_templates` (order flexible).
 6. **Concurrency** — `learning_concurrency` after you are comfortable with mutex/RAII basics.
-7. **Deadlocks (advanced lab)** — Work through `learning_deadlocks` scenarios one file at a time; some cases are intentionally disabled until remaining fixes are completed.
-8. **Polymorphism** — `learning_polymorphism` after move semantics; lays the dispatch/inheritance groundwork the patterns module assumes.
-9. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
+7. **Asio** — `learning_asio` after concurrency basics (`io_context`, timers, strands).
+8. **Deadlocks (advanced lab)** — Work through `learning_deadlocks` scenarios one file at a time; some cases are intentionally disabled until remaining fixes are completed.
+9. **Polymorphism** — `learning_polymorphism` after move semantics; lays the dispatch/inheritance groundwork the patterns module assumes.
+10. **Patterns, performance, debugging** — `learning_design_patterns`, `learning_performance`, `learning_debugging` in any order that matches your projects.
 
 ---
 
@@ -64,11 +66,12 @@ Estimates assume focused study; your pace will vary.
 
 | Area | Indicative hours | Comment |
 |------|------------------|--------|
-| Shared pointers + RAII + memory | 25–45 | Largest conceptual load for many learners. |
-| Move semantics | 12–16 | Five registered tests. |
-| Modern C++ + STL | 25–35 | Eight + five test files. |
+| Shared pointers + RAII + memory | 20–35 | Condensed shared_ptr (6) + RAII (3) + memory (4). |
+| Move semantics | 8–12 | Four condensed lessons. |
+| Modern C++ + STL | 22–35 | Fourteen modern_cpp lessons (by ISO dir) + three STL lessons. |
+| Polymorphism | 8–12 | Four condensed lessons (dispatch, dtors, interfaces/casts, static). |
 | Concurrency + (optional) deadlocks | 20–35+ | Five concurrency tests; deadlocks add substantial lab time when enabled. |
-| Templates | 25–35 | Steep curve; do after moves/STL if possible. |
+| Templates | 12–20 | Four condensed lessons; do after moves/STL if possible. |
 | Error handling, patterns, performance, debugging | 40–60 combined | Mix and match. |
 
 **Full pass** over all registered material is on the order of **roughly 150–250+ hours** depending on depth and whether you enable deadlock exercises.

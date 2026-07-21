@@ -8,7 +8,7 @@ alwaysApply: false
 ## Overrides
 - "depth: include-simplified"
 - "hints: ladder-after-2"
-- "fill: trivial-only"
+- "fill: all-ops"
 - "verification: relaxed"
 - "questioning: standard"
 - "pacing: one-test"
