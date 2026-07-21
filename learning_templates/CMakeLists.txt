@@ -1,8 +1,6 @@
-# Template Metaprogramming test suite
+# Template metaprogramming — condensed core lessons
 
-add_learning_test(test_function_class_templates tests/test_function_class_templates.cpp instrumentation)
-add_learning_test(test_template_specialization tests/test_template_specialization.cpp instrumentation)
-add_learning_test(test_sfinae tests/test_sfinae.cpp instrumentation)
+add_learning_test(test_templates_basics tests/test_templates_basics.cpp instrumentation)
+add_learning_test(test_specialization tests/test_specialization.cpp instrumentation)
 add_learning_test(test_variadic_templates tests/test_variadic_templates.cpp instrumentation)
-add_learning_test(test_type_traits tests/test_type_traits.cpp instrumentation)
-add_learning_test(test_practical_metaprogramming tests/test_practical_metaprogramming.cpp instrumentation)
+add_learning_test(test_sfinae_traits tests/test_sfinae_traits.cpp instrumentation)

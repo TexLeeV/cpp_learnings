@@ -1,12 +1,13 @@
-// Test Suite: Scope Guards and Cleanup Patterns
-// Estimated Time: 2 hours
+// Test Suite: Scope Guards and Cleanup
+// Estimated Time: 1-2 hours
 // Difficulty: Easy
+// C++ Standard: C++20
 
 #include "instrumentation.h"
 
-#include <functional>
 #include <gtest/gtest.h>
-#include <memory>
+#include <stdexcept>
+#include <vector>
 
 class ScopeGuardsTest : public ::testing::Test
 {
@@ -17,35 +18,25 @@ protected:
     }
 };
 
-// ============================================================================
-// Basic Scope Guard Implementation
-// ============================================================================
-
 template <typename Func> class ScopeGuard
 {
 public:
-    explicit ScopeGuard(Func&& func) : func_(std::forward<Func>(func)), active_(true)
-    {
-        EventLog::instance().record("ScopeGuard::ctor");
-    }
+    explicit ScopeGuard(Func&& func) : func_(std::forward<Func>(func)), active_(true) {}
 
     ~ScopeGuard()
     {
         if (active_)
         {
-            EventLog::instance().record("ScopeGuard::dtor - executing cleanup");
+            EventLog::instance().record("ScopeGuard::cleanup");
             func_();
         }
         else
         {
-            EventLog::instance().record("ScopeGuard::dtor - dismissed");
+            EventLog::instance().record("ScopeGuard::dismissed");
         }
     }
 
-    void dismiss()
-    {
-        active_ = false;
-    }
+    void dismiss() { active_ = false; }
 
     ScopeGuard(const ScopeGuard&) = delete;
     ScopeGuard& operator=(const ScopeGuard&) = delete;
@@ -55,37 +46,28 @@ private:
     bool active_;
 };
 
-template <typename Func> ScopeGuard<Func> make_scope_guard(Func&& func)
-{
-    return ScopeGuard<Func>(std::forward<Func>(func));
-}
-
 // ============================================================================
-// Scenario 1: Basic Scope Guard (Easy)
+// Scenario 1: Basic Guard Runs Cleanup (Easy)
 // ============================================================================
 
-TEST_F(ScopeGuardsTest, BasicScopeGuard)
+TEST_F(ScopeGuardsTest, BasicGuardRunsCleanupOnScopeExit)
 {
-    // Q: What is RAII?
-    // A:
-    // R:
-
     bool cleanup_called = false;
 
     {
-        auto guard = make_scope_guard([&cleanup_called]() {
+        ScopeGuard guard([&]() {
             cleanup_called = true;
             EventLog::instance().record("Cleanup executed");
         });
 
-        // Q: When will the cleanup function be called?
+        // Q: Why is `cleanup_called` still false here, while the guard already exists?
         // A:
         // R:
 
         EXPECT_FALSE(cleanup_called);
     }
 
-    // Q: What guarantees that cleanup_called is now true?
+    // Q: What language mechanism guarantees cleanup ran after the closing brace?
     // A:
     // R:
 
@@ -94,32 +76,31 @@ TEST_F(ScopeGuardsTest, BasicScopeGuard)
 }
 
 // ============================================================================
-// Scenario 2: Scope Guard with Exception (Moderate)
+// Scenario 2: Cleanup on Exception (Moderate)
 // ============================================================================
 
-TEST_F(ScopeGuardsTest, ScopeGuardWithException)
+TEST_F(ScopeGuardsTest, CleanupRunsWhenExceptionUnwinds)
 {
     bool cleanup_called = false;
 
-    // Q: What happens to the scope guard if an exception is thrown?
-    // A:
-    // R:
-
     try
     {
-        auto guard = make_scope_guard([&cleanup_called]() {
+        ScopeGuard guard([&]() {
             cleanup_called = true;
             EventLog::instance().record("Exception cleanup");
         });
+
+        // Q: During stack unwinding, which ScopeGuard path still runs?
+        // A:
+        // R:
 
         throw std::runtime_error("Test exception");
     }
     catch (const std::runtime_error&)
     {
-        // Exception caught
     }
 
-    // Q: Was the cleanup function called despite the exception?
+    // Q: Which EventLog substring proves cleanup happened despite the throw?
     // A:
     // R:
 
@@ -128,162 +109,48 @@ TEST_F(ScopeGuardsTest, ScopeGuardWithException)
 }
 
 // ============================================================================
-// Scenario 3: Dismissible Scope Guard (Moderate)
+// Scenario 3: Dismissible Guard (Moderate)
 // ============================================================================
 
-TEST_F(ScopeGuardsTest, DismissibleScopeGuard)
+TEST_F(ScopeGuardsTest, DismissSkipsCleanup)
 {
     bool cleanup_called = false;
 
     {
-        auto guard = make_scope_guard([&cleanup_called]() { cleanup_called = true; });
+        ScopeGuard guard([&]() { cleanup_called = true; });
 
-        // Q: What does dismiss() do?
+        // Q: After `dismiss()`, what must the destructor skip, and what does it still log?
         // A:
         // R:
 
         guard.dismiss();
     }
 
-    // Q: Was the cleanup function called?
-    // A:
-    // R:
-
     EXPECT_FALSE(cleanup_called);
-    EXPECT_EQ(EventLog::instance().count_events("dismissed"), 1);
+    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::dismissed"), 1);
+    EXPECT_EQ(EventLog::instance().count_events("ScopeGuard::cleanup"), 0);
 }
 
 // ============================================================================
-// Scenario 4: Multiple Scope Guards (Moderate)
+// Scenario 4: LIFO Cleanup Order (Moderate)
 // ============================================================================
 
-TEST_F(ScopeGuardsTest, MultipleScopeGuards)
+TEST_F(ScopeGuardsTest, GuardsCleanUpInReverseConstructionOrder)
 {
-    std::vector<int> execution_order;
+    std::vector<int> order;
 
     {
-        auto guard1 = make_scope_guard([&execution_order]() { execution_order.push_back(1); });
+        ScopeGuard g1([&]() { order.push_back(1); });
+        ScopeGuard g2([&]() { order.push_back(2); });
+        ScopeGuard g3([&]() { order.push_back(3); });
 
-        auto guard2 = make_scope_guard([&execution_order]() { execution_order.push_back(2); });
-
-        auto guard3 = make_scope_guard([&execution_order]() { execution_order.push_back(3); });
-
-        // Q: In what order will the guards execute their cleanup functions?
+        // Q: Why must cleanup run 3, then 2, then 1 rather than construction order?
         // A:
         // R:
     }
 
-    // Q: Why is this order important for resource cleanup?
-    // A:
-    // R:
-
-    ASSERT_EQ(execution_order.size(), 3);
-    EXPECT_EQ(execution_order[0], 3);
-    EXPECT_EQ(execution_order[1], 2);
-    EXPECT_EQ(execution_order[2], 1);
-}
-
-// ============================================================================
-// Scenario 5: Scope Guard with Tracked Objects (Hard)
-// ============================================================================
-
-TEST_F(ScopeGuardsTest, ScopeGuardWithTracked)
-{
-    std::shared_ptr<Tracked> ptr = std::make_shared<Tracked>("Resource");
-
-    EventLog::instance().clear();
-
-    // Q: What is ptr's use_count before the scope guard?
-    // A:
-    // R:
-
-    EXPECT_EQ(ptr.use_count(), 1);
-
-    {
-        auto guard = make_scope_guard([ptr]() { EventLog::instance().record("Guard cleanup with " + ptr->name()); });
-
-        // Q: What is ptr's use_count inside the scope?
-        // A:
-        // R:
-
-        EXPECT_EQ(ptr.use_count(), 2);
-    }
-
-    // Q: What is ptr's use_count after the scope guard is destroyed?
-    // A:
-    // R:
-
-    EXPECT_EQ(ptr.use_count(), 1);
-
-    // Q: Walk through the destruction order: guard's destructor, then what?
-    // A:
-    // R:
-}
-
-// ============================================================================
-// Scenario 6: RAII vs Manual Cleanup (Hard)
-// ============================================================================
-
-class ManualResource
-{
-public:
-    ManualResource()
-    {
-        EventLog::instance().record("ManualResource::acquire");
-    }
-
-    void release()
-    {
-        EventLog::instance().record("ManualResource::release");
-    }
-};
-
-class RAIIResource
-{
-public:
-    RAIIResource()
-    {
-        EventLog::instance().record("RAIIResource::acquire");
-    }
-
-    ~RAIIResource()
-    {
-        EventLog::instance().record("RAIIResource::release");
-    }
-
-    RAIIResource(const RAIIResource&) = delete;
-    RAIIResource& operator=(const RAIIResource&) = delete;
-};
-
-TEST_F(ScopeGuardsTest, RAIIvsManualCleanup)
-{
-    // Manual cleanup - error prone
-    {
-        ManualResource manual;
-
-        // Q: What happens if an exception is thrown before release()?
-        // A:
-        // R:
-
-        // manual.release();  // Easy to forget!
-    }
-
-    EXPECT_EQ(EventLog::instance().count_events("ManualResource::release"), 0);
-
-    EventLog::instance().clear();
-
-    // RAII cleanup - automatic
-    {
-        RAIIResource raii;
-
-        // Q: What guarantees that release will be called?
-        // A:
-        // R:
-    }
-
-    // Q: What observable signal shows RAII cleanup occurred?
-    // A:
-    // R:
-
-    EXPECT_EQ(EventLog::instance().count_events("RAIIResource::release"), 1);
+    ASSERT_EQ(order.size(), 3u);
+    EXPECT_EQ(order[0], 3);
+    EXPECT_EQ(order[1], 2);
+    EXPECT_EQ(order[2], 1);
 }

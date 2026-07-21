@@ -16,10 +16,12 @@ Thank you for your interest in contributing! This repository helps developers le
 ## Getting Started
 
 1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
+2. **Clone your fork** locally (include submodules for the Cursor mentoring pack):
    ```bash
-   git clone https://github.com/YOUR_USERNAME/YOUR_FORK.git
+   git clone --recurse-submodules https://github.com/YOUR_USERNAME/YOUR_FORK.git
    cd YOUR_FORK   # or your local directory name
+   # If you already cloned without submodules:
+   # git submodule update --init --recursive
    ```
 3. **Create a branch** for your changes:
    ```bash

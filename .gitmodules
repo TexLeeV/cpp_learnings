@@ -1,0 +1,3 @@
+[submodule ".cursor/packs/cursor-socratic-mentor"]
+	path = .cursor/packs/cursor-socratic-mentor
+	url = https://github.com/TexLeeV/cursor-socratic-mentor.git
